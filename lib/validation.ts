@@ -12,6 +12,7 @@ export const registerSchema = z.object({
   password: z.string().min(8).max(128),
   confirmPassword: z.string(),
   studentStatus: z.enum(["ELEVE", "ETUDIANT"]),
+  schoolName: z.string().trim().min(2, "Renseigne ton établissement.").max(150),
   schoolId: optionalUuid,
   academicLevelId: optionalUuid,
   programId: optionalUuid,
