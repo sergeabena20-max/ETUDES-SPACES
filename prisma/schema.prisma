@@ -164,8 +164,6 @@ model Course {
   school          School?       @relation(fields: [schoolId], references: [id])
   programId       String?
   program         Program?      @relation(fields: [programId], references: [id])
-  programId       String?
-  program         Program?      @relation(fields: [programId], references: [id])
   sections        CourseSection[]
   favorites       Favorite[]
   analytics       AnalyticsEvent[]
