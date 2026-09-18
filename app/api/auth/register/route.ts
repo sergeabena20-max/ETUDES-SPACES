@@ -17,7 +17,9 @@ export async function POST(request: Request) {
         firstName: v.firstName, lastName: v.lastName, email: v.email,
         passwordHash: await hashPassword(v.password),
         studentStatus: v.studentStatus,
-        schoolId: v.schoolId || undefined,
+        schoolId: v.schoolId ||schoolId: (await prisma.school.findFirst({ where: { name: v.schoolName } }))?.id ?? (await prisma.school.create({ data: { name: v.schoolName } })).id,
+        academicLevelId: (await prisma.academicLevel.findUnique({ where: { name: v.academicLevelName } }))?.id ?? (await prisma.academicLevel.create({ data: { name: v.academicLevelName } })).id,
+        programId: (await prisma.program.findUnique({ where: { name: v.programName } }))?.id ?? (await prisma.program.create({ data: { name: v.programName, kind: v.studentStatus === "ELEVE" ? "SERIE" : "FILIERE" } })).id,
         academicLevelId: v.academicLevelId || undefined,
         programId: v.programId || undefined,
       }
