@@ -15,6 +15,8 @@ model User {
   email           String          @unique
   passwordHash    String
   type            UserType        @default(USER)
+  roleId          String?
+  role            Role?            @relation(fields: [roleId], references: [id])
   studentStatus   StudentStatus?
   schoolId        String?
   school          School?         @relation(fields: [schoolId], references: [id])
@@ -48,6 +50,7 @@ model Role {
   id          String           @id @default(uuid())
   name        String           @unique
   permissions RolePermission[]
+  users       User[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 }
