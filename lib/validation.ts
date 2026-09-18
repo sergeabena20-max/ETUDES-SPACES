@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-const optionalUuid = z.preprocess(
-  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
-  z.string().uuid("Identifiant invalide.").optional()
-);
-
 export const registerSchema = z.object({
   firstName: z.string().trim().min(2).max(80),
   lastName: z.string().trim().min(2).max(80),
@@ -13,9 +8,8 @@ export const registerSchema = z.object({
   confirmPassword: z.string(),
   studentStatus: z.enum(["ELEVE", "ETUDIANT"]),
   schoolName: z.string().trim().min(2, "Renseigne ton établissement.").max(150),
-  schoolId: optionalUuid,
-  academicLevelId: optionalUuid,
-  programId: optionalUuid,
+  academicLevelName: z.string().trim().min(1, "Renseigne ton niveau."),
+  programName: z.string().trim().min(1, "Renseigne ta filière ou ta série."),
 }).refine((v) => v.password === v.confirmPassword, {
   path: ["confirmPassword"],
   message: "Les mots de passe ne correspondent pas.",
