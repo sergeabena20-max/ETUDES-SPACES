@@ -9,11 +9,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserType { USER ADMIN SUPER_ADMIN }
-enum StudentStatus { ELEVE ETUDIANT }
-enum ContentStatus { DRAFT PUBLISHED ARCHIVED }
-enum ContentType { COURSE EXAM }
-enum PlanCode { FREE PREMIUM }
+enum UserType {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+enum StudentStatus {
+  ELEVE
+  ETUDIANT
+}
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+enum ContentType {
+  COURSE
+  EXAM
+}
+enum PlanCode {
+  FREE
+  PREMIUM
+}
 
 model User {
   id              String          @id @default(uuid())
