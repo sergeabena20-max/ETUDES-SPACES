@@ -1,0 +1,31 @@
+{
+  "name": "etudes-space",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "bcryptjs": "^3.0.2",
+    "next": "^15.5.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.3",
+    "prisma": "^6.16.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.9.2"
+  }
+}
