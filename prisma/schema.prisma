@@ -115,6 +115,7 @@ model School {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([name, cityId])
+  @@index([name])
   @@index([cityId])
 }
 
