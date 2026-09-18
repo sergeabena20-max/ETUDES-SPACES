@@ -213,6 +213,8 @@ model Exam {
   academicLevel   AcademicLevel? @relation(fields: [academicLevelId], references: [id])
   schoolId        String?
   school          School?       @relation(fields: [schoolId], references: [id])
+  programId       String?
+  program         Program?      @relation(fields: [programId], references: [id])
   solution        ExamSolution?
   favorites       Favorite[]
   analytics       AnalyticsEvent[]
