@@ -1,5 +1,7 @@
 generator client { provider = "prisma-client-js" }
 
+// PostgreSQL fourni par Supabase
+// DATABASE_URL doit pointer vers la base PostgreSQL de ton projet Supabase.
 datasource db { provider = "postgresql" url = env("DATABASE_URL") }
 
 enum UserType { USER ADMIN SUPER_ADMIN }
