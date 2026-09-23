@@ -21,6 +21,7 @@ export default async function AdminPage() {
     { label: "Cours", value: courses, icon: "📚", href: "/admin/courses" },
     { label: "Épreuves", value: exams, icon: "📝", href: "/admin/exams" },
     { label: "Recherches sans résultat", value: searches, icon: "🔎", href: "/admin/searches" },
+    { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
   ];
 
   return (
@@ -40,11 +41,11 @@ export default async function AdminPage() {
           <p className="text-sm font-semibold text-sky-600">Administration</p>
           <h1 className="mt-2 text-4xl font-black tracking-tight">Centre de contrôle</h1>
           <p className="mt-2 max-w-2xl text-slate-500">
-            Gérez les utilisateurs et préparez la plateforme de contenus éducatifs.
+            Gérez les utilisateurs, les contenus et suivez l'activité de la plateforme.
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {cards.map((card) => (
             <Link key={card.label} href={card.href} className="card p-6 transition hover:-translate-y-1">
               <div className="flex items-center justify-between">
@@ -52,7 +53,7 @@ export default async function AdminPage() {
                 <span className="text-3xl font-black">{card.value}</span>
               </div>
               <h2 className="mt-4 font-bold">{card.label}</h2>
-              <p className="mt-1 text-sm text-slate-500">Ouvrir la gestion →</p>
+              <p className="mt-1 text-sm text-slate-500">Ouvrir →</p>
             </Link>
           ))}
         </div>
@@ -68,7 +69,7 @@ export default async function AdminPage() {
           </section>
           <section className="card p-6">
             <h2 className="text-lg font-bold">Plateforme</h2>
-            <p className="mt-1 text-sm text-slate-500">Les rôles et permissions sont déjà prêts pour une gestion avancée.</p>
+            <p className="mt-1 text-sm text-slate-500">Les rôles et permissions permettent une gestion avancée.</p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/admin/users" className="rounded-xl border px-4 py-2 text-sm font-bold">Utilisateurs</Link>
               <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link>
