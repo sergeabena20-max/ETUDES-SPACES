@@ -4,6 +4,7 @@ import { useState } from "react";
 
 type CommentItem = {
   id: string;
+  userId: string;
   content: string;
   createdAt: string;
   user: { firstName: string; lastName: string };
@@ -35,17 +36,10 @@ export default function ExamActions({
     }
     setBusy(true);
     setMessage("");
-    const res = await fetch("/api/favorites", {
-      method: favorite ? "DELETE" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ examId }),
-    });
+    const res = await fetch("/api/favorites", { method: favorite ? "DELETE" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ examId }) });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) {
-      setMessage(data.error || "Impossible de modifier le favori.");
-      return;
-    }
+    if (!res.ok) { setMessage(data.error || "Impossible de modifier le favori."); return; }
     setFavorite(!favorite);
   }
 
@@ -54,24 +48,14 @@ export default function ExamActions({
       window.location.href = "/login?next=" + encodeURIComponent(window.location.pathname);
       return;
     }
-    if (content.trim().length < 2) {
-      setMessage("Écris au moins quelques mots.");
-      return;
-    }
+    if (content.trim().length < 2) { setMessage("Écris au moins quelques mots."); return; }
 
     setBusy(true);
     setMessage("");
-    const res = await fetch("/api/exams/comments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ examId, content }),
-    });
+    const res = await fetch("/api/exams/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ examId, content }) });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) {
-      setMessage(data.error || "Impossible de publier le commentaire.");
-      return;
-    }
+    if (!res.ok) { setMessage(data.error || "Impossible de publier le commentaire."); return; }
     setComments((current) => [data.comment, ...current]);
     setContent("");
   }
@@ -80,21 +64,14 @@ export default function ExamActions({
     if (!confirm("Supprimer ce commentaire ?")) return;
     const res = await fetch("/api/exams/comments?id=" + encodeURIComponent(id), { method: "DELETE" });
     const data = await res.json();
-    if (!res.ok) {
-      setMessage(data.error || "Suppression impossible.");
-      return;
-    }
+    if (!res.ok) { setMessage(data.error || "Suppression impossible."); return; }
     setComments((current) => current.filter((comment) => comment.id !== id));
   }
 
   return (
     <>
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <button
-          onClick={toggleFavorite}
-          disabled={busy}
-          className={"rounded-xl px-5 py-3 font-bold transition " + (favorite ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700")}
-        >
+        <button onClick={toggleFavorite} disabled={busy} className={"rounded-xl px-5 py-3 font-bold transition " + (favorite ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200" : "bg-slate-100 text-slate-700")}>
           {favorite ? "♥ Dans mes favoris" : "♡ Ajouter aux favoris"}
         </button>
         {!isAuthenticated && <span className="text-xs text-slate-500">Connexion nécessaire pour enregistrer un favori.</span>}
@@ -111,24 +88,14 @@ export default function ExamActions({
 
         {isAuthenticated ? (
           <div className="mt-5">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              maxLength={2000}
-              placeholder="Ton commentaire..."
-              className="min-h-28 w-full rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-sky-200"
-            />
+            <textarea value={content} onChange={(e) => setContent(e.target.value)} maxLength={2000} placeholder="Ton commentaire..." className="min-h-28 w-full rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-sky-200" />
             <div className="mt-2 flex items-center justify-between">
               <span className="text-xs text-slate-400">{content.length}/2000</span>
-              <button onClick={addComment} disabled={busy} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
-                Publier
-              </button>
+              <button onClick={addComment} disabled={busy} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Publier</button>
             </div>
           </div>
         ) : (
-          <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-            Connecte-toi pour participer à la discussion.
-          </p>
+          <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Connecte-toi pour participer à la discussion.</p>
         )}
 
         {message && <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{message}</p>}
