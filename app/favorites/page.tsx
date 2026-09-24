@@ -37,7 +37,7 @@ export default async function Favorites() {
             <h2 className="mt-2 text-lg font-bold">{item.title}</h2>
             <div className="mt-4">
               <Link
-                href={isExam ? "/exams/" + item.slug : "/courses/" + item.slug}
+                href={isExam ? "/exams/" + item.slug : "/courses"}
                 className="inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white"
               >
                 Ouvrir →
