@@ -6,6 +6,8 @@ import RolesManager from "./roles-manager";
 
 export const dynamic = "force-dynamic";
 
+// Roles page: kept server-rendered so authorization is checked before exposing admin data.
+
 export default async function AdminRolesPage() {
   const admin = await requireSuperAdmin();
   if (!admin) redirect("/dashboard");
