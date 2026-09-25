@@ -51,6 +51,10 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
   function updateQuestion(index: number, key: keyof Question, value: string) {
     setForm((f) => ({ ...f, questions: f.questions.map((q, i) => i === index ? { ...q, [key]: value } : q) }));
   }
+
+  function optionValue(q: Question, letter: "A" | "B" | "C" | "D") {
+    return q[("option" + letter) as "optionA" | "optionB" | "optionC" | "optionD"];
+  }
   function addQuestion() { setForm((f) => ({ ...f, questions: [...f.questions, blankQuestion()] })); }
   function removeQuestion(index: number) { setForm((f) => ({ ...f, questions: f.questions.filter((_, i) => i !== index) })); }
 
@@ -105,7 +109,7 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
           <div className="mb-3 flex items-center justify-between"><span className="font-bold">Question {index + 1}</span><button onClick={() => removeQuestion(index)} className="text-sm font-semibold text-red-600">Supprimer</button></div>
           <textarea value={q.question} onChange={(e) => updateQuestion(index, "question", e.target.value)} className="w-full rounded-xl border px-3 py-2" placeholder="Écris la question..." />
           <div className="mt-3 grid gap-3 md:grid-cols-2">
-            {(["A","B","C","D"] as const).map((letter) => <label key={letter} className="text-sm font-medium">{letter}<input value={q["option" + letter as "optionA" | "optionB" | "optionC" | "optionD"]} onChange={(e) => updateQuestion(index, ("option" + letter) as keyof Question, e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>)}
+            {(["A","B","C","D"] as const).map((letter) => <label key={letter} className="text-sm font-medium">{letter}<input value={optionValue(q, letter)} onChange={(e) => updateQuestion(index, ("option" + letter) as keyof Question, e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>)}
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <label className="text-sm font-medium">Bonne réponse<select value={q.correctOption} onChange={(e) => updateQuestion(index, "correctOption", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
