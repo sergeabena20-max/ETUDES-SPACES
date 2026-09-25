@@ -16,7 +16,15 @@ export async function POST(request: Request) {
 
     const school = await prisma.school.findFirst({ where: { name: v.schoolName } });
     const academicLevel = await prisma.academicLevel.findUnique({ where: { name: v.academicLevelName } });
-    const program = await prisma.program.findUnique({ where: { name: v.programName } });
+    if (!academicLevel) return NextResponse.json({ error: "Cette classe ou ce niveau n'est pas encore disponible." }, { status: 400 });
+
+    const program = v.studentStatus === "ETUDIANT" && v.programName
+      ? await prisma.program.findUnique({ where: { name: v.programName } })
+      : null;
+
+    if (v.studentStatus === "ETUDIANT" && !program) {
+      return NextResponse.json({ error: "Cette filière n'est pas encore disponible." }, { status: 400 });
+    }
 
     const user = await prisma.user.create({
       data: {
@@ -27,7 +35,7 @@ export async function POST(request: Request) {
         studentStatus: v.studentStatus,
         schoolId: school?.id ?? (await prisma.school.create({ data: { name: v.schoolName } })).id,
         academicLevelId: academicLevel?.id ?? (await prisma.academicLevel.create({ data: { name: v.academicLevelName } })).id,
-        programId: program?.id ?? (await prisma.program.create({ data: { name: v.programName, kind: v.studentStatus === "ELEVE" ? "SERIE" : "FILIERE" } })).id,
+        programId: program?.id ?? null,
       },
     });
 
