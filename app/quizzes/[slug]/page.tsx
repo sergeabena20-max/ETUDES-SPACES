@@ -2,16 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import QuizPlayer from "./quiz-player";
+import { getCurrentUser } from "@/lib/session";
+import { canAccessQuiz } from "@/lib/quiz-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const user = await getCurrentUser();
+  if (!user) return notFound();
   const quiz = await prisma.quiz.findFirst({
     where: { slug, status: "PUBLISHED" },
     include: { subject: true, academicLevel: true, program: true, questions: { orderBy: { order: "asc" } } },
   });
-  if (!quiz) notFound();
+  if (!quiz || !canAccessQuiz(user, quiz)) notFound();
 
   const questions = quiz.questions.map(q => ({
     id: q.id, question: q.question,
