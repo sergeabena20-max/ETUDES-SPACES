@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
-  answers: z.record(z.enum(["A", "B", "C", "D"])),
+  answers: z.record(z.string(), z.enum(["A", "B", "C", "D"])),
 });
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
