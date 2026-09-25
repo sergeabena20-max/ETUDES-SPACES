@@ -9,10 +9,11 @@ export default async function AdminPage() {
   const user = await requireAdmin();
   if (!user) redirect("/login");
 
-  const [users, courses, exams, searches] = await Promise.all([
+  const [users, courses, exams, quizzes, searches] = await Promise.all([
     prisma.user.count(),
     prisma.course.count(),
     prisma.exam.count(),
+    prisma.quiz.count(),
     prisma.searchNoResult.count(),
   ]);
 
@@ -20,6 +21,7 @@ export default async function AdminPage() {
     { label: "Utilisateurs", value: users, icon: "👥", href: "/admin/users" },
     { label: "Cours", value: courses, icon: "📚", href: "/admin/courses" },
     { label: "Épreuves", value: exams, icon: "📝", href: "/admin/exams" },
+    { label: "Petits tests", value: quizzes, icon: "🧠", href: "/admin/quizzes" },
     { label: "Recherches sans résultat", value: searches, icon: "🔎", href: "/admin/searches" },
     { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
   ];
@@ -64,6 +66,7 @@ export default async function AdminPage() {
             <p className="mt-1 text-sm text-slate-500">Accès rapide aux espaces de publication.</p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/admin/courses" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Gérer les cours</Link>
+              <Link href="/admin/quizzes" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les petits tests</Link>
               <Link href="/admin/exams" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les épreuves</Link>
             </div>
           </section>
@@ -71,7 +74,8 @@ export default async function AdminPage() {
             <h2 className="text-lg font-bold">Plateforme</h2>
             <p className="mt-1 text-sm text-slate-500">Les rôles et permissions permettent une gestion avancée.</p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/admin/users" className="rounded-xl border px-4 py-2 text-sm font-bold">Utilisateurs</Link>\n              {user.type === "SUPER_ADMIN" && <Link href="/admin/roles" className="rounded-xl border px-4 py-2 text-sm font-bold">Rôles & permissions</Link>}
+              <Link href="/admin/users" className="rounded-xl border px-4 py-2 text-sm font-bold">Utilisateurs</Link>
+              {user.type === "SUPER_ADMIN" && <Link href="/admin/roles" className="rounded-xl border px-4 py-2 text-sm font-bold">Rôles & permissions</Link>}
               <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link>
             </div>
           </section>
