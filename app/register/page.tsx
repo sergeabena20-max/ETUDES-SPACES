@@ -71,9 +71,12 @@ export default function RegisterPage() {
           </select>
         </div>}
 
-        {status && <div>
-          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Filière" : "Filière"}</label>
-          {status === "ELEVE" ? <p className="rounded-xl border bg-slate-50 p-3 text-sm text-slate-600">Pour le secondaire, la classe choisie ci-dessus suffit pour le moment. Les langues et spécialisations seront ajoutées plus tard.</p> : <select name="programName" required className="w-full rounded-xl border p-3"><option value="">Sélectionner</option><option value="Informatique">Informatique</option></select>}
+        {status === "ETUDIANT" && <div>
+          <label className="mb-2 block text-sm font-bold">Filière</label>
+          <select name="programName" required className="w-full rounded-xl border p-3">
+            <option value="">Sélectionner</option>
+            <option value="Informatique">Informatique</option>
+          </select>
         </div>}
 
         {status && <div className="rounded-xl bg-sky-50 p-4 text-sm text-sky-800 sm:col-span-2">
