@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 type Option = { id: string; name: string };
 type Question = {
   id?: string; question: string; optionA: string; optionB: string; optionC: string; optionD: string;
-  correctOption: "A" | "B" | "C" | "D"; explanation: string | null; order: number;
+  correctOption: string; explanation: string | null; order: number;
 };
 type Quiz = {
   id: string; title: string; slug: string; description: string | null; status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
