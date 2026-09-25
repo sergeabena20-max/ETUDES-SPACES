@@ -4,9 +4,8 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ELEVE_LEVELS = ["6e", "5e", "4e", "3e", "Seconde", "Première", "Terminale"];
-const ELEVE_PROGRAMS = ["A", "C", "D", "TI", "Autre"];
-const ETUDIANT_LEVELS = ["Licence 1", "Licence 2", "Licence 3", "Master 1", "Master 2", "Doctorat", "Autre"];
+const ELEVE_LEVELS = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
+const ETUDIANT_LEVELS = ["Licence 1", "Licence 2", "Licence 3"];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -65,7 +64,7 @@ export default function RegisterPage() {
         </div>
 
         {status && <div>
-          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Niveau scolaire" : "Niveau académique"}</label>
+          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Classe" : "Niveau universitaire"}</label>
           <select name="academicLevelName" required className="w-full rounded-xl border p-3">
             <option value="">Sélectionner</option>
             {(status === "ELEVE" ? ELEVE_LEVELS : ETUDIANT_LEVELS).map((level) => <option key={level} value={level}>{level}</option>)}
@@ -73,16 +72,13 @@ export default function RegisterPage() {
         </div>}
 
         {status && <div>
-          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Série" : "Filière"}</label>
-          <select name="programName" required className="w-full rounded-xl border p-3">
-            <option value="">Sélectionner</option>
-            {(status === "ELEVE" ? ELEVE_PROGRAMS : ["Informatique", "Génie logiciel", "Réseaux et télécommunications", "Gestion", "Droit", "Économie", "Médecine", "Autre"]).map((program) => <option key={program} value={program}>{program}</option>)}
-          </select>
+          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Filière" : "Filière"}</label>
+          {status === "ELEVE" ? <p className="rounded-xl border bg-slate-50 p-3 text-sm text-slate-600">Pour le secondaire, la classe choisie ci-dessus suffit pour le moment. Les langues et spécialisations seront ajoutées plus tard.</p> : <select name="programName" required className="w-full rounded-xl border p-3"><option value="">Sélectionner</option><option value="Informatique">Informatique</option></select>}
         </div>}
 
         {status && <div className="rounded-xl bg-sky-50 p-4 text-sm text-sky-800 sm:col-span-2">
           <strong>Ton profil</strong>
-          <p className="mt-1">{status === "ELEVE" ? "Élève : ton niveau scolaire et ta série permettront de personnaliser les contenus proposés." : "Étudiant : ton niveau académique et ta filière permettront de personnaliser les contenus proposés."}</p>
+          <p className="mt-1">{status === "ELEVE" ? "Élève : ta classe permettra d'afficher automatiquement les petits tests adaptés." : "Étudiant : ton niveau et ta filière permettront d'afficher les petits tests adaptés."}</p>
         </div>}
 
         {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
