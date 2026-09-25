@@ -9,7 +9,7 @@ export const registerSchema = z.object({
   studentStatus: z.enum(["ELEVE", "ETUDIANT"]),
   schoolName: z.string().trim().min(2, "Renseigne ton établissement.").max(150),
   academicLevelName: z.string().trim().min(1, "Renseigne ton niveau."),
-  programName: z.string().trim().min(1, "Renseigne ta filière ou ta série."),
+  programName: z.string().trim().min(1).optional().or(z.literal("")),
 }).refine((v) => v.password === v.confirmPassword, {
   path: ["confirmPassword"],
   message: "Les mots de passe ne correspondent pas.",
