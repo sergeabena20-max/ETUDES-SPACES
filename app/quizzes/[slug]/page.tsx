@@ -16,7 +16,6 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
   const questions = quiz.questions.map(q => ({
     id: q.id, question: q.question,
     options: { A: q.optionA, B: q.optionB, C: q.optionC, D: q.optionD },
-    correctOption: q.correctOption as "A" | "B" | "C" | "D",
     explanation: q.explanation,
   }));
 
