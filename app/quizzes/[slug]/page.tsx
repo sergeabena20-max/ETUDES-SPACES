@@ -29,7 +29,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
       <h1 className="mt-2 text-4xl font-black">{quiz.title}</h1>
       <p className="mt-3 text-slate-600">{quiz.description || "Petit test d'entraînement."}</p>
       <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-500">{quiz.program && <span className="rounded-full bg-slate-100 px-3 py-1">{quiz.program.name}</span>}<span className="rounded-full bg-slate-100 px-3 py-1">{questions.length} question{questions.length > 1 ? "s" : ""}</span></div>
-      <QuizPlayer questions={questions} />
+      <QuizPlayer questions={questions} slug={quiz.slug} />
     </section>
   </main>;
 }
