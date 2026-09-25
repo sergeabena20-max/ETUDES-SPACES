@@ -3,6 +3,7 @@ import Link from "next/link";
 const features = [
   ["📚","Cours","Des ressources organisées par matière et niveau."],
   ["📝","Épreuves","Entraîne-toi avec des épreuves et leurs corrections."],
+  ["🧠","Petits tests","Révise avec de courts quiz par niveau et matière."],
   ["🔎","Recherche","Trouve rapidement le contenu dont tu as besoin."],
   ["❤️","Favoris","Garde tes cours et épreuves importants sous la main."]
 ];
@@ -24,7 +25,7 @@ export default function Home() {
           <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">Études Space rassemble cours, épreuves et corrections dans un espace simple, rapide et accessible. La plateforme commence gratuitement avec des contenus francophones.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/register" className="rounded-2xl bg-sky-600 px-6 py-3.5 font-bold text-white shadow-xl shadow-sky-600/20">Commencer gratuitement →</Link>
-            <Link href="/courses" className="rounded-2xl border border-slate-200 bg-white px-6 py-3.5 font-bold">Explorer les ressources</Link>
+            <Link href="/quizzes" className="rounded-2xl border border-slate-200 bg-white px-6 py-3.5 font-bold">Faire un petit test</Link>
           </div>
           <p className="mt-4 text-sm text-slate-500">🇫🇷 Français · 🇬🇧 English version coming soon.</p>
         </div>
