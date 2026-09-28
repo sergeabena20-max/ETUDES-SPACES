@@ -382,3 +382,20 @@ model AuditLog {
   @@index([actorId, createdAt])
   @@index([action, createdAt])
 }
+
+
+model SiteNotice {
+  id        String         @id @default("main")
+  enabled   Boolean        @default(false)
+  type      SiteNoticeType @default(INFO)
+  title     String         @default("Information")
+  message   String
+  updatedAt DateTime       @updatedAt
+}
+
+enum SiteNoticeType {
+  INFO
+  WARNING
+  MAINTENANCE
+  SUCCESS
+}
