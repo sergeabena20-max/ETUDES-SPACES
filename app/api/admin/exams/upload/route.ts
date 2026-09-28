@@ -4,10 +4,11 @@ import { requireAdmin } from "@/lib/authorization";
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export async function POST(req: Request) {
-  const admin = await requireAdmin("exams.create");
+  const form = await req.formData().catch(() => null);
+  const editing = form?.get("editing") === "true";
+  const admin = await requireAdmin(editing ? "exams.update" : "exams.create");
   if (!admin) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
 
-  const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Aucun fichier PDF reçu." }, { status: 400 });
