@@ -6,6 +6,7 @@ import { requireSuperAdmin } from "@/lib/authorization";
 const schema = z.object({
   enabled: z.boolean(),
   type: z.enum(["INFO", "WARNING", "MAINTENANCE", "SUCCESS"]),
+  audience: z.enum(["BEFORE_LOGIN", "AFTER_LOGIN", "BOTH"]),
   title: z.string().trim().min(1).max(120),
   message: z.string().trim().min(1).max(1000),
 });
@@ -38,7 +39,7 @@ export async function PUT(req: Request) {
       action: "SITE_NOTICE_UPDATED",
       entity: "SITE_NOTICE",
       entityId: notice.id,
-      metadata: { enabled: notice.enabled, type: notice.type, title: notice.title },
+      metadata: { enabled: notice.enabled, type: notice.type, audience: notice.audience, title: notice.title },
     },
   });
 
