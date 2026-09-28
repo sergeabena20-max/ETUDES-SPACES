@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type Notice = {
   enabled: boolean;
   type: "INFO" | "WARNING" | "MAINTENANCE" | "SUCCESS";
+  audience: "BEFORE_LOGIN" | "AFTER_LOGIN" | "BOTH";
   title: string;
   message: string;
 };
@@ -13,12 +14,13 @@ type Notice = {
 const defaults: Notice = {
   enabled: false,
   type: "INFO",
+  audience: "BOTH",
   title: "Information",
   message: "Nous rencontrons actuellement un problème technique. Notre équipe travaille à rétablir le service.",
 };
 
 export default function AdminNoticePage() {
-  const [notice, setNotice] = useState(defaults);
+  const [notice, setNotice] = useState<Notice>(defaults);
   const [message, setMessage] = useState("Chargement...");
   const [saving, setSaving] = useState(false);
 
@@ -59,17 +61,26 @@ export default function AdminNoticePage() {
           <p className="text-sm font-semibold text-sky-600">Super Administration</p>
           <h1 className="mt-1 text-3xl font-black">Message aux utilisateurs</h1>
           <p className="mt-2 text-slate-500">
-            Affichez une information globale lorsqu'un service rencontre un problème ou pendant une maintenance.
+            Choisis précisément qui voit le message : avant connexion, après connexion, ou les deux.
           </p>
         </div>
 
         <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <label className="flex items-center gap-3 font-bold">
             <input type="checkbox" checked={notice.enabled} onChange={(e) => setNotice({ ...notice, enabled: e.target.checked })} />
-            Afficher le message sur le site
+            Afficher le message
           </label>
 
           <div className="mt-6 grid gap-5">
+            <label className="text-sm font-semibold">
+              Où afficher le message ?
+              <select value={notice.audience} onChange={(e) => setNotice({ ...notice, audience: e.target.value as Notice["audience"] })} className="mt-1 w-full rounded-xl border px-3 py-2">
+                <option value="BEFORE_LOGIN">Avant connexion uniquement</option>
+                <option value="AFTER_LOGIN">Après connexion uniquement</option>
+                <option value="BOTH">Avant et après connexion</option>
+              </select>
+            </label>
+
             <label className="text-sm font-semibold">
               Type
               <select value={notice.type} onChange={(e) => setNotice({ ...notice, type: e.target.value as Notice["type"] })} className="mt-1 w-full rounded-xl border px-3 py-2">
@@ -92,7 +103,10 @@ export default function AdminNoticePage() {
 
             {notice.enabled && (
               <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm">
-                <strong>{notice.title}</strong>
+                <p className="text-xs font-bold uppercase tracking-wide text-sky-700">
+                  Aperçu · {notice.audience === "BOTH" ? "les deux côtés" : notice.audience === "BEFORE_LOGIN" ? "avant connexion" : "après connexion"}
+                </p>
+                <strong className="mt-1 block">{notice.title}</strong>
                 <p className="mt-1">{notice.message}</p>
               </div>
             )}
