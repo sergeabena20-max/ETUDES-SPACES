@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 const COOKIE = "etudes_session";
@@ -24,7 +25,7 @@ export async function createSession(userId: string) {
   });
 }
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async function getCurrentUser() {
   try {
     const store = await cookies();
     const token = store.get(COOKIE)?.value;
@@ -67,7 +68,7 @@ export async function getCurrentUser() {
     console.error("session_error", error instanceof Error ? error.message : "unknown");
     return null;
   }
-}
+});
 
 export async function destroySession() {
   const store = await cookies();
