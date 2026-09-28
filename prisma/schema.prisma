@@ -385,12 +385,13 @@ model AuditLog {
 
 
 model SiteNotice {
-  id        String         @id @default("main")
-  enabled   Boolean        @default(false)
-  type      SiteNoticeType @default(INFO)
-  title     String         @default("Information")
+  id        String             @id @default("main")
+  enabled   Boolean            @default(false)
+  type      SiteNoticeType     @default(INFO)
+  audience  SiteNoticeAudience @default(BOTH)
+  title     String             @default("Information")
   message   String
-  updatedAt DateTime       @updatedAt
+  updatedAt DateTime           @updatedAt
 }
 
 enum SiteNoticeType {
@@ -398,4 +399,10 @@ enum SiteNoticeType {
   WARNING
   MAINTENANCE
   SUCCESS
+}
+
+enum SiteNoticeAudience {
+  BEFORE_LOGIN
+  AFTER_LOGIN
+  BOTH
 }
