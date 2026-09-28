@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getSiteNotice } from "@/lib/site-notice";
+import { getCurrentUser } from "@/lib/session";
+import { getSiteNotice, shouldShowNotice } from "@/lib/site-notice";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +18,14 @@ function noticeClass(type: string) {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const notice = await getSiteNotice();
+  const [notice, user] = await Promise.all([getSiteNotice(), getCurrentUser()]);
+  const showNotice = Boolean(notice?.enabled && shouldShowNotice(notice.audience, Boolean(user)));
 
   return (
     <html lang="fr">
       <body>
-        {notice?.enabled && (
-          <div className={`border-b px-4 py-3 ${noticeClass(notice.type)}`}>
+        {showNotice && notice && (
+          <div className={"border-b px-4 py-3 " + noticeClass(notice.type)}>
             <div className="mx-auto max-w-7xl">
               <p className="font-bold">{notice.title}</p>
               <p className="mt-0.5 text-sm">{notice.message}</p>
