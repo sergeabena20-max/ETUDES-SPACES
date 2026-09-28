@@ -60,7 +60,8 @@ export default async function ExamsPage({ searchParams }: Props) {
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500"><span className="rounded-full bg-slate-100 px-3 py-1">{e.academicLevel?.name || "Tous niveaux"}</span>{e.category && <span className="rounded-full bg-slate-100 px-3 py-1">{e.category}</span>}</div>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Voir l’épreuve</Link>
-            {e.fileUrl && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">PDF</a>}
+            {e.fileUrl && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}
+            {e.fileUrl && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger</a>}
           </div>
         </article>) : <div className="card p-8 md:col-span-3"><h2 className="font-bold">Les premières épreuves arrivent bientôt.</h2><p className="mt-2 text-sm text-slate-500">Les sujets seront ajoutés progressivement par l'administration.</p></div>}
       </div>
