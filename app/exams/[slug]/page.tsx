@@ -58,10 +58,14 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
 
       <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h2 className="text-xl font-bold">Sujet</h2>
-        {exam.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
-          <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Voir le sujet PDF →</a>
-          <a href={"/api/exams/" + exam.id + "/download"} className="inline-flex rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger le sujet ↓</a>
-        </div> : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>
+        {exam.fileUrl ? (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Voir le sujet PDF →</a>
+            <a href={"/api/exams/" + exam.id + "/download"} className="inline-flex rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger le sujet ↓</a>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>
+        )}
       </div>
 
       <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
