@@ -51,6 +51,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);
 
   const filtered = useMemo(() => exams.filter((e) => {
     const haystack = [e.title, e.slug, e.category, e.subject?.name, e.academicLevel?.name, e.school?.name, e.program?.name].filter(Boolean).join(" ").toLowerCase();
@@ -70,6 +71,27 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
   function edit(e: Exam) {
     setForm(toForm(e)); setMessage(""); setOpen(true);
+  }
+
+  async function uploadPdf(file: File, target: "exam" | "solution") {
+    if (file.type !== "application/pdf") {
+      setMessage("Seuls les fichiers PDF sont acceptés.");
+      return;
+    }
+    setUploading(target);
+    setMessage("");
+    const body = new FormData();
+    body.append("file", file);
+    body.append("editing", form.id ? "true" : "false");
+    const res = await fetch("/api/admin/exams/upload", { method: "POST", body });
+    const data = await res.json();
+    setUploading(null);
+    if (!res.ok) {
+      setMessage(data.error || "Upload impossible.");
+      return;
+    }
+    field(target === "exam" ? "fileUrl" : "solutionFileUrl", data.url);
+    setMessage(target === "exam" ? "PDF de l'épreuve chargé." : "PDF de la correction chargé.");
   }
 
   async function save() {
@@ -131,10 +153,10 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         <label className="text-sm font-medium">Niveau<select value={form.academicLevelId} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisé</option>{levels.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">Établissement<select value={form.schoolId} onChange={(e) => field("schoolId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisé</option>{schools.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">Filière / série<select value={form.programId} onChange={(e) => field("programId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisée</option>{programs.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
-        <label className="text-sm font-medium md:col-span-2">Lien du sujet (PDF)<input value={form.fileUrl} onChange={(e) => field("fileUrl", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="https://..." /></label>
+        <div className="text-sm font-medium md:col-span-2"><span>Épreuve (PDF)</span><div className="mt-1 rounded-xl border border-dashed p-4"><input type="file" accept="application/pdf,.pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadPdf(file, "exam"); }} /><p className="mt-2 text-xs text-slate-500">Choisis directement le PDF depuis ton ordinateur. Maximum 50 MB.</p>{uploading === "exam" && <p className="mt-2 text-xs font-semibold text-sky-600">Upload en cours...</p>}{form.fileUrl && <a href={form.fileUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-sky-600">Voir le PDF actuellement associé →</a>}</div></div>
         <label className="text-sm font-medium md:col-span-2">Description<textarea value={form.description} onChange={(e) => field("description", e.target.value)} className="mt-1 min-h-24 w-full rounded-xl border px-3 py-2" /></label>
         <label className="text-sm font-medium md:col-span-2">Correction / solution<textarea value={form.solutionText} onChange={(e) => field("solutionText", e.target.value)} className="mt-1 min-h-32 w-full rounded-xl border px-3 py-2" placeholder="Correction détaillée ou indications..." /></label>
-        <label className="text-sm font-medium md:col-span-2">Lien de la correction (PDF)<input value={form.solutionFileUrl} onChange={(e) => field("solutionFileUrl", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="https://..." /></label>
+        <div className="text-sm font-medium md:col-span-2"><span>Correction (PDF)</span><div className="mt-1 rounded-xl border border-dashed p-4"><input type="file" accept="application/pdf,.pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadPdf(file, "solution"); }} /><p className="mt-2 text-xs text-slate-500">Facultatif : ajoute le PDF de correction depuis ton ordinateur.</p>{uploading === "solution" && <p className="mt-2 text-xs font-semibold text-sky-600">Upload en cours...</p>}{form.solutionFileUrl && <a href={form.solutionFileUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-sky-600">Voir la correction actuellement associée →</a>}</div></div>
         <label className="text-sm font-medium">Statut<select value={form.status} onChange={(e) => field("status", e.target.value as Form["status"])} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="DRAFT">Brouillon</option><option value="PUBLISHED">Publié</option><option value="ARCHIVED">Archivé</option></select></label>
         <label className="flex items-center gap-2 pt-7 text-sm font-medium"><input type="checkbox" checked={form.isPremium} onChange={(e) => field("isPremium", e.target.checked)} /> Épreuve Premium</label>
       </div>
