@@ -58,13 +58,19 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
 
       <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h2 className="text-xl font-bold">Sujet</h2>
-        {exam.fileUrl ? <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Ouvrir le sujet PDF →</a> : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
+        {exam.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
+          <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Voir le sujet PDF →</a>
+          <a href={"/api/exams/" + exam.id + "/download"} className="inline-flex rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger le sujet ↓</a>
+        </div> : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>
       </div>
 
       <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h2 className="text-xl font-bold">Correction</h2>
         {exam.solution?.text ? <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{exam.solution.text}</div> : null}
-        {exam.solution?.fileUrl ? <a href={exam.solution.fileUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl border px-5 py-3 font-bold">Ouvrir la correction PDF →</a> : null}
+        {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
+          <a href={exam.solution.fileUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-xl border px-5 py-3 font-bold">Voir la correction PDF →</a>
+          <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="inline-flex rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger la correction ↓</a>
+        </div> : null}
         {!exam.solution?.text && !exam.solution?.fileUrl && <p className="mt-3 text-sm text-slate-500">La correction de cette épreuve n'est pas encore disponible.</p>}
       </div>
     </section>
