@@ -34,7 +34,7 @@ export default async function Dashboard() {
           </Link>
 
           <form action="/api/auth/logout" method="post">
-            <button className="text-sm font-semibold text-slate-600">
+            <button className="rounded-xl border px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               Déconnexion
             </button>
           </form>
