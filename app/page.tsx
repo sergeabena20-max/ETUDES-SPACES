@@ -61,7 +61,7 @@ export default function Home() {
                 <div className="animate-shimmer mt-6 rounded-xl bg-gradient-to-r from-white/10 via-white/20 to-white/10 px-4 py-3 text-slate-400">🔎 Rechercher une matière, une épreuve...</div>
                 <div className="mt-4 grid grid-cols-3 gap-3">
                   {features.slice(0,3).map(([i,t], index) => (
-                    <div key={t} className={"animate-bob rounded-xl bg-white/10 p-3 transition hover:-translate-y-2 hover:bg-white/15"} style={{animationDelay:index*".5"+"s"}}>
+                    <div key={t} className="animate-bob rounded-xl bg-white/10 p-3 transition hover:-translate-y-2 hover:bg-white/15" style={{animationDelay:index * 0.5 + "s"}}>
                       <div className="text-xl">{i}</div><div className="mt-2 text-sm font-semibold">{t}</div>
                     </div>
                   ))}
@@ -75,7 +75,7 @@ export default function Home() {
       <section className="container relative z-10 grid gap-4 pb-20 sm:grid-cols-2 lg:grid-cols-4">
         {features.map(([icon,title,text], index) => (
           <div key={title} className={"card animate-slide-up p-5 " + ["stagger-1","stagger-2","stagger-3","stagger-4","stagger-5"][index]}>
-            <div className="animate-bob text-2xl" style={{animationDelay:index*.25+"s"}}>{icon}</div>
+            <div className="animate-bob text-2xl" style={{animationDelay:index * 0.25 + "s"}}>{icon}</div>
             <h3 className="mt-4 font-bold">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-slate-500">{text}</p>
           </div>
