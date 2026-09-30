@@ -130,6 +130,15 @@ export default async function Dashboard() {
           </Link>
 
           <Link
+            href="/premium"
+            className="card border-amber-200 bg-amber-50 p-6 transition hover:-translate-y-1"
+          >
+            <span className="text-3xl">⭐</span>
+            <h2 className="mt-4 font-bold">Premium</h2>
+            <p className="mt-1 text-sm text-slate-500">Activer ou demander la validation.</p>
+          </Link>
+
+          <Link
             href="/profile"
             className="card p-6 transition hover:-translate-y-1"
           >
