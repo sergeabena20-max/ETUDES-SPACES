@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
-import { hasPremiumAccess } from "@/lib/premium";
+import { hasExamAccess } from "@/lib/premium";
 import ExamActions from "./exam-actions";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   if (!exam) notFound();
 
   const user = await getCurrentUser();
-  const premium = user ? await hasPremiumAccess(user.id) : false;
+  const premium = user ? await hasExamAccess(user.id, exam.id) : false;
   const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
   const canViewPremium = !exam.isPremium || premium || isAdmin;
   const [existingFavorite, comments] = await Promise.all([
