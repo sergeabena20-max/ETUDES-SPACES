@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 type Settings = {
@@ -14,8 +13,7 @@ type Settings = {
 
 export default function PremiumPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const examId = searchParams.get("exam");
+  const [examId, setExamId] = useState<string | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [exam, setExam] = useState<{ id: string; title: string; premiumPrice: string } | null>(null);
   const [provider, setProvider] = useState("ORANGE_MONEY");
@@ -26,6 +24,8 @@ export default function PremiumPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("exam");
+    setExamId(id);
     void (async () => {
       const r = await fetch("/api/premium/settings", { cache: "no-store" });
       const d = await r.json();
