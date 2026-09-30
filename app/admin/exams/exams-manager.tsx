@@ -6,7 +6,7 @@ type Option = { id: string; name: string };
 type Exam = {
   id: string; title: string; slug: string; description: string | null; year: number | null;
   category: string | null; fileUrl: string | null; status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
-  isPremium: boolean; subjectId: string | null; academicLevelId: string | null;
+  isPremium: boolean; premiumPrice: string | number | null; subjectId: string | null; academicLevelId: string | null;
   schoolId: string | null; programId: string | null;
   subject?: { name: string } | null; academicLevel?: { name: string } | null;
   school?: { name: string } | null; program?: { name: string } | null;
@@ -21,14 +21,14 @@ type Form = {
 
 const empty: Form = {
   title: "", slug: "", description: "", year: "", category: "Ancien sujet", fileUrl: "",
-  status: "DRAFT", isPremium: false, subjectId: "", academicLevelId: "", schoolId: "", programId: "",
+  status: "DRAFT", isPremium: false, premiumPrice: "", subjectId: "", academicLevelId: "", schoolId: "", programId: "",
   solutionText: "", solutionFileUrl: "",
 };
 
 function toForm(e: Exam): Form {
   return {
     id: e.id, title: e.title, slug: e.slug, description: e.description ?? "", year: e.year?.toString() ?? "",
-    category: e.category ?? "", fileUrl: e.fileUrl ?? "", status: e.status, isPremium: e.isPremium,
+    category: e.category ?? "", fileUrl: e.fileUrl ?? "", status: e.status, isPremium: e.isPremium, premiumPrice: e.premiumPrice?.toString() ?? "",
     subjectId: e.subjectId ?? "", academicLevelId: e.academicLevelId ?? "", schoolId: e.schoolId ?? "",
     programId: e.programId ?? "", solutionText: e.solution?.text ?? "", solutionFileUrl: e.solution?.fileUrl ?? "",
   };
@@ -158,7 +158,10 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         <label className="text-sm font-medium md:col-span-2">Correction / solution<textarea value={form.solutionText} onChange={(e) => field("solutionText", e.target.value)} className="mt-1 min-h-32 w-full rounded-xl border px-3 py-2" placeholder="Correction détaillée ou indications..." /></label>
         <div className="text-sm font-medium md:col-span-2"><span>Correction (PDF)</span><div className="mt-1 rounded-xl border border-dashed p-4"><input type="file" accept="application/pdf,.pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadPdf(file, "solution"); }} /><p className="mt-2 text-xs text-slate-500">Facultatif : ajoute le PDF de correction depuis ton ordinateur.</p>{uploading === "solution" && <p className="mt-2 text-xs font-semibold text-sky-600">Upload en cours...</p>}{form.solutionFileUrl && <a href={form.solutionFileUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-sky-600">Voir la correction actuellement associée →</a>}</div></div>
         <label className="text-sm font-medium">Statut<select value={form.status} onChange={(e) => field("status", e.target.value as Form["status"])} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="DRAFT">Brouillon</option><option value="PUBLISHED">Publié</option><option value="ARCHIVED">Archivé</option></select></label>
-        <label className="flex items-center gap-2 pt-7 text-sm font-medium"><input type="checkbox" checked={form.isPremium} onChange={(e) => field("isPremium", e.target.checked)} /> Épreuve Premium</label>
+        <div className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={form.isPremium} onChange={(e) => field("isPremium", e.target.checked)} /> Épreuve Premium</label>
+          {form.isPremium && <label className="mt-3 block text-sm font-medium">Prix de cette épreuve (FCFA)<input type="number" min="0" value={form.premiumPrice} onChange={(e) => field("premiumPrice", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Ex. 1000" /><span className="mt-1 block text-xs text-slate-500">Le prix est défini par le Super Admin et sera automatiquement demandé au client.</span></label>}
+        </div>
       </div>
       <div className="mt-5 flex gap-2"><button onClick={save} className="rounded-xl bg-sky-600 px-5 py-2 font-bold text-white">Enregistrer</button><button onClick={() => setOpen(false)} className="rounded-xl border px-5 py-2 font-bold">Annuler</button></div>
     </section>}
