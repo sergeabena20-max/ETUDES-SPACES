@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
-import { hasPremiumAccess } from "@/lib/premium";
+import { hasExamAccess } from "@/lib/premium";
 
 export const runtime = "nodejs";
 
@@ -38,7 +38,7 @@ export async function GET(
 
   const user = await getCurrentUser();
   if (exam.isPremium) {
-    const premium = user ? await hasPremiumAccess(user.id) : false;
+    const premium = user ? await hasExamAccess(user.id, exam.id) : false;
     const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
     if (!premium && !isAdmin) {
       return NextResponse.json({ error: "Cette épreuve est réservée aux membres Premium." }, { status: 403 });
