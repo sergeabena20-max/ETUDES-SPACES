@@ -17,6 +17,7 @@ export async function GET() {
     take: 200,
     include: {
       user: { select: { id: true, firstName: true, lastName: true, email: true } },
+      exam: { select: { id: true, title: true, premiumPrice: true } },
     },
   });
 
@@ -59,49 +60,56 @@ export async function PUT(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const plan = await prisma.plan.findUnique({ where: { code: "PREMIUM" } });
-  if (!plan || !plan.active) {
-    return NextResponse.json({ error: "Le plan Premium est indisponible." }, { status: 400 });
-  }
+  if (payment.targetType === "EXAM") {
+    if (!payment.examId || !payment.exam || payment.exam.premiumPrice === null) {
+      return NextResponse.json({ error: "Épreuve Premium introuvable ou tarif non configuré." }, { status: 400 });
+    }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.payment.update({
-      where: { id: payment.id },
-      data: { status: "approved" },
-    });
-
-    await tx.subscription.updateMany({
-      where: { userId: payment.userId, planId: plan.id, status: "active" },
-      data: { status: "inactive", updatedAt: new Date() },
-    });
-
-    await tx.subscription.create({
-      data: {
-        userId: payment.userId,
-        planId: plan.id,
-        status: "active",
-        provider: payment.provider,
-        externalId: payment.externalId,
-        startsAt: new Date(),
-        endsAt: null,
-      },
-    });
-
-    await tx.auditLog.create({
-      data: {
-        actorId: admin.id,
-        action: "PREMIUM_ACTIVATED",
-        entity: "SUBSCRIPTION",
-        entityId: payment.userId,
-        metadata: {
-          paymentId: payment.id,
-          amount: payment.amount.toString(),
-          provider: payment.provider,
-          reference: payment.externalId,
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({ where: { id: payment.id }, data: { status: "approved" } });
+      await tx.examPurchase.upsert({
+        where: { userId_examId: { userId: payment.userId, examId: payment.examId! } },
+        create: { userId: payment.userId, examId: payment.examId!, paymentId: payment.id },
+        update: { paymentId: payment.id, purchasedAt: new Date() },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId: admin.id,
+          action: "PREMIUM_EXAM_ACTIVATED",
+          entity: "EXAM_PURCHASE",
+          entityId: payment.examId,
+          metadata: { paymentId: payment.id, userId: payment.userId, amount: payment.amount.toString(), reference: payment.externalId },
         },
-      },
+      });
     });
-  });
+  } else {
+    const plan = await prisma.plan.findUnique({ where: { code: "PREMIUM" } });
+    const settings = await prisma.premiumSettings.findUnique({ where: { id: "main" } });
+    if (!plan || !plan.active || !settings?.enabled) {
+      return NextResponse.json({ error: "Le Premium global est indisponible." }, { status: 400 });
+    }
+    const endsAt = new Date(Date.now() + settings.durationDays * 86400000);
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({ where: { id: payment.id }, data: { status: "approved" } });
+      await tx.subscription.updateMany({
+        where: { userId: payment.userId, planId: plan.id, status: "active" },
+        data: { status: "inactive", updatedAt: new Date() },
+      });
+      await tx.subscription.create({
+        data: {
+          userId: payment.userId, planId: plan.id, status: "active",
+          provider: payment.provider, externalId: payment.externalId,
+          startsAt: new Date(), endsAt,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorId: admin.id, action: "PREMIUM_ACTIVATED", entity: "SUBSCRIPTION", entityId: payment.userId,
+          metadata: { paymentId: payment.id, amount: payment.amount.toString(), durationDays: settings.durationDays, provider: payment.provider, reference: payment.externalId },
+        },
+      });
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }
