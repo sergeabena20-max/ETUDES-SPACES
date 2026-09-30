@@ -15,7 +15,7 @@ type Exam = {
 
 type Form = {
   id?: string; title: string; slug: string; description: string; year: string; category: string;
-  fileUrl: string; status: Exam["status"]; isPremium: boolean; subjectId: string; academicLevelId: string;
+  fileUrl: string; status: Exam["status"]; isPremium: boolean; premiumPrice: string; subjectId: string; academicLevelId: string;
   schoolId: string; programId: string; solutionText: string; solutionFileUrl: string;
 };
 
