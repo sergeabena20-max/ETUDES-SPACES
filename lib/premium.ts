@@ -10,15 +10,14 @@ export async function hasPremiumAccess(userId: string) {
     },
     select: { id: true },
   });
-
   return Boolean(subscription);
 }
 
-export async function canAccessPremiumContent(
-  userId: string | null,
-  isAdmin = false,
-) {
-  if (isAdmin) return true;
-  if (!userId) return false;
-  return hasPremiumAccess(userId);
+export async function hasExamAccess(userId: string, examId: string) {
+  if (await hasPremiumAccess(userId)) return true;
+  const purchase = await prisma.examPurchase.findUnique({
+    where: { userId_examId: { userId, examId } },
+    select: { id: true },
+  });
+  return Boolean(purchase);
 }
