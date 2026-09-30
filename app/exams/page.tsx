@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
-import { hasPremiumAccess } from "@/lib/premium";
+import { hasExamAccess } from "@/lib/premium";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,6 @@ export default async function ExamsPage({ searchParams }: Props) {
   const year = params.year ? Number(params.year) : undefined;
 
   const user = await getCurrentUser();
-  const premium = user ? await hasPremiumAccess(user.id) : false;
 
   const exams = await prisma.exam.findMany({
     where: {
@@ -58,18 +57,18 @@ export default async function ExamsPage({ searchParams }: Props) {
         <button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button>
       </form>
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {exams.length ? exams.map((e) => <article key={e.id} className="card p-5">
+        {exams.length ? exams.map((e) => { const access = !e.isPremium || (user ? hasExamAccess(user.id, e.id) : false); return <article key={e.id} className="card p-5">
           <div className="text-xs font-bold uppercase text-sky-600">{e.subject?.name || "Matière"} · {e.year || "—"}</div>
           <h2 className="mt-3 text-xl font-bold">{e.title}</h2>
-          <p className="mt-2 text-sm text-slate-500">{e.description || "Ancienne épreuve disponible."}</p>{e.isPremium && !premium && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Cette épreuve est réservée aux membres Premium. <Link href="/premium" className="underline">Activer Premium</Link></div>}
+          <p className="mt-2 text-sm text-slate-500">{e.description || "Ancienne épreuve disponible."}</p>{e.isPremium && !access && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Cette épreuve est réservée aux membres Premium. <Link href="/premium" className="underline">Activer Premium</Link></div>}
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">{e.isPremium && <span className="rounded-full bg-amber-50 px-3 py-1 font-bold text-amber-700">⭐ Premium</span>}<span className="rounded-full bg-slate-100 px-3 py-1">{e.academicLevel?.name || "Tous niveaux"}</span>{e.category && <span className="rounded-full bg-slate-100 px-3 py-1">{e.category}</span>}</div>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !premium ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>
-            {e.fileUrl && (!e.isPremium || premium) && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}
+            <Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !access ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>
+            {e.fileUrl && access && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}
             {e.fileUrl && (!e.isPremium || premium) && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger le sujet ↓</a>}
             {e.solution?.fileUrl && (!e.isPremium || premium) && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Télécharger la correction ↓</a>}
           </div>
-        </article>) : <div className="card p-8 md:col-span-3"><h2 className="font-bold">Les premières épreuves arrivent bientôt.</h2><p className="mt-2 text-sm text-slate-500">Les sujets seront ajoutés progressivement par l'administration.</p></div>}
+        </article> }) : <div className="card p-8 md:col-span-3"><h2 className="font-bold">Les premières épreuves arrivent bientôt.</h2><p className="mt-2 text-sm text-slate-500">Les sujets seront ajoutés progressivement par l'administration.</p></div>}
       </div>
     </section>
   </main>;
