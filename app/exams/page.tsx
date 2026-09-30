@@ -39,6 +39,12 @@ export default async function ExamsPage({ searchParams }: Props) {
     take: 30,
   });
 
+  const accessByExam = new Map<string, boolean>();
+  if (user) {
+    const premiumChecks = await Promise.all(exams.filter((e) => e.isPremium).map(async (e) => [e.id, await hasExamAccess(user.id, e.id)] as const));
+    premiumChecks.forEach(([id, access]) => accessByExam.set(id, access));
+  }
+
   return <main className="min-h-screen">
     <header className="border-b bg-white"><div className="container flex items-center justify-between py-4">
       <Link href="/" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
@@ -57,7 +63,7 @@ export default async function ExamsPage({ searchParams }: Props) {
         <button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button>
       </form>
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {exams.length ? exams.map((e) => { const access = !e.isPremium || (user ? hasExamAccess(user.id, e.id) : false); return <article key={e.id} className="card p-5">
+        {exams.length ? exams.map((e) => { const access = !e.isPremium || accessByExam.get(e.id) === true; return <article key={e.id} className="card p-5">
           <div className="text-xs font-bold uppercase text-sky-600">{e.subject?.name || "Matière"} · {e.year || "—"}</div>
           <h2 className="mt-3 text-xl font-bold">{e.title}</h2>
           <p className="mt-2 text-sm text-slate-500">{e.description || "Ancienne épreuve disponible."}</p>{e.isPremium && !access && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Cette épreuve est réservée aux membres Premium. <Link href="/premium" className="underline">Activer Premium</Link></div>}
