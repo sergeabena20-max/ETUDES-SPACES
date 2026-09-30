@@ -161,6 +161,7 @@ model Course {
   content         String?
   status          ContentStatus @default(DRAFT)
   isPremium       Boolean       @default(false)
+  premiumPrice    Decimal?      @db.Decimal(12,2)
   subjectId       String?
   subject         Subject?      @relation(fields: [subjectId], references: [id])
   academicLevelId String?
@@ -221,6 +222,8 @@ model Exam {
   programId       String?
   program         Program?      @relation(fields: [programId], references: [id])
   solution        ExamSolution?
+  payments        Payment[]
+  purchases       ExamPurchase[]
   favorites       Favorite[]
   analytics       AnalyticsEvent[]
   comments        Comment[]
@@ -332,6 +335,25 @@ model SearchNoResult {
   @@index([createdAt])
 }
 
+enum PaymentTargetType {
+  PREMIUM_PLAN
+  EXAM
+}
+
+model PremiumSettings {
+  id                  String   @id @default("main")
+  enabled             Boolean  @default(true)
+  premiumPrice        Decimal  @db.Decimal(12,2) @default(0)
+  durationDays        Int      @default(30)
+  orangeMoneyNumber   String   @default("692860695")
+  orangeMoneyName     String   @default("TCHOUPE NGASSA DANIELLA")
+  mtnMomoNumber       String   @default("652591205")
+  mtnMomoName         String   @default("TCHOUPE NGASSA DANIELLA")
+  whatsappNumber      String   @default("692860695")
+  paymentInstructions String
+  updatedAt           DateTime @updatedAt
+}
+
 model Plan {
   id            String      @id @default(uuid())
   code          PlanCode    @unique
@@ -361,6 +383,7 @@ model Subscription {
 model Payment {
   id          String   @id @default(uuid())
   userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount      Decimal  @db.Decimal(12,2)
   currency    String   @default("XAF")
   provider    String?
