@@ -71,8 +71,8 @@ export default async function ExamsPage({ searchParams }: Props) {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !access ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>
             {e.fileUrl && access && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}
-            {e.fileUrl && (!e.isPremium || premium) && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger le sujet ↓</a>}
-            {e.solution?.fileUrl && (!e.isPremium || premium) && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Télécharger la correction ↓</a>}
+            {e.fileUrl && access && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger le sujet ↓</a>}
+            {e.solution?.fileUrl && access && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Télécharger la correction ↓</a>}
           </div>
         </article> }) : <div className="card p-8 md:col-span-3"><h2 className="font-bold">Les premières épreuves arrivent bientôt.</h2><p className="mt-2 text-sm text-slate-500">Les sujets seront ajoutés progressivement par l'administration.</p></div>}
       </div>
