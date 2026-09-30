@@ -76,6 +76,7 @@ export default async function AdminPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/admin/users" className="rounded-xl border px-4 py-2 text-sm font-bold">Utilisateurs</Link>
               <Link href="/admin/payments" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Paiements Premium</Link>
+              {user.type === "SUPER_ADMIN" && <Link href="/admin/premium" className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">⚙️ Configuration Premium</Link>}
               {user.type === "SUPER_ADMIN" && <><Link href="/admin/roles" className="rounded-xl border px-4 py-2 text-sm font-bold">Rôles & permissions</Link><Link href="/admin/notice" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Message / maintenance</Link></>}
               <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link>
             </div>
