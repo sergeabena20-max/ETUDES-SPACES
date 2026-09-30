@@ -35,7 +35,10 @@ export async function PUT(request: Request) {
 
   const payment = await prisma.payment.findUnique({
     where: { id: parsed.data.id },
-    include: { user: { select: { id: true, email: true } } },
+    include: {
+      user: { select: { id: true, email: true } },
+      exam: { select: { id: true, title: true, premiumPrice: true } },
+    },
   });
 
   if (!payment) return NextResponse.json({ error: "Paiement introuvable." }, { status: 404 });
