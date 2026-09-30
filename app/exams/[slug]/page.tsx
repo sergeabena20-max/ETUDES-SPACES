@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
+import { hasPremiumAccess } from "@/lib/premium";
 import ExamActions from "./exam-actions";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   if (!exam) notFound();
 
   const user = await getCurrentUser();
+  const premium = user ? await hasPremiumAccess(user.id) : false;
+  const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
+  const canViewPremium = !exam.isPremium || premium || isAdmin;
   const [existingFavorite, comments] = await Promise.all([
     user ? prisma.favorite.findFirst({ where: { userId: user.id, examId: exam.id }, select: { id: true } }) : null,
     prisma.comment.findMany({
@@ -48,6 +52,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <div className="inline-flex rounded-full border border-sky-200 bg-white/75 px-3 py-1 text-sm font-bold text-sky-600 shadow-sm backdrop-blur">{exam.subject?.name || "Matière"} · {exam.year || "Année non précisée"}</div>
         <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{exam.title}</h1>
         <p className="mt-4 text-lg leading-8 text-slate-600">{exam.description || "Ancienne épreuve disponible pour entraînement."}</p>
+        {exam.isPremium && !canViewPremium && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Contenu Premium</p><p className="mt-1 text-sm">Cette épreuve et ses documents sont réservés aux membres Premium.</p><Link href="/premium" className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Activer Premium →</Link></div>}
         <div className="mt-6 flex flex-wrap gap-2 text-sm text-slate-600">
           {exam.academicLevel && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.academicLevel.name}</span>}
           {exam.program && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.program.name}</span>}
@@ -55,7 +60,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         </div>
       </div>
 
-      <div className="mt-8 animate-slide-up stagger-2">
+      {canViewPremium && <div className="mt-8 animate-slide-up stagger-2">
         <ExamActions
           examId={exam.id}
           initialFavorite={Boolean(existingFavorite)}
@@ -63,9 +68,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
           isAuthenticated={Boolean(user)}
           currentUserId={user?.id ?? null}
         />
-      </div>
+      </div>}
 
-      <div className="card mt-8 animate-slide-up stagger-3 p-6">
+      {canViewPremium && <div className="card mt-8 animate-slide-up stagger-3 p-6">
         <h2 className="text-xl font-bold">Sujet</h2>
         {exam.fileUrl ? (
           <div className="mt-4 flex flex-wrap gap-3">
@@ -73,9 +78,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger le sujet ↓</a>
           </div>
         ) : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
-      </div>
+      </div>}
 
-      <div className="card mt-5 animate-slide-up stagger-4 p-6">
+      {canViewPremium && <div className="card mt-5 animate-slide-up stagger-4 p-6">
         <h2 className="text-xl font-bold">Correction</h2>
         {exam.solution?.text ? <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{exam.solution.text}</div> : null}
         {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
@@ -83,7 +88,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
           <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger la correction ↓</a>
         </div> : null}
         {!exam.solution?.text && !exam.solution?.fileUrl && <p className="mt-3 text-sm text-slate-500">La correction de cette épreuve n'est pas encore disponible.</p>}
-      </div>
+      </div>}
     </section>
   </main>;
 }
