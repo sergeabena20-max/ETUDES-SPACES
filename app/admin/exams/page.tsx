@@ -27,6 +27,13 @@ export default async function AdminExamsPage() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
+  // Prisma Decimal n'est pas un type sérialisable comme prop Client Component.
+  // On convertit uniquement ce champ monétaire avant de le transmettre à ExamsManager.
+  const serializableExams = exams.map((exam) => ({
+    ...exam,
+    premiumPrice: exam.premiumPrice?.toString() ?? null,
+  }));
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-50/60">
       <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
@@ -39,7 +46,7 @@ export default async function AdminExamsPage() {
           <p className="mt-1 text-slate-500">Anciens sujets, épreuves, documents et corrections.</p>
         </div>
         <div className="card animate-slide-up stagger-2 p-4 sm:p-6">
-          <ExamsManager initialExams={exams} initialSubjects={subjects} initialLevels={levels} initialSchools={schools} initialPrograms={programs} />
+          <ExamsManager initialExams={serializableExams} initialSubjects={subjects} initialLevels={levels} initialSchools={schools} initialPrograms={programs} />
         </div>
       </div>
     </main>
