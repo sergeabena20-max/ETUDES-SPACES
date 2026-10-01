@@ -1,4 +1,4 @@
-import { NextResponse, after } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
 import { createSession } from "@/lib/session";
@@ -15,13 +15,11 @@ export async function POST(request: Request) {
     }
 
     await createSession(user.id);
-    after(async () => {
-      try {
-        await prisma.analyticsEvent.create({ data: { type: "USER_LOGIN", userId: user.id } });
-      } catch (error) {
+    void prisma.analyticsEvent
+      .create({ data: { type: "USER_LOGIN", userId: user.id } })
+      .catch((error) => {
         console.error("login_analytics_error", error instanceof Error ? error.message : "unknown");
-      }
-    });
+      });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
