@@ -25,6 +25,7 @@ export async function GET(
   const exam = await prisma.exam.findFirst({
     where: { id, status: "PUBLISHED" },
     select: {
+      id: true,
       title: true,
       fileUrl: true,
       solution: { select: { fileUrl: true } },
