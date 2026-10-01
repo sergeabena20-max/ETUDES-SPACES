@@ -54,7 +54,7 @@ export const getCurrentUser = cache(async function getCurrentUser() {
       },
       });
 
-    let session;
+    let session: Awaited<ReturnType<typeof sessionQuery>>;
     try {
       session = await sessionQuery();
     } catch (firstError) {
