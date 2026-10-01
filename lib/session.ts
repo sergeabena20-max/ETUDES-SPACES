@@ -31,9 +31,10 @@ export const getCurrentUser = cache(async function getCurrentUser() {
     const token = store.get(COOKIE)?.value;
     if (!token) return null;
 
-    const session = await prisma.session.findUnique({
-      where: { tokenHash: hashToken(token) },
-      select: {
+    const sessionQuery = () =>
+      prisma.session.findUnique({
+        where: { tokenHash: hashToken(token) },
+        select: {
         userId: true,
         expiresAt: true,
         user: {
@@ -51,7 +52,15 @@ export const getCurrentUser = cache(async function getCurrentUser() {
           },
         },
       },
-    });
+      });
+
+    let session;
+    try {
+      session = await sessionQuery();
+    } catch (firstError) {
+      console.error("session_query_retry", firstError instanceof Error ? firstError.message : "unknown");
+      session = await sessionQuery();
+    }
 
     if (!session) return null;
 
@@ -66,7 +75,7 @@ export const getCurrentUser = cache(async function getCurrentUser() {
     return session.user;
   } catch (error) {
     console.error("session_error", error instanceof Error ? error.message : "unknown");
-    return null;
+    throw error;
   }
 });
 
