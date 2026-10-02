@@ -18,7 +18,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const user = await getCurrentUser();
 
   const [allLevels, programs] = await Promise.all([
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
   const schoolLevelNames = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
@@ -73,7 +73,7 @@ export default async function ExamsPage({ searchParams }: Props) {
         </section>
         <section>
           <div className="mb-4"><span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-bold text-indigo-700">🎓 Étudiants</span><h2 className="mt-3 text-2xl font-black">Une rubrique par filière</h2><p className="mt-1 text-sm text-slate-500">GI, GLT, GRT et les autres filières sont séparés.</p></div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{programs.filter((program) => ["GI", "GLT", "GRT"].includes(program.name)).map((program) => <Link key={program.id} href={"/exams?program=" + program.id} className="card group p-5"><div className="flex items-center justify-between"><span className="text-2xl">🎓</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">{program._count.exams} sujet{program._count.exams > 1 ? "s" : ""}</span></div><h3 className="mt-5 text-xl font-black group-hover:text-sky-600">{program.name}</h3><p className="mt-1 text-sm text-slate-500">Accéder à {program.name} →</p></Link>)}</div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{programs.filter((program) => program.kind === "FILIERE").map((program) => <Link key={program.id} href={"/exams?program=" + program.id} className="card group p-5"><div className="flex items-center justify-between"><span className="text-2xl">🎓</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">{program._count.exams} sujet{program._count.exams > 1 ? "s" : ""}</span></div><h3 className="mt-5 text-xl font-black group-hover:text-sky-600">{program.name}</h3><p className="mt-1 text-sm text-slate-500">Accéder à {program.name} →</p></Link>)}</div>
         </section>
       </div> : <div className="mt-8">
         <Link href="/exams" className="text-sm font-bold text-sky-600">← Toutes les rubriques</Link>
