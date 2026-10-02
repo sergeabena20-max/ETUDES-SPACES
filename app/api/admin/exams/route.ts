@@ -5,7 +5,8 @@ import { requireAdmin } from "@/lib/authorization";
 
 const schema = z.object({
   id: z.string().uuid().optional(),
-  targetType: z.enum(["ELEVE", "ETUDIANT"]),\n  title: z.string().trim().min(3).max(180),
+  targetType: z.enum(["ELEVE", "ETUDIANT"]),
+  title: z.string().trim().min(3).max(180),
   slug: z.string().trim().min(3).max(220).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   description: z.string().trim().max(2000).optional().nullable(),
   year: z.number().int().min(1900).max(2100).optional().nullable(),
@@ -65,6 +66,8 @@ async function save(req: Request, editing: boolean) {
   }
 
   const data = parsed.data;
+  if (data.targetType === "ELEVE" && !data.academicLevelId) return NextResponse.json({ error: "Sélectionne la classe ou la série de cette épreuve." }, { status: 400 });
+  if (data.targetType === "ETUDIANT" && !data.programId) return NextResponse.json({ error: "Sélectionne la filière de cette épreuve." }, { status: 400 });
   if (editing && !data.id) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 400 });
 
   try {
