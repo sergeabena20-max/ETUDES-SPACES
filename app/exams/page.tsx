@@ -28,7 +28,8 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selectedLevel = levelId ? allLevels.find((x) => x.id === levelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
 
-  const exams = selected ? await prisma.exam.findMany({
+  const [exams, years] = selected ? await Promise.all([
+    prisma.exam.findMany({
     where: {
       status: "PUBLISHED",
       ...(levelId ? { academicLevelId: levelId } : {}),
@@ -44,12 +45,12 @@ export default async function ExamsPage({ searchParams }: Props) {
     include: { subject: true, academicLevel: true, program: true, solution: true },
     orderBy: [{ year: "desc" }, { createdAt: "desc" }],
     take: 60,
-  }) : [];
-
-  const years = selected ? await prisma.exam.findMany({
+    }),
+    prisma.exam.findMany({
     where: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}), ...(universityLevelId ? { academicLevelId: universityLevelId } : {}), year: { not: null } },
-    select: { year: true }, distinct: ["year"], orderBy: { year: "desc" }, take: 30,
-  }) : [];
+      select: { year: true }, distinct: ["year"], orderBy: { year: "desc" }, take: 30,
+    }),
+  ]) : [[], []];
 
   const accessByExam = new Map<string, boolean>();
   if (user) {
