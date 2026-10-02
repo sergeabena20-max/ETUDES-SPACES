@@ -19,7 +19,7 @@ export default async function ExamsPage({ searchParams }: Props) {
 
   const [allLevels, programs] = await Promise.all([
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
-    prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+    prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
   const schoolLevelNames = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
   const universityLevelNames = ["Licence 1", "Licence 2", "Licence 3"];
