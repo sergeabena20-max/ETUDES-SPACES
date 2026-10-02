@@ -13,6 +13,8 @@ export default async function Dashboard() {
         id: true,
         title: true,
         slug: true,
+        academicLevelId: true,
+        programId: true,
         subject: { select: { name: true } },
         academicLevel: { select: { id: true, name: true } },
         program: { select: { id: true, name: true } },
