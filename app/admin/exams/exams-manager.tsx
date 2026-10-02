@@ -98,16 +98,14 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
     setMessage("");
     const payload = {
       ...form,
-      academicLevelId: form.targetType === "ELEVE" ? (form.academicLevelId || null) : null,
-      programId: form.targetType === "ETUDIANT" ? (form.programId || null) : null,
       year: form.year ? Number(form.year) : null,
       description: form.description || null,
       category: form.category || null,
       fileUrl: form.fileUrl || null,
       subjectId: form.subjectId || null,
-      academicLevelId: form.academicLevelId || null,
+      academicLevelId: form.targetType === "ELEVE" ? (form.academicLevelId || null) : null,
       schoolId: form.schoolId || null,
-      programId: form.programId || null,
+      programId: form.targetType === "ETUDIANT" ? (form.programId || null) : null,
       solutionText: form.solutionText || null,
       solutionFileUrl: form.solutionFileUrl || null,
     };
@@ -151,7 +149,6 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         <label className="text-sm font-medium">Slug<input value={form.slug} onChange={(e) => field("slug", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /><button type="button" onClick={() => field("slug", slugify(form.title))} className="mt-1 text-xs font-semibold text-sky-600">Générer depuis le titre</button></label>
         <label className="text-sm font-medium">Année<input type="number" value={form.year} onChange={(e) => field("year", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="2025" /></label>
         <label className="text-sm font-medium">Catégorie<input value={form.category} onChange={(e) => field("category", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Ancien sujet, BEPC, BAC..." /></label>
-        <label className="text-sm font-medium">Public concerné<select value={form.targetType} onChange={(e) => { const target = e.target.value as Form["targetType"]; field("targetType", target); if (target === "ELEVE") field("programId", ""); else field("academicLevelId", ""); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="ELEVE">Élève — classe / série</option><option value="ETUDIANT">Étudiant — filière</option></select></label>
         <label className="text-sm font-medium">Public concerné<select value={form.targetType} onChange={(e) => { const target = e.target.value as Form["targetType"]; field("targetType", target); if (target === "ELEVE") field("programId", ""); else field("academicLevelId", ""); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="ELEVE">Élève — classe / série</option><option value="ETUDIANT">Étudiant — filière</option></select></label>
         <label className="text-sm font-medium">Matière<select value={form.subjectId} onChange={(e) => field("subjectId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisée</option>{subjects.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">{form.targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire (facultatif)"}<select value={form.academicLevelId} disabled={form.targetType !== "ELEVE"} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisé</option>{levels.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
