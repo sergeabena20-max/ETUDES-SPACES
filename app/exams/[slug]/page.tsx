@@ -16,10 +16,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   if (!exam) notFound();
 
   const user = await getCurrentUser();
-  const premium = user ? await hasExamAccess(user.id, exam.id) : false;
-  const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
-  const canViewPremium = !exam.isPremium || premium || isAdmin;
-  const [existingFavorite, comments] = await Promise.all([
+  const [premium, isAdmin, existingFavorite, comments] = await Promise.all([
+    user && exam.isPremium ? hasExamAccess(user.id, exam.id) : Promise.resolve(false),
+    Promise.resolve(user?.type === "ADMIN" || user?.type === "SUPER_ADMIN"),
     user ? prisma.favorite.findFirst({ where: { userId: user.id, examId: exam.id }, select: { id: true } }) : null,
     prisma.comment.findMany({
       where: { examId: exam.id },
