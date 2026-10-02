@@ -40,19 +40,22 @@ export async function GET(request: Request) {
     ...exams.map((exam) => ({ ...exam, type: "EXAM" as const })),
   ];
 
-  await prisma.analyticsEvent.create({
-    data: {
-      type: results.length ? "SEARCH_PERFORMED" : "SEARCH_NO_RESULT",
-      query: q,
-      userId: user?.id || undefined,
-    },
+  void Promise.all([
+    prisma.analyticsEvent.create({
+      data: {
+        type: results.length ? "SEARCH_PERFORMED" : "SEARCH_NO_RESULT",
+        query: q,
+        userId: user?.id || undefined,
+      },
+    }),
+    !results.length
+      ? prisma.searchNoResult.create({
+          data: { query: q, userId: user?.id || undefined },
+        })
+      : Promise.resolve(),
+  ]).catch((error) => {
+    console.error("search_analytics_error", error);
   });
-
-  if (!results.length) {
-    await prisma.searchNoResult.create({
-      data: { query: q, userId: user?.id || undefined },
-    });
-  }
 
   return NextResponse.json({
     results,
