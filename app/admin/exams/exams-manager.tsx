@@ -45,7 +45,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [subjects, setSubjects] = useState(initialSubjects);
   const [levels, setLevels] = useState(initialLevels);
   const [schools, setSchools] = useState(initialSchools);
-  const [programs, setPrograms] = useState(initialPrograms);
+  const [programs, setPrograms] = useState(initialPrograms.filter((o) => ["GI", "GLT", "GRT"].includes(o.name)));
   const [form, setForm] = useState<Form>(empty);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
@@ -62,7 +62,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
     const res = await fetch("/api/admin/exams", { cache: "no-store" });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Impossible de charger les épreuves.");
-    setExams(data.exams); setSubjects(data.subjects); setLevels(data.levels); setSchools(data.schools); setPrograms(data.programs);
+    setExams(data.exams); setSubjects(data.subjects); setLevels(data.levels); setSchools(data.schools); setPrograms(data.programs.filter((o: Option) => ["GI", "GLT", "GRT"].includes(o.name)));
   }
 
   function startNew() {
