@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/authorization";
 
 const schema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string().trim().min(3).max(180),
+  targetType: z.enum(["ELEVE", "ETUDIANT"]),\n  title: z.string().trim().min(3).max(180),
   slug: z.string().trim().min(3).max(220).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   description: z.string().trim().max(2000).optional().nullable(),
   year: z.number().int().min(1900).max(2100).optional().nullable(),
@@ -79,9 +79,9 @@ async function save(req: Request, editing: boolean) {
       isPremium: data.isPremium,
       premiumPrice: data.isPremium ? (data.premiumPrice ?? null) : null,
       subjectId: data.subjectId || null,
-      academicLevelId: data.academicLevelId || null,
+      academicLevelId: data.targetType === "ELEVE" ? (data.academicLevelId || null) : null,
       schoolId: data.schoolId || null,
-      programId: data.programId || null,
+      programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
     };
 
     const exam = editing
@@ -112,7 +112,7 @@ async function save(req: Request, editing: boolean) {
         action: editing ? "EXAM_UPDATED" : "EXAM_CREATED",
         entity: "EXAM",
         entityId: exam.id,
-        metadata: { title: data.title, status: data.status, year: data.year ?? null },
+        metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelId: data.academicLevelId ?? null, programId: data.programId ?? null },
       },
     });
 
