@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
-import { hasExamAccess } from "@/lib/premium";
+import { getExamAccessMap } from "@/lib/premium";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +15,8 @@ export default async function ExamsPage({ searchParams }: Props) {
   const programId = params.program;
   const universityLevelId = params.universityLevel;
   const selected = levelId || programId;
-  const user = await getCurrentUser();
-
-  const [allLevels, programs] = await Promise.all([
+  const [user, allLevels, programs] = await Promise.all([
+    getCurrentUser(),
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
@@ -52,11 +51,10 @@ export default async function ExamsPage({ searchParams }: Props) {
     }),
   ]) : [[], []];
 
-  const accessByExam = new Map<string, boolean>();
-  if (user) {
-    const checks = await Promise.all(exams.filter((e) => e.isPremium).map(async (e) => [e.id, await hasExamAccess(user.id, e.id)] as const));
-    checks.forEach(([id, access]) => accessByExam.set(id, access));
-  }
+  const accessByExam =
+    user && user.type !== "ADMIN" && user.type !== "SUPER_ADMIN"
+      ? await getExamAccessMap(user.id, exams.filter((e) => e.isPremium).map((e) => e.id))
+      : new Map<string, boolean>();
 
   return <main className="relative min-h-screen overflow-hidden">
     <div className="pointer-events-none absolute -left-28 top-20 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
