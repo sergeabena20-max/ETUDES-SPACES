@@ -28,6 +28,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     }),
   ]);
 
+  const canViewPremium = !exam.isPremium || premium || isAdmin;
+
   const serializedComments = comments.map((comment) => ({
     id: comment.id,
     userId: comment.userId,
