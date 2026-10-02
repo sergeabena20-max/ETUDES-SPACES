@@ -75,7 +75,7 @@ export default function RegisterPage() {
           <label className="mb-2 block text-sm font-bold">Filière</label>
           <select name="programName" required className="w-full rounded-xl border p-3">
             <option value="">Sélectionner</option>
-            <option value="Informatique">Informatique</option>
+            <option value="GI">GI — Génie Informatique</option><option value="GLT">GLT — Génie Logistique et Transport</option><option value="GRT">GRT — Génie Réseau et Télécom</option>
           </select>
         </div>}
 
