@@ -1,17 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const ELEVE_LEVELS = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
 const ETUDIANT_LEVELS = ["Licence 1", "Licence 2", "Licence 3"];
+
+type Program = { id: string; name: string };
 
 export default function RegisterPage() {
   const router = useRouter();
   const [status, setStatus] = useState<"ELEVE" | "ETUDIANT" | "">("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [programs, setPrograms] = useState<Program[]>([]);
+
+  useEffect(() => {
+    void fetch("/api/public/programs", { cache: "no-store" })
+      .then((res) => res.ok ? res.json() : Promise.reject(new Error("programs")))
+      .then((data) => setPrograms(data.programs || []))
+      .catch(() => setPrograms([]));
+  }, []);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
