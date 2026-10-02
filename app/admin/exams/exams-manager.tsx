@@ -51,7 +51,9 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [filter, setFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
-  const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);\n  const schoolLevels = useMemo(() => levels.filter((o) => !["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);\n  const universityLevels = useMemo(() => levels.filter((o) => ["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
+  const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);
+  const schoolLevels = useMemo(() => levels.filter((o) => !["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
+  const universityLevels = useMemo(() => levels.filter((o) => ["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
 
   const filtered = useMemo(() => exams.filter((e) => {
     const haystack = [e.title, e.slug, e.category, e.subject?.name, e.academicLevel?.name, e.school?.name, e.program?.name].filter(Boolean).join(" ").toLowerCase();
