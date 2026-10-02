@@ -5,23 +5,27 @@ import { prisma } from "@/lib/prisma";
 import { canAccessQuiz } from "@/lib/quiz-access";
 
 export default async function Dashboard() {
-  const user = await getCurrentUser();
+  const [user, quizzes] = await Promise.all([
+    getCurrentUser(),
+    prisma.quiz.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        subject: { select: { name: true } },
+        academicLevel: { select: { name: true } },
+        program: { select: { name: true } },
+        _count: { select: { questions: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
+  ]);
 
   if (!user) {
     redirect("/login");
   }
-
-  const quizzes = await prisma.quiz.findMany({
-    where: { status: "PUBLISHED" },
-    include: {
-      subject: true,
-      academicLevel: true,
-      program: true,
-      questions: true,
-    },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
 
   const myQuizzes = quizzes.filter((q) => canAccessQuiz(user, q)).slice(0, 3);
 
@@ -83,7 +87,7 @@ export default async function Dashboard() {
                   <span className="text-2xl">🧠</span>
                   <h3 className="mt-3 font-bold">{q.title}</h3>
                   <p className="mt-1 text-sm text-slate-500">
-                    {q.questions.length} questions ·{" "}
+                    {q._count.questions} questions ·{" "}
                     {q.subject?.name ?? "Matière"}
                   </p>
                   <span className="mt-4 inline-block text-sm font-bold text-sky-600">
