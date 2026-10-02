@@ -13,21 +13,27 @@ export default async function ExamsPage({ searchParams }: Props) {
   const year = params.year ? Number(params.year) : undefined;
   const levelId = params.level;
   const programId = params.program;
-  const universityLevelId = params.universityLevel;\n  const selected = levelId || programId;
+  const universityLevelId = params.universityLevel;
+  const selected = levelId || programId;
   const user = await getCurrentUser();
 
   const [allLevels, programs] = await Promise.all([
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
-  const schoolLevelNames = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];\n  const universityLevelNames = ["Licence 1", "Licence 2", "Licence 3"];\n  const levels = allLevels.filter((x) => schoolLevelNames.includes(x.name));\n  const universityLevels = allLevels.filter((x) => universityLevelNames.includes(x.name));\n  const selectedLevel = levelId ? allLevels.find((x) => x.id === levelId) : null;
+  const schoolLevelNames = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
+  const universityLevelNames = ["Licence 1", "Licence 2", "Licence 3"];
+  const levels = allLevels.filter((x) => schoolLevelNames.includes(x.name));
+  const universityLevels = allLevels.filter((x) => universityLevelNames.includes(x.name));
+  const selectedLevel = levelId ? allLevels.find((x) => x.id === levelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
 
   const exams = selected ? await prisma.exam.findMany({
     where: {
       status: "PUBLISHED",
       ...(levelId ? { academicLevelId: levelId } : {}),
-      ...(programId ? { programId } : {}),\n      ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
+      ...(programId ? { programId } : {}),
+      ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
       ...(q ? { OR: [
         { title: { contains: q, mode: "insensitive" } },
@@ -72,7 +78,8 @@ export default async function ExamsPage({ searchParams }: Props) {
       </div> : <div className="mt-8">
         <Link href="/exams" className="text-sm font-bold text-sky-600">← Toutes les rubriques</Link>
         <div className="card mt-5 p-6"><p className="text-sm font-bold text-sky-600">{selectedLevel ? "ÉLÈVE" : "ÉTUDIANT"}</p><h2 className="mt-1 text-3xl font-black">{selectedLevel?.name || selectedProgram?.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedLevel ? "Épreuves exclusivement destinées à cette classe/série." : "Épreuves de cette filière, avec séparation par niveau Licence."}</p>
-          {selectedProgram && <div className="mb-5 flex flex-wrap gap-2">{universityLevels.map((level) => <Link key={level.id} href={`/exams?program=${selectedProgram.id}&universityLevel=${level.id}`} className={`rounded-xl border px-4 py-2 text-sm font-bold ${universityLevelId === level.id ? "border-sky-500 bg-sky-50 text-sky-700" : "bg-white text-slate-600"}`}>{level.name}</Link>)}<Link href={`/exams?program=${selectedProgram.id}`} className="rounded-xl border px-4 py-2 text-sm font-bold">Tous les niveaux</Link></div>}\n          <form className="mt-6 grid gap-3 md:grid-cols-[1fr_180px_auto]"><input type="hidden" name={levelId ? "level" : "program"} value={selected} />{universityLevelId && <input type="hidden" name="universityLevel" value={universityLevelId} />}<input name="q" defaultValue={q} placeholder="Rechercher une matière ou une épreuve..." className="rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200" /><select name="year" defaultValue={year?.toString() || ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les années</option>{years.map((x) => <option key={x.year} value={x.year!}>{x.year}</option>)}</select><button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button></form>
+          {selectedProgram && <div className="mb-5 flex flex-wrap gap-2">{universityLevels.map((level) => <Link key={level.id} href={`/exams?program=${selectedProgram.id}&universityLevel=${level.id}`} className={`rounded-xl border px-4 py-2 text-sm font-bold ${universityLevelId === level.id ? "border-sky-500 bg-sky-50 text-sky-700" : "bg-white text-slate-600"}`}>{level.name}</Link>)}<Link href={`/exams?program=${selectedProgram.id}`} className="rounded-xl border px-4 py-2 text-sm font-bold">Tous les niveaux</Link></div>}
+          <form className="mt-6 grid gap-3 md:grid-cols-[1fr_180px_auto]"><input type="hidden" name={levelId ? "level" : "program"} value={selected} />{universityLevelId && <input type="hidden" name="universityLevel" value={universityLevelId} />}<input name="q" defaultValue={q} placeholder="Rechercher une matière ou une épreuve..." className="rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200" /><select name="year" defaultValue={year?.toString() || ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les années</option>{years.map((x) => <option key={x.year} value={x.year!}>{x.year}</option>)}</select><button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button></form>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{exams.length ? exams.map((e) => { const access = !e.isPremium || accessByExam.get(e.id) === true || user?.type === "ADMIN" || user?.type === "SUPER_ADMIN"; return <article key={e.id} className="card p-5"><div className="text-xs font-bold uppercase text-sky-600">{e.subject?.name || "Matière"} · {e.year || "—"}</div><h3 className="mt-3 text-xl font-bold">{e.title}</h3><p className="mt-2 text-sm text-slate-500">{e.description || "Épreuve disponible."}</p>{e.isPremium && !access && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Épreuve Premium · <Link href={"/premium?exam=" + e.id} className="underline">Activer Premium</Link></div>}<div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">{e.isPremium && <span className="rounded-full bg-amber-50 px-3 py-1 font-bold text-amber-700">⭐ Premium</span>}<span className="rounded-full bg-slate-100 px-3 py-1">{selectedLevel?.name || selectedProgram?.name}</span></div><div className="mt-5 flex flex-wrap gap-3"><Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !access ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>{e.fileUrl && access && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}{e.fileUrl && access && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger ↓</a>}{e.solution?.fileUrl && access && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Correction ↓</a>}</div></article>; }) : <div className="card p-8 md:col-span-3"><h3 className="font-bold">Aucune épreuve publiée ici pour le moment.</h3><p className="mt-2 text-sm text-slate-500">L'administration pourra ajouter les sujets directement dans cette rubrique.</p></div>}</div>
       </div>}
