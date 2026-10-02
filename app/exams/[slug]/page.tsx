@@ -9,26 +9,56 @@ export const dynamic = "force-dynamic";
 
 export default async function ExamDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const exam = await prisma.exam.findFirst({
-    where: { slug, status: "PUBLISHED" },
-    include: { subject: true, academicLevel: true, school: true, program: true, solution: true },
-  });
+  const [exam, user] = await Promise.all([
+    prisma.exam.findFirst({
+      where: { slug, status: "PUBLISHED" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        year: true,
+        fileUrl: true,
+        isPremium: true,
+        subject: { select: { name: true } },
+        academicLevel: { select: { name: true } },
+        school: { select: { name: true } },
+        program: { select: { name: true } },
+        solution: { select: { text: true, fileUrl: true } },
+      },
+    }),
+    getCurrentUser(),
+  ]);
   if (!exam) notFound();
 
-  const user = await getCurrentUser();
-  const [premium, isAdmin, existingFavorite, comments] = await Promise.all([
-    user && exam.isPremium ? hasExamAccess(user.id, exam.id) : Promise.resolve(false),
-    Promise.resolve(user?.type === "ADMIN" || user?.type === "SUPER_ADMIN"),
-    user ? prisma.favorite.findFirst({ where: { userId: user.id, examId: exam.id }, select: { id: true } }) : null,
-    prisma.comment.findMany({
-      where: { examId: exam.id },
-      include: { user: { select: { firstName: true, lastName: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-    }),
-  ]);
-
+  const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
+  const premium = user && exam.isPremium && !isAdmin
+    ? await hasExamAccess(user.id, exam.id)
+    : false;
   const canViewPremium = !exam.isPremium || premium || isAdmin;
+
+  const [existingFavorite, comments] = canViewPremium
+    ? await Promise.all([
+        user
+          ? prisma.favorite.findFirst({
+              where: { userId: user.id, examId: exam.id },
+              select: { id: true },
+            })
+          : null,
+        prisma.comment.findMany({
+          where: { examId: exam.id },
+          select: {
+            id: true,
+            userId: true,
+            content: true,
+            createdAt: true,
+            user: { select: { firstName: true, lastName: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        }),
+      ])
+    : [null, []];
 
   const serializedComments = comments.map((comment) => ({
     id: comment.id,
