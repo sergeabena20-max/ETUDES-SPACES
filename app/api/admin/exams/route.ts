@@ -82,7 +82,7 @@ async function save(req: Request, editing: boolean) {
       isPremium: data.isPremium,
       premiumPrice: data.isPremium ? (data.premiumPrice ?? null) : null,
       subjectId: data.subjectId || null,
-      academicLevelId: data.targetType === "ELEVE" ? (data.academicLevelId || null) : null,
+      academicLevelId: data.academicLevelId || null,
       schoolId: data.schoolId || null,
       programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
     };
