@@ -40,6 +40,13 @@ async function main() {
     update: { kind: "FILIERE" },
     create: { name: "Informatique", kind: "FILIERE" },
   });
+  for (const name of ["GI", "GLT", "GRT"]) {
+    await prisma.program.upsert({
+      where: { name },
+      update: { kind: "FILIERE" },
+      create: { name, kind: "FILIERE" },
+    });
+  }
 
   const quizSeeds = [
     {
