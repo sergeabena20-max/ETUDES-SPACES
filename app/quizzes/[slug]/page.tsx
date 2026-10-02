@@ -9,13 +9,34 @@ export const dynamic = "force-dynamic";
 
 export default async function QuizDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const user = await getCurrentUser();
-  if (!user) return notFound();
-  const quiz = await prisma.quiz.findFirst({
-    where: { slug, status: "PUBLISHED" },
-    include: { subject: true, academicLevel: true, program: true, questions: { orderBy: { order: "asc" } } },
-  });
-  if (!quiz || !canAccessQuiz(user, quiz)) notFound();
+  const [user, quiz] = await Promise.all([
+    getCurrentUser(),
+    prisma.quiz.findFirst({
+      where: { slug, status: "PUBLISHED" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        subject: { select: { name: true } },
+        academicLevel: { select: { id: true, name: true } },
+        program: { select: { id: true, name: true } },
+        questions: {
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            question: true,
+            optionA: true,
+            optionB: true,
+            optionC: true,
+            optionD: true,
+            explanation: true,
+          },
+        },
+      },
+    }),
+  ]);
+  if (!user || !quiz || !canAccessQuiz(user, quiz)) notFound();
 
   const questions = quiz.questions.map(q => ({
     id: q.id, question: q.question,
