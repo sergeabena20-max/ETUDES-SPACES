@@ -6,13 +6,24 @@ import { canAccessQuiz } from "@/lib/quiz-access";
 export const dynamic = "force-dynamic";
 
 export default async function QuizzesPage() {
-  const user = await getCurrentUser();
-  const quizzes = await prisma.quiz.findMany({
-    where: { status: "PUBLISHED" },
-    include: { subject: true, academicLevel: true, program: true, _count: { select: { questions: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 60,
-  });
+  const [user, quizzes] = await Promise.all([
+    getCurrentUser(),
+    prisma.quiz.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        subject: { select: { name: true } },
+        academicLevel: { select: { id: true, name: true } },
+        program: { select: { id: true, name: true } },
+        _count: { select: { questions: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 60,
+    }),
+  ]);
   const visibleQuizzes = user ? quizzes.filter((quiz) => canAccessQuiz(user, quiz)) : quizzes;
 
   return <main className="min-h-screen">
