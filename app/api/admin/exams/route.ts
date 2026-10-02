@@ -67,7 +67,13 @@ async function save(req: Request, editing: boolean) {
 
   const data = parsed.data;
   if (data.targetType === "ELEVE" && !data.academicLevelId) return NextResponse.json({ error: "Sélectionne la classe ou la série de cette épreuve." }, { status: 400 });
-  if (data.targetType === "ETUDIANT" && !data.programId) return NextResponse.json({ error: "Sélectionne la filière de cette épreuve." }, { status: 400 });\n  if (data.targetType === "ETUDIANT" && data.academicLevelId) {\n    const level = await prisma.academicLevel.findUnique({ where: { id: data.academicLevelId }, select: { name: true } });\n    if (!level || !["Licence 1", "Licence 2", "Licence 3"].includes(level.name)) {\n      return NextResponse.json({ error: "Pour un étudiant, sélectionne uniquement Licence 1, Licence 2 ou Licence 3." }, { status: 400 });\n    }\n  }
+  if (data.targetType === "ETUDIANT" && !data.programId) return NextResponse.json({ error: "Sélectionne la filière de cette épreuve." }, { status: 400 });
+  if (data.targetType === "ETUDIANT" && data.academicLevelId) {
+    const level = await prisma.academicLevel.findUnique({ where: { id: data.academicLevelId }, select: { name: true } });
+    if (!level || !["Licence 1", "Licence 2", "Licence 3"].includes(level.name)) {
+      return NextResponse.json({ error: "Pour un étudiant, sélectionne uniquement Licence 1, Licence 2 ou Licence 3." }, { status: 400 });
+    }
+  }
   if (editing && !data.id) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 400 });
 
   try {
