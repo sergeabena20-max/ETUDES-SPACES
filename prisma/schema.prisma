@@ -139,6 +139,9 @@ model Program {
   id            String         @id @default(uuid())
   name          String         @unique
   kind          String?
+  parentId      String?
+  parent        Program?       @relation("ProgramHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children      Program[]      @relation("ProgramHierarchy")
   users         User[]
   courses       Course[]
   exams         Exam[]
@@ -146,6 +149,7 @@ model Program {
   programLevels ProgramLevel[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  @@index([parentId])
 }
 
 model ProgramLevel {
