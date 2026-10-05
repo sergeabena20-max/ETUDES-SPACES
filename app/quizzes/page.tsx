@@ -16,6 +16,8 @@ export default async function QuizzesPage() {
         slug: true,
         description: true,
         subject: { select: { name: true } },
+        academicLevelId: true,
+        programId: true,
         academicLevel: { select: { id: true, name: true } },
         program: { select: { id: true, name: true } },
         _count: { select: { questions: true } },
