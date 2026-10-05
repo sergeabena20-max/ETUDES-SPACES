@@ -18,12 +18,12 @@ export default async function ExamsPage({ searchParams }: Props) {
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
-    prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+    prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, programLevels: { orderBy: { order: "asc" }, select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } } }, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
   const levels = allLevels.filter((x) => x.kind === "SCOLAIRE");
-  const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const selectedLevel = levelId ? allLevels.find((x) => x.id === levelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
+  const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
 
   const [exams, years] = selected ? await Promise.all([
     prisma.exam.findMany({
