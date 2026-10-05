@@ -17,13 +17,11 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selected = levelId || programId;
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
-  const schoolLevelNames = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
-  const universityLevelNames = ["Licence 1", "Licence 2", "Licence 3"];
-  const levels = allLevels.filter((x) => schoolLevelNames.includes(x.name));
-  const universityLevels = allLevels.filter((x) => universityLevelNames.includes(x.name));
+  const levels = allLevels.filter((x) => x.kind === "SCOLAIRE");
+  const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const selectedLevel = levelId ? allLevels.find((x) => x.id === levelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
 
