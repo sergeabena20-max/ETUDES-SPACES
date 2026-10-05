@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import QuizPlayer from "./quiz-player";
 import { getCurrentUser } from "@/lib/session";
@@ -38,7 +38,9 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
       },
     }),
   ]);
-  if (!user || !quiz || !canAccessQuiz(user, quiz)) notFound();
+  if (!quiz) notFound();
+  if (!user) redirect("/login?next=" + encodeURIComponent("/quizzes/" + quiz.slug));
+  if (!canAccessQuiz(user, quiz)) redirect("/quizzes?access=denied");
 
   const questions = quiz.questions.map(q => ({
     id: q.id, question: q.question,
