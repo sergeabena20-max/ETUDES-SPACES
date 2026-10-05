@@ -17,6 +17,8 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
         id: true,
         title: true,
         slug: true,
+        academicLevelId: true,
+        programId: true,
         description: true,
         subject: { select: { name: true } },
         academicLevel: { select: { id: true, name: true } },
