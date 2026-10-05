@@ -5,10 +5,8 @@ import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const ELEVE_LEVELS = ["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"];
-const ETUDIANT_LEVELS = ["Licence 1", "Licence 2", "Licence 3"];
-
 type Program = { id: string; name: string };
+type Level = { id: string; name: string; kind: string | null };
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,13 +14,34 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [schoolLevels, setSchoolLevels] = useState<Level[]>([]);
+  const [universityLevels, setUniversityLevels] = useState<Level[]>([]);
+  const [selectedProgramId, setSelectedProgramId] = useState("");
 
   useEffect(() => {
-    void fetch("/api/public/programs", { cache: "no-store" })
-      .then((res) => res.ok ? res.json() : Promise.reject(new Error("programs")))
-      .then((data) => setPrograms(data.programs || []))
-      .catch(() => setPrograms([]));
+    Promise.all([
+      fetch("/api/public/programs", { cache: "no-store" }).then((res) => res.ok ? res.json() : Promise.reject(new Error("programs"))),
+      fetch("/api/public/academic-levels?kind=SCOLAIRE", { cache: "no-store" }).then((res) => res.ok ? res.json() : Promise.reject(new Error("school-levels"))),
+      fetch("/api/public/academic-levels?kind=UNIVERSITAIRE", { cache: "no-store" }).then((res) => res.ok ? res.json() : Promise.reject(new Error("university-levels"))),
+    ]).then(([programData, schoolData, universityData]) => {
+      setPrograms(programData.programs || []);
+      setSchoolLevels(schoolData.levels || []);
+      setUniversityLevels(universityData.levels || []);
+    }).catch(() => {
+      setPrograms([]);
+      setSchoolLevels([]);
+      setUniversityLevels([]);
+    });
   }, []);
+
+  useEffect(() => {
+    if (status !== "ETUDIANT") {
+      setSelectedProgramId("");
+      return;
+    }
+    setSelectedProgramId("");
+    setUniversityLevels([]);
+  }, [status]);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,15 +97,22 @@ export default function RegisterPage() {
           <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Classe" : "Niveau universitaire"}</label>
           <select name="academicLevelName" required className="w-full rounded-xl border p-3">
             <option value="">Sélectionner</option>
-            {(status === "ELEVE" ? ELEVE_LEVELS : ETUDIANT_LEVELS).map((level) => <option key={level} value={level}>{level}</option>)}
+            {(status === "ELEVE" ? schoolLevels : universityLevels).map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
           </select>
         </div>}
 
         {status === "ETUDIANT" && <div>
           <label className="mb-2 block text-sm font-bold">Filière</label>
-          <select name="programName" required className="w-full rounded-xl border p-3">
+          <select name="programName" required value={selectedProgramId} onChange={async (e) => {
+              const id = e.target.value;
+              setSelectedProgramId(id);
+              if (!id) return;
+              const res = await fetch("/api/public/academic-levels?kind=UNIVERSITAIRE&programId=" + encodeURIComponent(id), { cache: "no-store" });
+              const data = await res.json();
+              setUniversityLevels(data.levels || []);
+            }} className="w-full rounded-xl border p-3">
             <option value="">Sélectionner</option>
-            <option value="GI">GI — Génie Informatique</option><option value="GLT">GLT — Génie Logistique et Transport</option><option value="GRT">GRT — Génie Réseau et Télécom</option>
+            {programs.map((program) => <option key={program.id} value={program.name}>{program.name}</option>)}
           </select>
         </div>}
 
