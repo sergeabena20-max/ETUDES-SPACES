@@ -7,7 +7,7 @@ const levelSchema = z.object({
   id: z.string().uuid().optional().nullable(),
   name: z.string().trim().min(2).max(100),
   kind: z.enum(["SCOLAIRE", "UNIVERSITAIRE"]),
-  programIds: z.array(z.string().uuid()).default([]),
+  programIds: z.array(z.string().min(1).max(100)).default([]),
 });
 
 export async function GET() {
