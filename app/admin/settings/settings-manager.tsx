@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import AcademicCatalogManager from "./academic-catalog-manager";
 
 type Program = {
   id: string;
@@ -76,6 +77,7 @@ export default function SettingsManager({ initialPrograms }: { initialPrograms: 
 
   return (
     <div className="mt-8 space-y-6">
+      <AcademicCatalogManager />
       <section className="card p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
