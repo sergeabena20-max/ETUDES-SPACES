@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import QuizPlayer from "./quiz-player";
 import { getCurrentUser } from "@/lib/session";
 import { canAccessQuiz } from "@/lib/quiz-access";
+import { getPlatformBoolean, getPlatformNumber } from "@/lib/platform-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,11 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
   if (!user) redirect("/login?next=" + encodeURIComponent("/quizzes/" + quiz.slug));
   if (!canAccessQuiz(user, quiz)) redirect("/quizzes?access=denied");
 
+  const [timerEnabled, timerSeconds] = await Promise.all([
+    getPlatformBoolean("QUIZ_TIMER_ENABLED", true),
+    getPlatformNumber("QUIZ_TIMER_SECONDS", 1800),
+  ]);
+
   const questions = quiz.questions.map(q => ({
     id: q.id, question: q.question,
     options: { A: q.optionA, B: q.optionB, C: q.optionC, D: q.optionD },
@@ -66,7 +72,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
         <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-500">{quiz.program && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{quiz.program.name}</span>}<span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{questions.length} question{questions.length > 1 ? "s" : ""}</span></div>
       </div>
       <div className="card mt-8 animate-slide-up stagger-2 p-4 sm:p-6">
-        <QuizPlayer questions={questions} slug={quiz.slug} />
+        <QuizPlayer questions={questions} slug={quiz.slug} timerEnabled={timerEnabled} timerSeconds={timerSeconds} />
       </div>
     </section>
   </main>;
