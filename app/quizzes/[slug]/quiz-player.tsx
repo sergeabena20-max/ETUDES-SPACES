@@ -14,22 +14,29 @@ type Correction = {
   explanation: string | null;
 };
 
-export default function QuizPlayer({ questions, slug }: { questions: Question[]; slug: string }) {
+export default function QuizPlayer({ questions, slug, timerEnabled, timerSeconds }: { questions: Question[]; slug: string; timerEnabled: boolean; timerSeconds: number }) {
   const [answers, setAnswers] = useState<Record<string, "A" | "B" | "C" | "D">>({});
   const [corrections, setCorrections] = useState<Correction[]>([]);
   const [result, setResult] = useState<{ score: number; total: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [elapsed, setElapsed] = useState(0);
+  const [autoSubmitting, setAutoSubmitting] = useState(false);
 
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
   const correctionMap = useMemo(() => new Map(corrections.map((c) => [c.id, c])), [corrections]);
 
   useEffect(() => {
-    if (result) return;
+    if (result || !timerEnabled) return;
     const timer = window.setInterval(() => setElapsed((value) => value + 1), 1000);
     return () => window.clearInterval(timer);
-  }, [result]);
+  }, [result, timerEnabled]);
+
+  useEffect(() => {
+    if (!timerEnabled || !timerSeconds || result || autoSubmitting || elapsed < timerSeconds) return;
+    setAutoSubmitting(true);
+    void submit();
+  }, [elapsed, timerEnabled, timerSeconds, result, autoSubmitting]);
 
   function formatTime(seconds: number) {
     const minutes = Math.floor(seconds / 60);
@@ -52,10 +59,11 @@ export default function QuizPlayer({ questions, slug }: { questions: Question[];
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function restart() { setAnswers({}); setCorrections([]); setResult(null); setError(""); setElapsed(0); }
+  function restart() { setAnswers({}); setCorrections([]); setResult(null); setError(""); setElapsed(0); setAutoSubmitting(false); }
 
   return <div className="mt-8 space-y-5">
-    {!result && <div className="mb-4 flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold ring-1 ring-slate-200"><span>⏱️ Temps : {formatTime(elapsed)}</span><span>{answered}/{questions.length} répondues</span></div>}
+    {!result && <div className="mb-4 flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold ring-1 ring-slate-200"><span>{timerEnabled ? "⏱️ Temps : " + formatTime(elapsed) : "⏱️ Chronomètre désactivé"}</span><span>{answered}/{questions.length} répondues</span></div>}
+    {autoSubmitting && !result && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">Temps écoulé. Correction du test...</p>}
     {result && <div className="rounded-2xl bg-sky-50 p-6 ring-1 ring-sky-100">
       <p className="text-sm font-semibold text-sky-700">Résultat</p>
       <h2 className="mt-1 text-3xl font-black">{result.score} / {result.total}</h2>
