@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Question = {
   id: string; question: string;
@@ -20,16 +20,29 @@ export default function QuizPlayer({ questions, slug }: { questions: Question[];
   const [result, setResult] = useState<{ score: number; total: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [elapsed, setElapsed] = useState(0);
 
   const answered = useMemo(() => Object.keys(answers).length, [answers]);
   const correctionMap = useMemo(() => new Map(corrections.map((c) => [c.id, c])), [corrections]);
+
+  useEffect(() => {
+    if (result) return;
+    const timer = window.setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [result]);
+
+  function formatTime(seconds: number) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return minutes + ":" + String(secs).padStart(2, "0");
+  }
 
   async function submit() {
     if (answered < questions.length || loading) return;
     setLoading(true); setError("");
     const res = await fetch(`/api/quizzes/${slug}/submit`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers, durationSec: elapsed }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Impossible de corriger le test."); setLoading(false); return; }
@@ -39,9 +52,10 @@ export default function QuizPlayer({ questions, slug }: { questions: Question[];
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function restart() { setAnswers({}); setCorrections([]); setResult(null); setError(""); }
+  function restart() { setAnswers({}); setCorrections([]); setResult(null); setError(""); setElapsed(0); }
 
   return <div className="mt-8 space-y-5">
+    {!result && <div className="mb-4 flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold ring-1 ring-slate-200"><span>⏱️ Temps : {formatTime(elapsed)}</span><span>{answered}/{questions.length} répondues</span></div>}
     {result && <div className="rounded-2xl bg-sky-50 p-6 ring-1 ring-sky-100">
       <p className="text-sm font-semibold text-sky-700">Résultat</p>
       <h2 className="mt-1 text-3xl font-black">{result.score} / {result.total}</h2>
