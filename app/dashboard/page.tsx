@@ -25,9 +25,34 @@ export default async function Dashboard() {
     }),
   ]);
 
+
   if (!user) {
     redirect("/login");
   }
+
+  const [attempts, favoriteCount] = await Promise.all([
+    prisma.quizAttempt.findMany({
+      where: { userId: user.id },
+      orderBy: { completedAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        score: true,
+        total: true,
+        durationSec: true,
+        completedAt: true,
+        quiz: { select: { title: true, slug: true } },
+      },
+    }),
+    prisma.favorite.count({ where: { userId: user.id } }),
+  ]);
+
+  const totalAttempts = await prisma.quizAttempt.count({ where: { userId: user.id } });
+  const averageScore = attempts.length
+    ? Math.round(
+        (attempts.reduce((sum, attempt) => sum + (attempt.total ? (attempt.score / attempt.total) * 100 : 0), 0) / attempts.length) * 10,
+      ) / 10
+    : 0;
 
   const myQuizzes = quizzes.filter((q) => canAccessQuiz(user, q)).slice(0, 3);
 
@@ -100,6 +125,35 @@ export default async function Dashboard() {
             </div>
           </section>
         )}
+
+        <section className="mt-10">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-sm font-semibold text-sky-600">Ma progression</p>
+              <h2 className="mt-1 text-2xl font-black">Mes statistiques</h2>
+            </div>
+            <Link href="/quizzes/history" className="text-sm font-bold text-sky-600">Voir mon historique →</Link>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="card p-5"><p className="text-sm text-slate-500">Tests réalisés</p><p className="mt-2 text-3xl font-black">{totalAttempts}</p></div>
+            <div className="card p-5"><p className="text-sm text-slate-500">Score moyen</p><p className="mt-2 text-3xl font-black">{averageScore}%</p></div>
+            <div className="card p-5"><p className="text-sm text-slate-500">Favoris</p><p className="mt-2 text-3xl font-black">{favoriteCount}</p></div>
+            <div className="card p-5"><p className="text-sm text-slate-500">Dernier test</p><p className="mt-2 text-lg font-black">{attempts[0] ? Math.round((attempts[0].score / attempts[0].total) * 100) + "%" : "—"}</p></div>
+          </div>
+        </section>
+
+        {attempts.length > 0 && <section className="mt-10">
+          <h2 className="text-2xl font-black">Dernières tentatives</h2>
+          <div className="mt-4 grid gap-3">
+            {attempts.map((attempt) => {
+              const percentage = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
+              return <Link key={attempt.id} href={"/quizzes/" + attempt.quiz.slug} className="card flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5">
+                <div><p className="font-bold">{attempt.quiz.title}</p><p className="mt-1 text-xs text-slate-500">{new Date(attempt.completedAt).toLocaleDateString("fr-FR")} · {attempt.durationSec ? Math.floor(attempt.durationSec / 60) + " min " + (attempt.durationSec % 60) + " s" : "durée inconnue"}</p></div>
+                <span className="rounded-full bg-sky-50 px-3 py-1 text-sm font-black text-sky-700">{percentage}%</span>
+              </Link>;
+            })}
+          </div>
+        </section>}
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link
