@@ -30,5 +30,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
     return { id: q.id, selected: answer, correctOption: q.correctOption, explanation: q.explanation };
   });
 
+  const durationSec = Number(parsed.data.answers.__durationSec ?? 0);
+  const cleanAnswers = Object.fromEntries(
+    Object.entries(parsed.data.answers).filter(([key]) => key !== "__durationSec"),
+  );
+
+  await prisma.quizAttempt.create({
+    data: {
+      userId: user.id,
+      quizId: quiz.id,
+      score,
+      total: quiz.questions.length,
+      durationSec: Number.isFinite(durationSec) && durationSec > 0 ? Math.round(durationSec) : null,
+      answers: cleanAnswers,
+    },
+  });
+
   return NextResponse.json({ score, total: quiz.questions.length, corrections });
 }
