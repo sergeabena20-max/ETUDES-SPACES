@@ -31,6 +31,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
     return { id: q.id, selected: answer, correctOption: q.correctOption, explanation: q.explanation };
   });
 
+  const cleanAnswers = parsed.data.answers;
+
   await prisma.quizAttempt.create({
     data: {
       userId: user.id,
