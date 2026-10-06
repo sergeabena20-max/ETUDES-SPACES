@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/authorization";
 import SettingsManager from "./settings-manager";
+import PlatformSettingsManager from "./platform-settings-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,13 @@ export default async function AdminSettingsPage() {
   const admin = await requireSuperAdmin();
   if (!admin) redirect("/dashboard");
 
-  const programs = await prisma.program.findMany({
+  const [programs, settings] = await Promise.all([
+    prisma.program.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, kind: true, _count: { select: { users: true, exams: true, courses: true, quizzes: true } } },
-  });
+    }),
+    prisma.platformSetting.findMany({ orderBy: [{ category: "asc" }, { label: "asc" }] }),
+  ]);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-50/60">
@@ -34,6 +38,7 @@ export default async function AdminSettingsPage() {
             Centralise ici les réglages qui ne doivent plus nécessiter une modification du code.
           </p>
         </div>
+        <PlatformSettingsManager initialSettings={settings} />
         <SettingsManager initialPrograms={programs} />
       </section>
     </main>
