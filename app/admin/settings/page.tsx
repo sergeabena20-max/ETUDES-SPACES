@@ -38,7 +38,12 @@ export default async function AdminSettingsPage() {
             Centralise ici les réglages qui ne doivent plus nécessiter une modification du code.
           </p>
         </div>
-        <PlatformSettingsManager initialSettings={settings} />
+        <PlatformSettingsManager
+          initialSettings={settings.map((setting) => ({
+            ...setting,
+            type: setting.type as "STRING" | "NUMBER" | "BOOLEAN",
+          }))}
+        />
         <SettingsManager initialPrograms={programs} />
       </section>
     </main>
