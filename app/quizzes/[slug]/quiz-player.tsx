@@ -35,7 +35,7 @@ export default function QuizPlayer({ questions, slug, timerEnabled, timerSeconds
   useEffect(() => {
     if (!timerEnabled || !timerSeconds || result || autoSubmitting || elapsed < timerSeconds) return;
     setAutoSubmitting(true);
-    void submit();
+    void submit(true);
   }, [elapsed, timerEnabled, timerSeconds, result, autoSubmitting]);
 
   function formatTime(seconds: number) {
@@ -44,8 +44,8 @@ export default function QuizPlayer({ questions, slug, timerEnabled, timerSeconds
     return minutes + ":" + String(secs).padStart(2, "0");
   }
 
-  async function submit() {
-    if (answered < questions.length || loading) return;
+  async function submit(force = false) {
+    if ((!force && answered < questions.length) || loading) return;
     setLoading(true); setError("");
     const res = await fetch(`/api/quizzes/${slug}/submit`, {
       method: "POST", headers: { "Content-Type": "application/json" },
