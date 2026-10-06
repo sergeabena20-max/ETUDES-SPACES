@@ -382,6 +382,20 @@ enum PaymentTargetType {
   EXAM
 }
 
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  label       String
+  description String?
+  category    String   @default("GENERAL")
+  type        String   @default("STRING")
+  value       String
+  enabled     Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  @@index([category, enabled])
+}
+
 model PremiumSettings {
   id                  String   @id @default("main")
   enabled             Boolean  @default(true)
