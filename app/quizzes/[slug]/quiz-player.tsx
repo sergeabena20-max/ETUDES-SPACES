@@ -90,6 +90,6 @@ export default function QuizPlayer({ questions, slug, timerEnabled, timerSeconds
       </article>;
     })}
 
-    {!result && <button disabled={answered < questions.length || loading} onClick={submit} className="w-full rounded-2xl bg-sky-600 px-5 py-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{loading ? "Correction..." : `Terminer le test (${answered}/${questions.length})`}</button>}
+    {!result && <button disabled={answered < questions.length || loading} onClick={() => void submit()} className="w-full rounded-2xl bg-sky-600 px-5 py-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{loading ? "Correction..." : `Terminer le test (${answered}/${questions.length})`}</button>}
   </div>;
 }
