@@ -64,6 +64,26 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
       <p className="mt-1 max-w-3xl text-sm text-slate-500">Les réglages métier sont stockés en base. Tu peux les activer, modifier ou supprimer sans toucher au code.</p>
     </div>
 
+    <div className="mt-6 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
+      <div className="mb-4">
+        <h3 className="text-base font-black">⏱️ Chronomètre des tests</h3>
+        <p className="mt-1 text-xs text-slate-500">Définis ici la durée maximale des tests. Le joueur appliquera automatiquement ce réglage.</p>
+      </div>
+      <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+        <label className="block text-sm font-bold">Durée
+          <div className="mt-1 flex gap-2">
+            <input value={form.key === "QUIZ_TIMER_SECONDS" ? form.value : (settings.find((s) => s.key === "QUIZ_TIMER_SECONDS")?.value || "30")} onChange={(e)=>{ const current=settings.find((s)=>s.key==="QUIZ_TIMER_SECONDS"); if(current){ setSettings((items)=>items.map((s)=>s.id===current.id?{...s,value:e.target.value}:s)); } }} type="number" min="1" className="w-full rounded-xl border bg-white px-3 py-2" />
+            <span className="flex items-center rounded-xl border bg-white px-3 text-sm text-slate-500">minutes</span>
+          </div>
+        </label>
+        <label className="flex items-center gap-3 rounded-xl border bg-white px-3 py-2 text-sm font-bold">
+          <input type="checkbox" checked={settings.find((s)=>s.key==="QUIZ_TIMER_ENABLED")?.value==="true"} onChange={(e)=>{ const current=settings.find((s)=>s.key==="QUIZ_TIMER_ENABLED"); if(current) setSettings((items)=>items.map((s)=>s.id===current.id?{...s,value:String(e.target.checked)}:s)); }} />
+          Activer le chronomètre
+        </label>
+        <button onClick={async()=>{ const seconds=settings.find((s)=>s.key==="QUIZ_TIMER_SECONDS"); const enabled=settings.find((s)=>s.key==="QUIZ_TIMER_ENABLED"); if(!seconds||!enabled)return; setSaving(true); setMessage(""); try { for (const s of [seconds,enabled]) { const res=await fetch("/api/admin/platform-settings",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({...s,value:s.value,id:s.id})}); if(!res.ok){const data=await res.json(); throw new Error(data.error||"Enregistrement impossible.");} } setMessage("Configuration du chronomètre enregistrée."); } catch(error){setMessage(error instanceof Error?error.message:"Enregistrement impossible.");} finally{setSaving(false);} }} disabled={saving} className="rounded-xl bg-sky-600 px-4 py-2 font-bold text-white disabled:opacity-50">Enregistrer</button>
+      </div>
+    </div>
+
     <div className="mt-6 grid gap-3 rounded-2xl border bg-slate-50 p-4 md:grid-cols-2">
       <input value={form.key} onChange={(e)=>setForm({...form,key:e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g,"_")})} placeholder="CLÉ_EXEMPLE" className="rounded-xl border bg-white px-3 py-2" disabled={Boolean(editing)} />
       <input value={form.label} onChange={(e)=>setForm({...form,label:e.target.value})} placeholder="Nom du réglage" className="rounded-xl border bg-white px-3 py-2" />
