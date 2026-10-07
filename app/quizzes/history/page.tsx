@@ -9,7 +9,8 @@ export default async function QuizHistoryPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/quizzes/history");
 
-  const attempts = await prisma.quizAttempt.findMany({
+  const [attempts, stats] = await Promise.all([
+    prisma.quizAttempt.findMany({
     where: { userId: user.id },
     orderBy: { completedAt: "desc" },
     take: 100,
@@ -21,12 +22,16 @@ export default async function QuizHistoryPage() {
       completedAt: true,
       quiz: { select: { title: true, slug: true, subject: { select: { name: true } } } },
     },
-  });
+    }),
+    prisma.quizAttempt.aggregate({
+      where: { userId: user.id },
+      _sum: { score: true, total: true },
+      _count: { _all: true },
+    }),
+  ]);
 
-  const average = attempts.length
-    ? Math.round(
-        (attempts.reduce((sum, item) => sum + (item.total ? (item.score / item.total) * 100 : 0), 0) / attempts.length) * 10,
-      ) / 10
+  const average = stats._sum.total && stats._sum.total > 0
+    ? Math.round(((stats._sum.score ?? 0) / stats._sum.total) * 1000) / 10
     : 0;
 
   return (
@@ -43,7 +48,7 @@ export default async function QuizHistoryPage() {
         <p className="mt-2 text-slate-500">Retrouve tes tentatives, tes scores et ton temps de réalisation.</p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="card p-5"><p className="text-sm text-slate-500">Tentatives</p><p className="mt-2 text-3xl font-black">{attempts.length}</p></div>
+          <div className="card p-5"><p className="text-sm text-slate-500">Tentatives</p><p className="mt-2 text-3xl font-black">{stats._count._all}</p></div>
           <div className="card p-5"><p className="text-sm text-slate-500">Score moyen</p><p className="mt-2 text-3xl font-black">{average}%</p></div>
           <div className="card p-5"><p className="text-sm text-slate-500">Meilleur score</p><p className="mt-2 text-3xl font-black">{attempts.length ? Math.max(...attempts.map((item) => item.total ? Math.round((item.score / item.total) * 100) : 0)) + "%" : "—"}</p></div>
         </div>
