@@ -113,10 +113,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       },
     });
 
-    const [completedTests, perfectTests] = await Promise.all([
+    const [completedTests, attemptScores] = await Promise.all([
       prisma.quizAttempt.count({ where: { userId: user.id } }),
-      prisma.quizAttempt.count({ where: { userId: user.id, score: { gt: 0 }, total: { gt: 0 } } }),
+      prisma.quizAttempt.findMany({ where: { userId: user.id }, select: { score: true, total: true } }),
     ]);
+
+    const perfectTests = attemptScores.filter((attempt) => attempt.total > 0 && attempt.score === attempt.total).length;
 
     const badges = await prisma.badge.findMany({
       where: { active: true },
