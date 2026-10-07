@@ -25,12 +25,11 @@ export default async function Dashboard() {
     }),
   ]);
 
-
   if (!user) {
     redirect("/login");
   }
 
-  const [attempts, favoriteCount] = await Promise.all([
+  const [attempts, favoriteCount, attemptStats] = await Promise.all([
     prisma.quizAttempt.findMany({
       where: { userId: user.id },
       orderBy: { completedAt: "desc" },
@@ -45,14 +44,20 @@ export default async function Dashboard() {
       },
     }),
     prisma.favorite.count({ where: { userId: user.id } }),
+    prisma.quizAttempt.aggregate({
+      where: { userId: user.id },
+      _sum: { score: true, total: true },
+      _count: { _all: true },
+    }),
   ]);
 
-  const totalAttempts = await prisma.quizAttempt.count({ where: { userId: user.id } });
-  const averageScore = attempts.length
-    ? Math.round(
-        (attempts.reduce((sum, attempt) => sum + (attempt.total ? (attempt.score / attempt.total) * 100 : 0), 0) / attempts.length) * 10,
-      ) / 10
-    : 0;
+  const totalAttempts = attemptStats._count._all;
+  const averageScore =
+    attemptStats._sum.total && attemptStats._sum.total > 0
+      ? Math.round(
+          ((attemptStats._sum.score ?? 0) / attemptStats._sum.total) * 1000,
+        ) / 10
+      : 0;
 
   const myQuizzes = quizzes.filter((q) => canAccessQuiz(user, q)).slice(0, 3);
 
@@ -132,7 +137,9 @@ export default async function Dashboard() {
               <p className="text-sm font-semibold text-sky-600">Ma progression</p>
               <h2 className="mt-1 text-2xl font-black">Mes statistiques</h2>
             </div>
-            <Link href="/quizzes/history" className="text-sm font-bold text-sky-600">Voir mon historique →</Link>
+            <Link href="/quizzes/history" className="text-sm font-bold text-sky-600">
+              Voir mon historique →
+            </Link>
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="card p-5"><p className="text-sm text-slate-500">Tests réalisés</p><p className="mt-2 text-3xl font-black">{totalAttempts}</p></div>
@@ -156,69 +163,41 @@ export default async function Dashboard() {
         </section>}
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/courses"
-            className="card p-6 transition hover:-translate-y-1"
-          >
+          <Link href="/courses" className="card p-6 transition hover:-translate-y-1">
             <span className="text-3xl">📚</span>
             <h2 className="mt-4 font-bold">Cours</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Apprendre par matière.
-            </p>
+            <p className="mt-1 text-sm text-slate-500">Apprendre par matière.</p>
           </Link>
 
-          <Link
-            href="/exams"
-            className="card p-6 transition hover:-translate-y-1"
-          >
+          <Link href="/exams" className="card p-6 transition hover:-translate-y-1">
             <span className="text-3xl">📝</span>
             <h2 className="mt-4 font-bold">Épreuves</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              S'entraîner avec des sujets.
-            </p>
+            <p className="mt-1 text-sm text-slate-500">S'entraîner avec des sujets.</p>
           </Link>
 
-          <Link
-            href="/favorites"
-            className="card p-6 transition hover:-translate-y-1"
-          >
+          <Link href="/favorites" className="card p-6 transition hover:-translate-y-1">
             <span className="text-3xl">❤️</span>
             <h2 className="mt-4 font-bold">Mes favoris</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Retrouver mes contenus.
-            </p>
+            <p className="mt-1 text-sm text-slate-500">Retrouver mes contenus.</p>
           </Link>
 
-          <Link
-            href="/premium"
-            className="card border-amber-200 bg-amber-50 p-6 transition hover:-translate-y-1"
-          >
+          <Link href="/premium" className="card border-amber-200 bg-amber-50 p-6 transition hover:-translate-y-1">
             <span className="text-3xl">⭐</span>
             <h2 className="mt-4 font-bold">Premium</h2>
             <p className="mt-1 text-sm text-slate-500">Activer ou demander la validation.</p>
           </Link>
 
-          <Link
-            href="/profile"
-            className="card p-6 transition hover:-translate-y-1"
-          >
+          <Link href="/profile" className="card p-6 transition hover:-translate-y-1">
             <span className="text-3xl">👤</span>
             <h2 className="mt-4 font-bold">Mon profil</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Mes informations.
-            </p>
+            <p className="mt-1 text-sm text-slate-500">Mes informations.</p>
           </Link>
 
           {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && (
-            <Link
-              href="/admin"
-              className="card border-sky-200 bg-sky-50 p-6 transition hover:-translate-y-1"
-            >
+            <Link href="/admin" className="card border-sky-200 bg-sky-50 p-6 transition hover:-translate-y-1">
               <span className="text-3xl">⚙️</span>
               <h2 className="mt-4 font-bold">Administration</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Gérer la plateforme.
-              </p>
+              <p className="mt-1 text-sm text-slate-500">Gérer la plateforme.</p>
             </Link>
           )}
         </div>
