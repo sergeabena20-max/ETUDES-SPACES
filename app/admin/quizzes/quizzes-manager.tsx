@@ -10,12 +10,13 @@ type Question = {
 type Quiz = {
   id: string; title: string; slug: string; description: string | null; status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   subjectId: string | null; academicLevelId: string | null; programId: string | null;
+  timerEnabled: boolean; timerSeconds: number;
   subject?: Option | null; academicLevel?: Option | null; program?: Option | null; questions: Question[];
 };
 type Form = Omit<Quiz, "id" | "subject" | "academicLevel" | "program" | "questions"> & { id?: string; questions: Question[] };
 
 const blankQuestion = (): Question => ({ question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctOption: "A", explanation: "", order: 0 });
-const empty: Form = { title: "", slug: "", description: "", status: "DRAFT", subjectId: "", academicLevelId: "", programId: "", questions: [] };
+const empty: Form = { title: "", slug: "", description: "", status: "DRAFT", subjectId: "", academicLevelId: "", programId: "", timerEnabled: true, timerSeconds: 1800, questions: [] };
 
 function slugify(v: string) {
   return v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 180);
@@ -46,7 +47,7 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
     setQuizzes(data.quizzes); setSubjects(data.subjects); setLevels(data.levels); setPrograms(data.programs);
   }
   function startNew() { setForm({ ...empty, questions: [] }); setMessage(""); setOpen(true); }
-  function edit(q: Quiz) { setForm({ id: q.id, title: q.title, slug: q.slug, description: q.description ?? "", status: q.status, subjectId: q.subjectId ?? "", academicLevelId: q.academicLevelId ?? "", programId: q.programId ?? "", questions: q.questions.map((x) => ({ ...x, explanation: x.explanation ?? "" })) }); setMessage(""); setOpen(true); }
+  function edit(q: Quiz) { setForm({ id: q.id, title: q.title, slug: q.slug, description: q.description ?? "", status: q.status, subjectId: q.subjectId ?? "", academicLevelId: q.academicLevelId ?? "", programId: q.programId ?? "", timerEnabled: q.timerEnabled, timerSeconds: q.timerSeconds, questions: q.questions.map((x) => ({ ...x, explanation: x.explanation ?? "" })) }); setMessage(""); setOpen(true); }
   function field<K extends keyof Form>(key: K, value: Form[K]) { setForm((f) => ({ ...f, [key]: value })); }
   function updateQuestion(index: number, key: keyof Question, value: string) {
     setForm((f) => ({ ...f, questions: f.questions.map((q, i) => i === index ? { ...q, [key]: value } : q) }));
@@ -65,7 +66,7 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
     const res = await fetch("/api/admin/quizzes", {
       method: form.id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, description: form.description || null, subjectId: form.subjectId || null, academicLevelId: form.academicLevelId || null, programId: form.programId || null, questions: form.questions.map((q, i) => ({ ...q, explanation: q.explanation || null, order: i })) }),
+      body: JSON.stringify({ ...form, description: form.description || null, subjectId: form.subjectId || null, academicLevelId: form.academicLevelId || null, programId: form.programId || null, timerEnabled: form.timerEnabled, timerSeconds: Math.max(0, Math.round(form.timerSeconds)), questions: form.questions.map((q, i) => ({ ...q, explanation: q.explanation || null, order: i })) }),
     });
     const data = await res.json();
     if (!res.ok) { setMessage(data.error || "Une erreur est survenue."); return; }
@@ -99,6 +100,14 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
         <label className="text-sm font-medium">Matière<select value={form.subjectId ?? ""} onChange={(e) => field("subjectId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Toutes / non précisée</option>{subjects.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">Niveau<select value={form.academicLevelId ?? ""} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Tous / non précisé</option>{levels.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">Filière / série<select value={form.programId ?? ""} onChange={(e) => field("programId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Toutes / non précisée</option>{programs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
+        <label className="text-sm font-medium">⏱️ Chronomètre
+          <div className="mt-1 flex gap-2">
+            <input type="number" min="1" max="1440" value={Math.max(1, Math.round(form.timerSeconds / 60))} onChange={(e) => field("timerSeconds", Math.max(60, Number(e.target.value || 1) * 60))} className="w-full rounded-xl border px-3 py-2" />
+            <span className="flex items-center rounded-xl border bg-slate-50 px-3 text-sm text-slate-500">minutes</span>
+          </div>
+          <span className="mt-1 block text-xs text-slate-400">Durée propre à ce test.</span>
+        </label>
+        <label className="flex items-center gap-2 pt-7 text-sm font-medium"><input type="checkbox" checked={form.timerEnabled} onChange={(e) => field("timerEnabled", e.target.checked)} /> Activer le chronomètre</label>
         <label className="text-sm font-medium">Statut<select value={form.status} onChange={(e) => field("status", e.target.value as Form["status"])} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="DRAFT">Brouillon</option><option value="PUBLISHED">Publié</option><option value="ARCHIVED">Archivé</option></select></label>
         <label className="text-sm font-medium md:col-span-2">Description<textarea value={form.description ?? ""} onChange={(e) => field("description", e.target.value)} className="mt-1 min-h-20 w-full rounded-xl border px-3 py-2" /></label>
       </div>
