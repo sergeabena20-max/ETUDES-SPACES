@@ -56,6 +56,8 @@ model User {
   payments        Payment[]
   purchases       ExamPurchase[]
   quizAttempts    QuizAttempt[]
+  gamification    GamificationProfile?
+  badges          UserBadge[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   @@index([type, isActive])
@@ -331,6 +333,45 @@ model QuizAttempt {
   quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   @@index([userId, completedAt])
   @@index([quizId, completedAt])
+}
+
+model GamificationProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  points            Int      @default(0)
+  currentStreak     Int      @default(0)
+  bestStreak        Int      @default(0)
+  lastActivityDate  DateTime? @db.Date
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@index([points])
+}
+
+model Badge {
+  id                String     @id @default(uuid())
+  code              String     @unique
+  name              String
+  description       String
+  icon              String     @default("🏅")
+  requirementType   String
+  requirementValue  Int        @default(1)
+  active            Boolean    @default(true)
+  users             UserBadge[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  @@index([active])
+}
+
+model UserBadge {
+  id        String   @id @default(uuid())
+  userId    String
+  badgeId   String
+  earnedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  @@unique([userId, badgeId])
+  @@index([userId, earnedAt])
 }
 
 model QuizQuestion {
