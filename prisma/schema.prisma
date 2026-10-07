@@ -309,6 +309,8 @@ model Quiz {
   program         Program?      @relation(fields: [programId], references: [id])
   questions       QuizQuestion[]
   attempts        QuizAttempt[]
+  timerEnabled    Boolean       @default(true)
+  timerSeconds    Int           @default(1800)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   @@index([status, createdAt])
