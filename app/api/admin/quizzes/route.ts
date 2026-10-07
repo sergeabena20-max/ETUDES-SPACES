@@ -24,6 +24,8 @@ const schema = z.object({
   subjectId: z.string().uuid().optional().nullable(),
   academicLevelId: z.string().uuid().optional().nullable(),
   programId: z.string().uuid().optional().nullable(),
+  timerEnabled: z.boolean().default(true),
+  timerSeconds: z.number().int().min(0).max(86400).default(1800),
   questions: z.array(questionSchema).max(100),
 });
 
@@ -72,6 +74,7 @@ async function save(req: Request, editing: boolean) {
               title: data.title, slug: data.slug, description: data.description || null,
               status: data.status, subjectId: data.subjectId || null,
               academicLevelId: data.academicLevelId || null, programId: data.programId || null,
+              timerEnabled: data.timerEnabled, timerSeconds: data.timerSeconds,
             },
             select: { id: true },
           })
@@ -80,6 +83,7 @@ async function save(req: Request, editing: boolean) {
               title: data.title, slug: data.slug, description: data.description || null,
               status: data.status, subjectId: data.subjectId || null,
               academicLevelId: data.academicLevelId || null, programId: data.programId || null,
+              timerEnabled: data.timerEnabled, timerSeconds: data.timerSeconds,
             },
             select: { id: true },
           });
