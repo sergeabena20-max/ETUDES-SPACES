@@ -47,22 +47,45 @@ export default function QuizPlayer({ questions, slug, timerEnabled, timerSeconds
   async function submit(force = false) {
     if ((!force && answered < questions.length) || loading) return;
     setLoading(true); setError("");
-    const res = await fetch(`/api/quizzes/${slug}/submit`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, durationSec: elapsed }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setError(data.error || "Impossible de corriger le test."); setLoading(false); return; }
-    setResult({ score: data.score, total: data.total });
-    setCorrections(data.corrections);
-    setLoading(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    try {
+      const res = await fetch(`/api/quizzes/${slug}/submit`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers, durationSec: elapsed }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Impossible de corriger le test.");
+        setLoading(false);
+        setAutoSubmitting(false);
+        return;
+      }
+      setResult({ score: data.score, total: data.total });
+      setCorrections(data.corrections);
+      setLoading(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setError("Une erreur réseau est survenue. Réessaie.");
+      setLoading(false);
+      setAutoSubmitting(false);
+    }
   }
 
-  function restart() { setAnswers({}); setCorrections([]); setResult(null); setError(""); setElapsed(0); setAutoSubmitting(false); }
+  function restart() {
+    setAnswers({});
+    setCorrections([]);
+    setResult(null);
+    setError("");
+    setElapsed(0);
+    setAutoSubmitting(false);
+  }
+
+  const remaining = timerEnabled && timerSeconds > 0 ? Math.max(0, timerSeconds - elapsed) : 0;
 
   return <div className="mt-8 space-y-5">
-    {!result && <div className="mb-4 flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold ring-1 ring-slate-200"><span>{timerEnabled ? "⏱️ Temps : " + formatTime(elapsed) : "⏱️ Chronomètre désactivé"}</span><span>{answered}/{questions.length} répondues</span></div>}
+    {!result && <div className={`mb-4 flex items-center justify-between rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold ring-1 ring-slate-200 ${remaining <= 60 && timerEnabled ? "text-red-600 ring-red-200" : ""}`}>
+      <span>{timerEnabled ? "⏱️ Temps restant : " + formatTime(remaining) : "⏱️ Chronomètre désactivé"}</span>
+      <span>{answered}/{questions.length} répondues</span>
+    </div>}
     {autoSubmitting && !result && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">Temps écoulé. Correction du test...</p>}
     {result && <div className="rounded-2xl bg-sky-50 p-6 ring-1 ring-sky-100">
       <p className="text-sm font-semibold text-sky-700">Résultat</p>
