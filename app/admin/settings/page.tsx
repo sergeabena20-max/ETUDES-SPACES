@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/authorization";
 import SettingsManager from "./settings-manager";
 import PlatformSettingsManager from "./platform-settings-manager";
+import GamificationLevelsManager from "./gamification-levels-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +12,13 @@ export default async function AdminSettingsPage() {
   const admin = await requireSuperAdmin();
   if (!admin) redirect("/dashboard");
 
-  const [programs, settings] = await Promise.all([
+  const [programs, settings, levels] = await Promise.all([
     prisma.program.findMany({
     orderBy: { name: "asc" },
     select: { id: true, name: true, kind: true, _count: { select: { users: true, exams: true, courses: true, quizzes: true } } },
     }),
     prisma.platformSetting.findMany({ orderBy: [{ category: "asc" }, { label: "asc" }] }),
+    prisma.gamificationLevel.findMany({ orderBy: [{ order: "asc" }, { minPoints: "asc" }] }),
   ]);
 
   return (
@@ -45,6 +47,7 @@ export default async function AdminSettingsPage() {
           }))}
         />
         <SettingsManager initialPrograms={programs} />
+        <GamificationLevelsManager initialLevels={levels} />
       </section>
     </main>
   );
