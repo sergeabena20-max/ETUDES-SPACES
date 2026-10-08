@@ -154,9 +154,9 @@ export default async function Dashboard() {
               <span className="text-sm font-bold text-slate-500">{gamificationProfile.points} points</span>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
-              <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamification.points}</p></div>
-              <div className="card p-5"><p className="text-sm text-slate-500">Série actuelle</p><p className="mt-2 text-3xl font-black">{gamificationProfile.currentStreak} jour{gamification.currentStreak > 1 ? "s" : ""}</p></div>
-              <div className="card p-5"><p className="text-sm text-slate-500">Meilleure série</p><p className="mt-2 text-3xl font-black">{gamificationProfile.bestStreak} jour{gamification.bestStreak > 1 ? "s" : ""}</p></div>
+              <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamificationProfile.points}</p></div>
+              <div className="card p-5"><p className="text-sm text-slate-500">Série actuelle</p><p className="mt-2 text-3xl font-black">{gamificationProfile.currentStreak} jour{gamificationProfile.currentStreak > 1 ? "s" : ""}</p></div>
+              <div className="card p-5"><p className="text-sm text-slate-500">Meilleure série</p><p className="mt-2 text-3xl font-black">{gamificationProfile.bestStreak} jour{gamificationProfile.bestStreak > 1 ? "s" : ""}</p></div>
             </div>
             {earnedBadges.length > 0 && (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
