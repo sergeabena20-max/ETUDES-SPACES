@@ -51,20 +51,21 @@ export default async function Dashboard() {
     }),
     prisma.gamificationProfile.findUnique({
       where: { userId: user.id },
+      select: { points: true, currentStreak: true, bestStreak: true },
+    }),
+    prisma.userBadge.findMany({
+      where: { userId: user.id },
+      orderBy: { earnedAt: "desc" },
+      take: 5,
       select: {
-        points: true,
-        currentStreak: true,
-        bestStreak: true,
-        badges: {
-          orderBy: { earnedAt: "desc" },
-          take: 5,
-          select: { earnedAt: true, badge: { select: { name: true, icon: true, description: true } } },
-        },
+        earnedAt: true,
+        badge: { select: { name: true, icon: true, description: true } },
       },
     }),
   ]);
 
   const totalAttempts = attemptStats._count._all;
+  const [gamificationProfile, earnedBadges] = gamification;
   const averageScore =
     attemptStats._sum.total && attemptStats._sum.total > 0
       ? Math.round(
@@ -144,23 +145,23 @@ export default async function Dashboard() {
           </section>
         )}
 
-        {gamification && (
+        {gamificationProfile && (
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-sm font-semibold text-sky-600">Ma progression</p>
                 <h2 className="mt-1 text-2xl font-black">Mes récompenses</h2>
               </div>
-              <span className="text-sm font-bold text-slate-500">{gamification.points} points</span>
+              <span className="text-sm font-bold text-slate-500">{gamificationProfile.points} points</span>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamification.points}</p></div>
-              <div className="card p-5"><p className="text-sm text-slate-500">Série actuelle</p><p className="mt-2 text-3xl font-black">{gamification.currentStreak} jour{gamification.currentStreak > 1 ? "s" : ""}</p></div>
-              <div className="card p-5"><p className="text-sm text-slate-500">Meilleure série</p><p className="mt-2 text-3xl font-black">{gamification.bestStreak} jour{gamification.bestStreak > 1 ? "s" : ""}</p></div>
+              <div className="card p-5"><p className="text-sm text-slate-500">Série actuelle</p><p className="mt-2 text-3xl font-black">{gamificationProfile.currentStreak} jour{gamification.currentStreak > 1 ? "s" : ""}</p></div>
+              <div className="card p-5"><p className="text-sm text-slate-500">Meilleure série</p><p className="mt-2 text-3xl font-black">{gamificationProfile.bestStreak} jour{gamification.bestStreak > 1 ? "s" : ""}</p></div>
             </div>
-            {gamification.badges.length > 0 && (
+            {earnedBadges.length > 0 && (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                {gamification.badges.map((item) => (
+                {earnedBadges.map((item) => (
                   <div key={item.earnedAt.toISOString()} className="card p-4">
                     <span className="text-2xl">{item.badge.icon}</span>
                     <p className="mt-2 font-bold">{item.badge.name}</p>
