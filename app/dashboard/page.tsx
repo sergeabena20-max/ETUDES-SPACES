@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { canAccessQuiz } from "@/lib/quiz-access";
+import { getGamificationLevel } from "@/lib/gamification";
 
 export default async function Dashboard() {
   const [user, quizzes] = await Promise.all([
@@ -73,6 +74,7 @@ export default async function Dashboard() {
       : 0;
 
   const myQuizzes = quizzes.filter((q) => canAccessQuiz(user, q)).slice(0, 3);
+  const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
     <main className="min-h-screen">
@@ -152,6 +154,13 @@ export default async function Dashboard() {
                 <h2 className="mt-1 text-2xl font-black">Mes récompenses</h2>
               </div>
               <span className="text-sm font-bold text-slate-500">{gamificationProfile.points} points</span>
+            </div>
+            <div className="card mt-5 overflow-hidden p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div><p className="text-sm text-slate-500">Niveau actuel</p><p className="mt-1 text-xl font-black">{gamificationLevel?.current.icon} {gamificationLevel?.current.name}</p><p className="mt-1 text-xs text-slate-500">{gamificationLevel?.current.description}</p></div>
+                <div className="text-right"><p className="text-sm font-bold">{gamificationProfile.points} points</p>{gamificationLevel?.next && <p className="mt-1 text-xs text-slate-500">{gamificationLevel.pointsToNext} points avant {gamificationLevel.next.name}</p>}</div>
+              </div>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-sky-500 transition-all" style={{ width: `${gamificationLevel?.progress ?? 0}%` }} /></div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamificationProfile.points}</p></div>
