@@ -348,6 +348,20 @@ model GamificationProfile {
   @@index([points])
 }
 
+model GamificationLevel {
+  id          String   @id @default(uuid())
+  name        String
+  minPoints   Int
+  icon        String   @default("⭐")
+  description String?
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([minPoints])
+  @@index([active, order])
+}
+
 model Badge {
   id                String     @id @default(uuid())
   code              String     @unique
