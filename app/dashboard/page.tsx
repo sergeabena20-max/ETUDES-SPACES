@@ -29,7 +29,7 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  const [attempts, favoriteCount, attemptStats, gamification] = await Promise.all([
+  const [attempts, favoriteCount, attemptStats, gamificationProfile, earnedBadges] = await Promise.all([
     prisma.quizAttempt.findMany({
       where: { userId: user.id },
       orderBy: { completedAt: "desc" },
@@ -65,7 +65,6 @@ export default async function Dashboard() {
   ]);
 
   const totalAttempts = attemptStats._count._all;
-  const [gamificationProfile, earnedBadges] = gamification;
   const averageScore =
     attemptStats._sum.total && attemptStats._sum.total > 0
       ? Math.round(
