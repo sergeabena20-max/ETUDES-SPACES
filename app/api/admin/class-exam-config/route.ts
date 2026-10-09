@@ -16,7 +16,7 @@ export async function GET() {
   const admin = await requireSuperAdmin();
   if (!admin) return NextResponse.json({ error: "Accès réservé au Super Administrateur." }, { status: 403 });
   const levels = await prisma.academicLevel.findMany({
-    where: { kind: "SCOLAIRE" },
+    where: { kind: { in: ["SCOLAIRE", "UNIVERSITAIRE"] } },
     orderBy: { name: "asc" },
     select: {
       id: true, name: true,
