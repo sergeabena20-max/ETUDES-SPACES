@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/authorization";
-import AdminUsersManager from "./admin-users-manager";
+import AdminUsersManager from "./all-users-manager";
 
 export const dynamic = "force-dynamic";
 
