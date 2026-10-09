@@ -70,7 +70,7 @@ export async function GET() {
       isExamClass: config?.isExamClass ?? false,
       continuousAssessmentEnabled: config?.continuousAssessmentEnabled ?? level.kind === "UNIVERSITAIRE",
       normalSessionEnabled: config?.normalSessionEnabled ?? level.kind === "UNIVERSITAIRE",
-      btsDutExamEnabled: config?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\\s*2$/i.test(level.name)),
+      btsDutExamEnabled: config?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name)),
     };
   });
   return NextResponse.json({ exams, subjects, levels, schools, programs, examConfigs });
@@ -107,7 +107,7 @@ async function save(req: Request, editing: boolean) {
 
   const category = data.category || "";
   const levelConfig = level ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: level.id } }) : null;
-  const isLevelTwo = /^niv(?:eau)?\\s*2$/i.test(level?.name || "");
+  const isLevelTwo = /^niv(?:eau)?\s*2$/i.test(level?.name || "");
   if (data.targetType === "ETUDIANT") {
     const known = ["EXERCICE", "CONTROLE_CONTINU", "SESSION_NORMALE", "SIMULATION_BTS_DUT"];
     if (known.includes(category)) {
