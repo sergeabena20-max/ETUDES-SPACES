@@ -50,6 +50,7 @@ model User {
   program         Program?        @relation(fields: [programId], references: [id])
   isActive        Boolean         @default(true)
   sessions        Session[]
+  passwordResetTokens PasswordResetToken[]
   favorites       Favorite[]
   analytics       AnalyticsEvent[]
   comments        Comment[]
@@ -72,6 +73,17 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
   @@index([expiresAt])
 }
