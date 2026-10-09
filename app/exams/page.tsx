@@ -29,12 +29,12 @@ export default async function ExamsPage({ searchParams }: Props) {
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
-  const activeCategory = selectedLevel ? (category || "EXERCICE") : category;
   const categoryOptions = selectedLevel ? [
     { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
     { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
     { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
   ].filter((item) => item.enabled) : [];
+  const activeCategory = selectedLevel ? (category || categoryOptions[0]?.id || "ALL") : category;
 
   const [exams, years] = (levelId || programId) ? await Promise.all([
     prisma.exam.findMany({
