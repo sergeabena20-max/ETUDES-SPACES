@@ -47,7 +47,15 @@ export default function ClassExamConfigManager() {
       const response = await fetch("/api/admin/class-exam-config", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ configs: classes }),
+        body: JSON.stringify({
+          configs: classes.map((item) => ({
+            academicLevelId: item.id,
+            exercisesEnabled: item.exercisesEnabled,
+            pastExamsEnabled: item.pastExamsEnabled,
+            mockExamsEnabled: item.mockExamsEnabled,
+            isExamClass: item.isExamClass,
+          })),
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Enregistrement impossible.");
