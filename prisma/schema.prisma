@@ -49,8 +49,10 @@ model User {
   programId       String?
   program         Program?        @relation(fields: [programId], references: [id])
   isActive        Boolean         @default(true)
+  mustChangePassword Boolean      @default(false)
   sessions        Session[]
   passwordResetTokens PasswordResetToken[]
+  passwordResetRequests PasswordResetRequest[]
   favorites       Favorite[]
   analytics       AnalyticsEvent[]
   comments        Comment[]
@@ -75,6 +77,18 @@ model Session {
   createdAt DateTime @default(now())
   @@index([userId])
   @@index([expiresAt])
+}
+
+model PasswordResetRequest {
+  id          String   @id @default(uuid())
+  userId      String
+  status      String   @default("PENDING")
+  requestedAt DateTime @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([status, requestedAt])
+  @@index([userId, status])
 }
 
 model PasswordResetToken {
