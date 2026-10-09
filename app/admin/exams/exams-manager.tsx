@@ -49,6 +49,8 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [form, setForm] = useState<Form>(empty);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkPublishing, setBulkPublishing] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);
@@ -65,6 +67,24 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Impossible de charger les épreuves.");
     setExams(data.exams); setSubjects(data.subjects); setLevels(data.levels); setSchools(data.schools); setPrograms(data.programs.filter((o: Option) => o.kind === "FILIERE"));
+  }
+
+  function toggleSelected(id: string) { setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
+
+  function toggleAllFiltered() { setSelectedIds((current) => filtered.every((exam) => current.includes(exam.id)) ? current.filter((id) => !filtered.some((exam) => exam.id === id)) : Array.from(new Set([...current, ...filtered.map((exam) => exam.id)]))); }
+
+  async function publishSelected() {
+    if (selectedIds.length < 6) { setMessage("Sélectionne au moins 6 épreuves pour publier un lot."); return; }
+    setBulkPublishing(true); setMessage("");
+    try {
+      const res = await fetch("/api/admin/exams/bulk-publish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: selectedIds }) });
+      const data = await res.json();
+      if (!res.ok) { setMessage(data.error || "Publication groupée impossible."); return; }
+      setMessage(data.count + " épreuves publiées avec succès.");
+      setSelectedIds([]);
+      await refresh();
+    } catch { setMessage("Erreur réseau pendant la publication groupée. Vérifie le statut avant de réessayer."); }
+    finally { setBulkPublishing(false); }
   }
 
   function startNew() {
@@ -139,7 +159,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
           <option value="ALL">Tous</option><option value="DRAFT">Brouillons</option><option value="PUBLISHED">Publiées</option><option value="ARCHIVED">Archivées</option>
         </select>
       </div>
-      <button onClick={startNew} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">+ Nouvelle épreuve</button>
+      <div className="flex flex-wrap gap-2"><button onClick={publishSelected} disabled={bulkPublishing || selectedIds.length < 6} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{bulkPublishing ? "Publication…" : `Publier la sélection (${selectedIds.length}) · min. 6`}</button><button onClick={startNew} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">+ Nouvelle épreuve</button></div>
     </div>
 
     {message && <p className="mb-4 rounded-xl bg-sky-50 px-4 py-3 text-sm text-sky-800">{message}</p>}
@@ -171,8 +191,8 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
       <div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-4">Épreuve</th><th className="px-5 py-4">Matière / niveau</th><th className="px-5 py-4">Année</th><th className="px-5 py-4">Statut</th><th className="px-5 py-4">Correction</th><th className="px-5 py-4">Actions</th></tr></thead>
-        <tbody className="divide-y divide-slate-100">{filtered.map(e=><tr key={e.id} className="hover:bg-slate-50"><td className="px-5 py-4"><div className="font-semibold">{e.title}</div><div className="text-xs text-slate-400">{e.category || "Sans catégorie"}</div></td><td className="px-5 py-4">{e.subject?.name || "—"}<div className="text-xs text-slate-400">{e.academicLevel?.name || "—"}</div><div className="text-xs text-sky-600">{e.program?.name ? `Étudiant · ${e.program.name}` : "Élève"}</div></td><td className="px-5 py-4">{e.year || "—"}</td><td className="px-5 py-4">{e.status}</td><td className="px-5 py-4">{e.solution ? "Oui" : "Non"}</td><td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => edit(e)} className="rounded-lg border px-3 py-1.5 font-semibold">Modifier</button><button onClick={() => remove(e.id)} className="rounded-lg border border-red-200 px-3 py-1.5 font-semibold text-red-600">Supprimer</button></div></td></tr>)}</tbody>
+        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-3 py-4"><input type="checkbox" aria-label="Sélectionner toutes les épreuves filtrées" checked={filtered.length > 0 && filtered.every((exam) => selectedIds.includes(exam.id))} onChange={toggleAllFiltered} /></th><th className="px-5 py-4">Épreuve</th><th className="px-5 py-4">Matière / niveau</th><th className="px-5 py-4">Année</th><th className="px-5 py-4">Statut</th><th className="px-5 py-4">Correction</th><th className="px-5 py-4">Actions</th></tr></thead>
+        <tbody className="divide-y divide-slate-100">{filtered.map(e=><tr key={e.id} className="hover:bg-slate-50"><td className="px-3 py-4"><input type="checkbox" aria-label={"Sélectionner " + e.title} checked={selectedIds.includes(e.id)} onChange={() => toggleSelected(e.id)} /></td><td className="px-5 py-4"><div className="font-semibold">{e.title}</div><div className="text-xs text-slate-400">{e.category || "Sans catégorie"}</div></td><td className="px-5 py-4">{e.subject?.name || "—"}<div className="text-xs text-slate-400">{e.academicLevel?.name || "—"}</div><div className="text-xs text-sky-600">{e.program?.name ? `Étudiant · ${e.program.name}` : "Élève"}</div></td><td className="px-5 py-4">{e.year || "—"}</td><td className="px-5 py-4">{e.status}</td><td className="px-5 py-4">{e.solution ? "Oui" : "Non"}</td><td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => edit(e)} className="rounded-lg border px-3 py-1.5 font-semibold">Modifier</button><button onClick={() => remove(e.id)} className="rounded-lg border border-red-200 px-3 py-1.5 font-semibold text-red-600">Supprimer</button></div></td></tr>)}</tbody>
       </table></div>
       {!filtered.length && <p className="px-5 py-12 text-center text-slate-500">Aucune épreuve ne correspond à la recherche.</p>}
     </div>
