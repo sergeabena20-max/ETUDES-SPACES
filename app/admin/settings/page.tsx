@@ -5,6 +5,7 @@ import { requireSuperAdmin } from "@/lib/authorization";
 import SettingsManager from "./settings-manager";
 import PlatformSettingsManager from "./platform-settings-manager";
 import GamificationLevelsManager from "./gamification-levels-manager";
+import ClassExamConfigManager from "./class-exam-config-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export default async function AdminSettingsPage() {
           }))}
         />
         <SettingsManager initialPrograms={programs} />
+        <ClassExamConfigManager />
         <GamificationLevelsManager initialLevels={levels} />
       </section>
     </main>
