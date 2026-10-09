@@ -45,7 +45,35 @@ export async function GET() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
 
-  return NextResponse.json({ exams, subjects, levels, schools, programs });
+  const configs = await prisma.classExamConfig.findMany({
+    select: {
+      academicLevelId: true,
+      exercisesEnabled: true,
+      pastExamsEnabled: true,
+      mockExamsEnabled: true,
+      isExamClass: true,
+      continuousAssessmentEnabled: true,
+      normalSessionEnabled: true,
+      btsDutExamEnabled: true,
+    },
+  });
+  const configByLevel = new Map(configs.map((config) => [config.academicLevelId, config]));
+  const examConfigs = levels.map((level) => {
+    const config = configByLevel.get(level.id);
+    return {
+      academicLevelId: level.id,
+      name: level.name,
+      kind: level.kind,
+      exercisesEnabled: config?.exercisesEnabled ?? true,
+      pastExamsEnabled: config?.pastExamsEnabled ?? false,
+      mockExamsEnabled: config?.mockExamsEnabled ?? false,
+      isExamClass: config?.isExamClass ?? false,
+      continuousAssessmentEnabled: config?.continuousAssessmentEnabled ?? level.kind === "UNIVERSITAIRE",
+      normalSessionEnabled: config?.normalSessionEnabled ?? level.kind === "UNIVERSITAIRE",
+      btsDutExamEnabled: config?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\\s*2$/i.test(level.name)),
+    };
+  });
+  return NextResponse.json({ exams, subjects, levels, schools, programs, examConfigs });
 }
 
 export async function POST(req: Request) {
@@ -68,11 +96,32 @@ async function save(req: Request, editing: boolean) {
   const data = parsed.data;
   if (data.targetType === "ELEVE" && !data.academicLevelId) return NextResponse.json({ error: "Sélectionne la classe ou la série de cette épreuve." }, { status: 400 });
   if (data.targetType === "ETUDIANT" && !data.programId) return NextResponse.json({ error: "Sélectionne la filière de cette épreuve." }, { status: 400 });
-  if (data.targetType === "ETUDIANT" && data.academicLevelId) {
-    const level = await prisma.academicLevel.findUnique({ where: { id: data.academicLevelId }, select: { name: true } });
-    if (!level || !["Licence 1", "Licence 2", "Licence 3"].includes(level.name)) {
-      return NextResponse.json({ error: "Pour un étudiant, sélectionne uniquement Licence 1, Licence 2 ou Licence 3." }, { status: 400 });
-    }
+  if (data.targetType === "ETUDIANT" && !data.academicLevelId) return NextResponse.json({ error: "Sélectionne le niveau universitaire de cette épreuve." }, { status: 400 });
+
+  const level = data.academicLevelId
+    ? await prisma.academicLevel.findUnique({ where: { id: data.academicLevelId }, select: { id: true, name: true, kind: true } })
+    : null;
+  if (data.academicLevelId && !level) return NextResponse.json({ error: "Niveau introuvable." }, { status: 400 });
+  if (data.targetType === "ELEVE" && level?.kind === "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau scolaire pour une épreuve destinée aux élèves." }, { status: 400 });
+  if (data.targetType === "ETUDIANT" && level?.kind !== "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau universitaire pour une épreuve destinée aux étudiants." }, { status: 400 });
+
+  const category = data.category || "";
+  const levelConfig = level ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: level.id } }) : null;
+  const isLevelTwo = /^niv(?:eau)?\\s*2$/i.test(level?.name || "");
+  if (data.targetType === "ETUDIANT") {
+    const known = ["EXERCICE", "CONTROLE_CONTINU", "SESSION_NORMALE", "SIMULATION_BTS_DUT"];
+    if (known.includes(category)) {
+      if (category === "EXERCICE" && levelConfig?.exercisesEnabled === false) return NextResponse.json({ error: "La rubrique Exercices est désactivée pour ce niveau." }, { status: 400 });
+      if (category === "CONTROLE_CONTINU" && levelConfig?.continuousAssessmentEnabled === false) return NextResponse.json({ error: "Le contrôle continu est désactivé pour ce niveau." }, { status: 400 });
+      if (category === "SESSION_NORMALE" && levelConfig?.normalSessionEnabled === false) return NextResponse.json({ error: "La session normale est désactivée pour ce niveau." }, { status: 400 });
+      if (category === "SIMULATION_BTS_DUT" && (!isLevelTwo || levelConfig?.btsDutExamEnabled !== true)) return NextResponse.json({ error: "La simulation BTS / DUT est disponible uniquement si elle est activée en Niveau 2." }, { status: 400 });
+    } else return NextResponse.json({ error: "Sélectionne une rubrique universitaire valide." }, { status: 400 });
+  } else {
+    const known = ["EXERCICE", "ANCIEN_SUJET", "EXAMEN_BLANC", "Ancien sujet", "AUTRE"];
+    if (!known.includes(category)) return NextResponse.json({ error: "Sélectionne une rubrique scolaire valide." }, { status: 400 });
+    if (category === "EXERCICE" && levelConfig?.exercisesEnabled === false) return NextResponse.json({ error: "La rubrique Exercices est désactivée pour ce niveau." }, { status: 400 });
+    if (category === "ANCIEN_SUJET" && (!levelConfig?.isExamClass || levelConfig?.pastExamsEnabled !== true)) return NextResponse.json({ error: "Les anciens sujets sont disponibles uniquement pour une classe d’examen où la rubrique est activée." }, { status: 400 });
+    if (category === "EXAMEN_BLANC" && (!levelConfig?.isExamClass || levelConfig?.mockExamsEnabled !== true)) return NextResponse.json({ error: "Les examens blancs sont disponibles uniquement pour une classe d’examen où la rubrique est activée." }, { status: 400 });
   }
   if (editing && !data.id) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 400 });
 
