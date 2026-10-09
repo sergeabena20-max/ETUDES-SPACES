@@ -134,6 +134,7 @@ model AcademicLevel {
   exams         Exam[]
   quizzes       Quiz[]
   programLevels ProgramLevel[]
+  examConfig    ClassExamConfig?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -167,6 +168,18 @@ model ProgramLevel {
   @@unique([programId, academicLevelId])
   @@index([programId, order])
   @@index([academicLevelId])
+}
+
+model ClassExamConfig {
+  id                String        @id @default(uuid())
+  academicLevelId   String        @unique
+  academicLevel     AcademicLevel @relation(fields: [academicLevelId], references: [id], onDelete: Cascade)
+  exercisesEnabled  Boolean       @default(true)
+  pastExamsEnabled  Boolean       @default(false)
+  mockExamsEnabled  Boolean       @default(false)
+  isExamClass       Boolean       @default(false)
+  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime      @default(now())
 }
 
 model Subject {
