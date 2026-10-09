@@ -34,7 +34,7 @@ export async function GET() {
     isExamClass: level.examConfig?.isExamClass ?? false,
     continuousAssessmentEnabled: level.examConfig?.continuousAssessmentEnabled ?? level.kind === "UNIVERSITAIRE",
     normalSessionEnabled: level.examConfig?.normalSessionEnabled ?? level.kind === "UNIVERSITAIRE",
-    btsDutExamEnabled: level.examConfig?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /niveau\s*2/i.test(level.name)),
+    btsDutExamEnabled: level.examConfig?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name)),
   })) });
 }
 
@@ -50,7 +50,7 @@ export async function PUT(request: Request) {
         const isExamClass = config.isExamClass;
         const level = await tx.academicLevel.findUnique({ where: { id: config.academicLevelId }, select: { name: true, kind: true } });
         if (!level) throw new Error("Niveau scolaire ou universitaire introuvable.");
-        const btsDutAllowed = level.kind === "UNIVERSITAIRE" && /niveau\s*2/i.test(level.name);
+        const btsDutAllowed = level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name);
         await tx.classExamConfig.upsert({
           where: { academicLevelId: config.academicLevelId },
           create: {
