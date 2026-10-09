@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [schoolLevels, setSchoolLevels] = useState<Level[]>([]);
   const [universityLevels, setUniversityLevels] = useState<Level[]>([]);
   const [selectedProgramId, setSelectedProgramId] = useState("");
+  const selectedProgram = programs.find((program) => program.id === selectedProgramId);
 
   useEffect(() => {
     Promise.all([
@@ -40,7 +41,7 @@ export default function RegisterPage() {
       return;
     }
     setSelectedProgramId("");
-    setUniversityLevels([]);
+    if (status === "ETUDIANT") setUniversityLevels([]);
   }, [status]);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -93,27 +94,46 @@ export default function RegisterPage() {
           <p className="mt-1 text-xs text-slate-500">Écris le nom officiel de ton établissement.</p>
         </div>
 
-        {status && <div>
-          <label className="mb-2 block text-sm font-bold">{status === "ELEVE" ? "Classe" : "Niveau universitaire"}</label>
+        {status === "ELEVE" && <div>
+          <label className="mb-2 block text-sm font-bold">Classe</label>
           <select name="academicLevelName" required className="w-full rounded-xl border p-3">
-            <option value="">Sélectionner</option>
-            {(status === "ELEVE" ? schoolLevels : universityLevels).map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
+            <option value="">Sélectionner ma classe</option>
+            {schoolLevels.map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
           </select>
+          {!schoolLevels.length && <p className="mt-1 text-xs text-amber-700">Aucune classe n'est encore configurée. Réessaie dans un instant ou contacte l'administration.</p>}
         </div>}
 
         {status === "ETUDIANT" && <div>
           <label className="mb-2 block text-sm font-bold">Filière</label>
-          <select name="programName" required value={selectedProgramId} onChange={async (e) => {
+          <select value={selectedProgramId} onChange={async (e) => {
               const id = e.target.value;
               setSelectedProgramId(id);
+              setUniversityLevels([]);
               if (!id) return;
-              const res = await fetch("/api/public/academic-levels?kind=UNIVERSITAIRE&programId=" + encodeURIComponent(id), { cache: "no-store" });
-              const data = await res.json();
-              setUniversityLevels(data.levels || []);
+              try {
+                const res = await fetch("/api/public/academic-levels?kind=UNIVERSITAIRE&programId=" + encodeURIComponent(id), { cache: "no-store" });
+                const data = await res.json();
+                if (!res.ok) throw new Error("levels");
+                setUniversityLevels(data.levels || []);
+              } catch {
+                setUniversityLevels([]);
+                setError("Impossible de charger les niveaux de cette filière. Réessaie.");
+              }
             }} className="w-full rounded-xl border p-3">
-            <option value="">Sélectionner</option>
-            {programs.map((program) => <option key={program.id} value={program.name}>{program.name}</option>)}
+            <option value="">Sélectionner ma filière</option>
+            {programs.map((program) => <option key={program.id} value={program.id}>{program.name}</option>)}
           </select>
+          <input type="hidden" name="programName" value={selectedProgram?.name ?? ""} />
+          {!programs.length && <p className="mt-1 text-xs text-amber-700">Aucune filière n'est encore configurée.</p>}
+        </div>}
+
+        {status === "ETUDIANT" && selectedProgramId && <div>
+          <label className="mb-2 block text-sm font-bold">Niveau universitaire</label>
+          <select name="academicLevelName" required className="w-full rounded-xl border p-3">
+            <option value="">Sélectionner mon niveau universitaire</option>
+            {universityLevels.map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
+          </select>
+          {!universityLevels.length && <p className="mt-1 text-xs text-amber-700">Aucun niveau n'est associé à cette filière. Le Super Administrateur doit configurer les niveaux de cette filière.</p>}
         </div>}
 
         {status && <div className="rounded-xl bg-sky-50 p-4 text-sm text-sky-800 sm:col-span-2">
