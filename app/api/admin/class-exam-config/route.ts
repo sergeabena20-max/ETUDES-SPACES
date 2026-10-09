@@ -9,6 +9,9 @@ const configSchema = z.object({
   pastExamsEnabled: z.boolean(),
   mockExamsEnabled: z.boolean(),
   isExamClass: z.boolean(),
+  continuousAssessmentEnabled: z.boolean(),
+  normalSessionEnabled: z.boolean(),
+  btsDutExamEnabled: z.boolean(),
 });
 const bodySchema = z.object({ configs: z.array(configSchema).max(300) });
 
@@ -19,16 +22,19 @@ export async function GET() {
     where: { kind: { in: ["SCOLAIRE", "UNIVERSITAIRE"] } },
     orderBy: { name: "asc" },
     select: {
-      id: true, name: true,
-      examConfig: { select: { exercisesEnabled: true, pastExamsEnabled: true, mockExamsEnabled: true, isExamClass: true } },
+      id: true, name: true, kind: true,
+      examConfig: { select: { exercisesEnabled: true, pastExamsEnabled: true, mockExamsEnabled: true, isExamClass: true, continuousAssessmentEnabled: true, normalSessionEnabled: true, btsDutExamEnabled: true } },
     },
   });
   return NextResponse.json({ levels: levels.map((level) => ({
-    id: level.id, name: level.name,
+    id: level.id, name: level.name, kind: level.kind,
     exercisesEnabled: level.examConfig?.exercisesEnabled ?? true,
     pastExamsEnabled: level.examConfig?.pastExamsEnabled ?? false,
     mockExamsEnabled: level.examConfig?.mockExamsEnabled ?? false,
     isExamClass: level.examConfig?.isExamClass ?? false,
+    continuousAssessmentEnabled: level.examConfig?.continuousAssessmentEnabled ?? level.kind === "UNIVERSITAIRE",
+    normalSessionEnabled: level.examConfig?.normalSessionEnabled ?? level.kind === "UNIVERSITAIRE",
+    btsDutExamEnabled: level.examConfig?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /niveau\s*2/i.test(level.name)),
   })) });
 }
 
@@ -42,6 +48,9 @@ export async function PUT(request: Request) {
     await prisma.$transaction(async (tx) => {
       for (const config of parsed.data.configs) {
         const isExamClass = config.isExamClass;
+        const level = await tx.academicLevel.findUnique({ where: { id: config.academicLevelId }, select: { name: true, kind: true } });
+        if (!level) throw new Error("Niveau scolaire ou universitaire introuvable.");
+        const btsDutAllowed = level.kind === "UNIVERSITAIRE" && /niveau\s*2/i.test(level.name);
         await tx.classExamConfig.upsert({
           where: { academicLevelId: config.academicLevelId },
           create: {
@@ -50,12 +59,18 @@ export async function PUT(request: Request) {
             isExamClass,
             pastExamsEnabled: isExamClass && config.pastExamsEnabled,
             mockExamsEnabled: isExamClass && config.mockExamsEnabled,
+            continuousAssessmentEnabled: level.kind === "UNIVERSITAIRE" && config.continuousAssessmentEnabled,
+            normalSessionEnabled: level.kind === "UNIVERSITAIRE" && config.normalSessionEnabled,
+            btsDutExamEnabled: btsDutAllowed && config.btsDutExamEnabled,
           },
           update: {
             exercisesEnabled: config.exercisesEnabled,
             isExamClass,
             pastExamsEnabled: isExamClass && config.pastExamsEnabled,
             mockExamsEnabled: isExamClass && config.mockExamsEnabled,
+            continuousAssessmentEnabled: level.kind === "UNIVERSITAIRE" && config.continuousAssessmentEnabled,
+            normalSessionEnabled: level.kind === "UNIVERSITAIRE" && config.normalSessionEnabled,
+            btsDutExamEnabled: btsDutAllowed && config.btsDutExamEnabled,
           },
         });
       }
