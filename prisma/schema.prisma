@@ -178,6 +178,9 @@ model ClassExamConfig {
   pastExamsEnabled  Boolean       @default(false)
   mockExamsEnabled  Boolean       @default(false)
   isExamClass       Boolean       @default(false)
+  continuousAssessmentEnabled Boolean @default(true)
+  normalSessionEnabled Boolean @default(true)
+  btsDutExamEnabled Boolean @default(false)
   updatedAt         DateTime      @updatedAt
   createdAt         DateTime      @default(now())
 }
