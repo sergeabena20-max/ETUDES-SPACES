@@ -44,7 +44,7 @@ export default async function ExamsPage({ searchParams }: Props) {
       ...(programId ? { programId } : {}),
       ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
-      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? activeCategory === "ANCIEN_SUJET" ? { OR: [{ category: "ANCIEN_SUJET" }, { category: "Ancien sujet" }] } : { category: activeCategory } : {}),
+      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? { category: activeCategory } : {}),
       ...(q ? { OR: [
         { title: { contains: q, mode: "insensitive" } },
         { category: { contains: q, mode: "insensitive" } },
