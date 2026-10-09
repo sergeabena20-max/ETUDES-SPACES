@@ -16,7 +16,7 @@ type ClassConfig = {
 };
 
 function isLevelTwo(name: string) {
-  return /niveau\s*2/i.test(name);
+  return /\bniv(?:eau)?\s*2\b/i.test(name);
 }
 
 export default function ClassExamConfigManager() {
