@@ -20,7 +20,7 @@ type Form = {
 };
 
 const empty: Form = {
-  targetType: "ELEVE", title: "", slug: "", description: "", year: "", category: "Ancien sujet", fileUrl: "",
+  targetType: "ELEVE", title: "", slug: "", description: "", year: "", category: "EXERCICE", fileUrl: "",
   status: "DRAFT", isPremium: false, premiumPrice: "", subjectId: "", academicLevelId: "", schoolId: "", programId: "",
   solutionText: "", solutionFileUrl: "",
 };
@@ -170,7 +170,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         <label className="text-sm font-medium">Titre<input value={form.title} onChange={(e) => field("title", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
         <label className="text-sm font-medium">Slug<input value={form.slug} onChange={(e) => field("slug", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /><button type="button" onClick={() => field("slug", slugify(form.title))} className="mt-1 text-xs font-semibold text-sky-600">Générer depuis le titre</button></label>
         <label className="text-sm font-medium">Année<input type="number" value={form.year} onChange={(e) => field("year", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="2025" /></label>
-        <label className="text-sm font-medium">Catégorie<input value={form.category} onChange={(e) => field("category", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Ancien sujet, BEPC, BAC..." /></label>
+        <label className="text-sm font-medium">Rubrique<select value={form.category} onChange={(e) => field("category", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="EXERCICE">Exercice</option><option value="ANCIEN_SUJET">Ancien sujet d’examen</option><option value="EXAMEN_BLANC">Examen blanc</option><option value="Ancien sujet">Ancien sujet (ancienne catégorie)</option><option value="AUTRE">Autre</option></select><span className="mt-1 block text-xs text-slate-500">Choisis la rubrique exacte pour que l’épreuve apparaisse dans la bonne partie de la classe.</span></label>
         <label className="text-sm font-medium">Public concerné<select value={form.targetType} onChange={(e) => { const target = e.target.value as Form["targetType"]; field("targetType", target); if (target === "ELEVE") field("programId", ""); else field("academicLevelId", ""); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="ELEVE">Élève — classe / série</option><option value="ETUDIANT">Étudiant — filière</option></select></label>
         <label className="text-sm font-medium">Matière<select value={form.subjectId} onChange={(e) => field("subjectId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisée</option>{subjects.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">{form.targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire"}<select value={form.academicLevelId} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisé</option>{(form.targetType === "ELEVE" ? schoolLevels : universityLevels).map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
