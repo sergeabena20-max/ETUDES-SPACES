@@ -40,6 +40,7 @@ export default function LoginPage() {
       <form onSubmit={submit} className="mt-7 space-y-4">
         <input name="email" type="email" required placeholder="Adresse e-mail" className="w-full rounded-xl border p-3"/>
         <input name="password" type="password" required placeholder="Mot de passe" className="w-full rounded-xl border p-3"/>
+        <div className="-mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-sky-600 hover:underline">Mot de passe oublié ?</Link></div>
         {success&&<p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button disabled={loading} className="w-full rounded-xl bg-sky-600 p-3 font-bold text-white shadow-lg shadow-sky-600/20 disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
