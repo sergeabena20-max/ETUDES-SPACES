@@ -34,7 +34,8 @@ export default async function ExamsPage({ searchParams }: Props) {
     { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
     { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
   ].filter((item) => item.enabled) : [];
-  const activeCategory = selectedLevel ? (category || categoryOptions[0]?.id || "ALL") : category;
+  const requestedCategory = category === "ALL" || categoryOptions.some((item) => item.id === category) ? category : undefined;
+  const activeCategory = selectedLevel ? (requestedCategory || categoryOptions[0]?.id || "ALL") : category;
 
   const [exams, years] = (levelId || programId) ? await Promise.all([
     prisma.exam.findMany({
