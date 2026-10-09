@@ -26,6 +26,9 @@ Les mots de passe sont hashés avec bcrypt. Les sessions utilisent un token alé
 ## Déploiement Vercel + Supabase
 Connecter le dépôt GitHub à Vercel et ajouter les variables d'environnement dans les réglages du projet. Utiliser uniquement Supabase pour PostgreSQL et Storage. Ne jamais exposer les secrets côté client.
 
+### Réinitialisation du mot de passe
+La récupération utilise Resend pour envoyer un lien à usage unique valable 30 minutes. Ajouter dans Vercel les variables `RESEND_API_KEY`, `EMAIL_FROM` (adresse sur un domaine vérifié chez Resend) et `NEXT_PUBLIC_APP_URL` (URL publique du site sans slash final). Sans ces variables, la page est présente mais l'envoi d'e-mail reste désactivé.
+
 ## État V1
 La Phase 1 pose l'architecture, la base normalisée, l'authentification, le seed idempotent et les premières pages publiques. Les phases suivantes ajoutent profils, contenu, administration, analytics, recherche/favoris, puis tests et durcissement.
 
