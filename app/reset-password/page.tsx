@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
