@@ -29,11 +29,22 @@ export default async function ExamsPage({ searchParams }: Props) {
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
-  const categoryOptions = selectedLevel ? [
-    { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
-    { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
-    { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
-  ].filter((item) => item.enabled) : [];
+  const isUniversityLevel = selectedLevel?.kind === "UNIVERSITAIRE";
+  const isLevelTwo = selectedLevel ? /niveau\\s*2/i.test(selectedLevel.name) : false;
+  const categoryOptions = selectedLevel ? (
+    isUniversityLevel
+      ? [
+          { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
+          { id: "CONTROLE_CONTINU", label: "Contrôle continu (CC)", enabled: classExamConfig?.continuousAssessmentEnabled ?? true },
+          { id: "SESSION_NORMALE", label: "Session normale", enabled: classExamConfig?.normalSessionEnabled ?? true },
+          { id: "SIMULATION_BTS_DUT", label: "Simulation d’examen BTS / DUT", enabled: isLevelTwo && (classExamConfig?.btsDutExamEnabled ?? true) },
+        ].filter((item) => item.enabled)
+      : [
+          { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
+          { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
+          { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
+        ].filter((item) => item.enabled)
+  ) : [];
   const requestedCategory = category === "ALL" || categoryOptions.some((item) => item.id === category) ? category : undefined;
   const activeCategory = selectedLevel ? (requestedCategory || categoryOptions[0]?.id || "ALL") : category;
 
