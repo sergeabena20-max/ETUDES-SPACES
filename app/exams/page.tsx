@@ -5,7 +5,7 @@ import { getExamAccessMap } from "@/lib/premium";
 
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string }> };
+type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string; category?: string }> };
 
 export default async function ExamsPage({ searchParams }: Props) {
   const params = await searchParams;
@@ -15,6 +15,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const programId = params.program;
   const departmentId = params.department;
   const universityLevelId = params.universityLevel;
+  const category = params.category;
   const selected = levelId || programId || departmentId;
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
@@ -27,6 +28,13 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selectedDepartment = departmentId ? programs.find((x) => x.id === departmentId && x.kind === "DEPARTEMENT") : null;
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
+  const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
+  const activeCategory = selectedLevel ? (category || "EXERCICE") : category;
+  const categoryOptions = selectedLevel ? [
+    { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
+    { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
+    { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
+  ].filter((item) => item.enabled) : [];
 
   const [exams, years] = (levelId || programId) ? await Promise.all([
     prisma.exam.findMany({
@@ -36,6 +44,7 @@ export default async function ExamsPage({ searchParams }: Props) {
       ...(programId ? { programId } : {}),
       ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
+      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? activeCategory === "ANCIEN_SUJET" ? { OR: [{ category: "ANCIEN_SUJET" }, { category: "Ancien sujet" }] } : { category: activeCategory } : {}),
       ...(q ? { OR: [
         { title: { contains: q, mode: "insensitive" } },
         { category: { contains: q, mode: "insensitive" } },
@@ -89,6 +98,11 @@ export default async function ExamsPage({ searchParams }: Props) {
         <div className="card mt-5 p-5"><p className="text-xs font-bold text-sky-600">{selectedLevel ? "ÉLÈVE" : selectedDepartment ? "DÉPARTEMENT" : "ÉTUDIANT"}</p><h2 className="mt-1 text-2xl font-black">{selectedLevel?.name || selectedProgram?.name || selectedDepartment?.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedLevel ? "Épreuves exclusivement destinées à cette classe/série." : selectedDepartment ? "Sélectionne une filière de ce département." : "Épreuves de cette filière, avec séparation par niveau."}</p>
           {selectedDepartment && <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{departmentPrograms.map((program) => <Link key={program.id} href={"/exams?program=" + program.id} className="rounded-xl border bg-white p-3 hover:border-sky-300"><div className="text-sm font-black">{program.name}</div><div className="mt-1 text-xs text-slate-500">{program._count.exams} sujet{program._count.exams > 1 ? "s" : ""}</div></Link>)}</div>}
           {selectedProgram && <div className="mb-5 mt-4 flex flex-wrap gap-2">{universityLevels.map((level) => <Link key={level.id} href={"/exams?program=" + selectedProgram.id + "&universityLevel=" + level.id} className={"rounded-xl border px-3 py-2 text-sm font-bold " + (universityLevelId === level.id ? "border-sky-500 bg-sky-50 text-sky-700" : "bg-white text-slate-600")}>{level.name}</Link>)}<Link href={"/exams?program=" + selectedProgram.id} className="rounded-xl border px-3 py-2 text-sm font-bold">Tous les niveaux</Link></div>}
+          {selectedLevel && <nav aria-label="Rubriques de la classe" className="mt-5 flex flex-wrap gap-2">
+            {categoryOptions.map((item) => <Link key={item.id} href={"/exams?level=" + selectedLevel.id + "&category=" + item.id} className={"rounded-xl border px-4 py-2 text-sm font-bold transition " + ((activeCategory || "EXERCICE") === item.id ? "border-sky-500 bg-sky-600 text-white shadow-md shadow-sky-600/20" : "border-slate-200 bg-white text-slate-600 hover:border-sky-300")}>{item.label}</Link>)}
+            <Link href={"/exams?level=" + selectedLevel.id + "&category=ALL"} className={"rounded-xl border px-4 py-2 text-sm font-bold " + (activeCategory === "ALL" ? "border-sky-500 bg-sky-600 text-white" : "border-slate-200 bg-white text-slate-600")}>Toutes les épreuves</Link>
+          </nav>}
+          {selectedLevel && !categoryOptions.length && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">Aucune rubrique n’est activée pour cette classe. Le Super Administrateur peut les configurer dans Paramètres de la plateforme.</p>}
           <form className="mt-6 grid gap-3 md:grid-cols-[1fr_180px_auto]"><input type="hidden" name={levelId ? "level" : "program"} value={selected} />{universityLevelId && <input type="hidden" name="universityLevel" value={universityLevelId} />}<input name="q" defaultValue={q} placeholder="Rechercher une matière ou une épreuve..." className="rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200" /><select name="year" defaultValue={year?.toString() || ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les années</option>{years.map((x) => <option key={x.year} value={x.year!}>{x.year}</option>)}</select><button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button></form>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{exams.length ? exams.map((e) => { const access = !e.isPremium || accessByExam.get(e.id) === true || user?.type === "ADMIN" || user?.type === "SUPER_ADMIN"; return <article key={e.id} className="card p-5"><div className="text-xs font-bold uppercase text-sky-600">{e.subject?.name || "Matière"} · {e.year || "—"}</div><h3 className="mt-3 text-xl font-bold">{e.title}</h3><p className="mt-2 text-sm text-slate-500">{e.description || "Épreuve disponible."}</p>{e.isPremium && !access && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Épreuve Premium · <Link href={"/premium?exam=" + e.id} className="underline">Activer Premium</Link></div>}<div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">{e.isPremium && <span className="rounded-full bg-amber-50 px-3 py-1 font-bold text-amber-700">⭐ Premium</span>}<span className="rounded-full bg-slate-100 px-3 py-1">{selectedLevel?.name || selectedProgram?.name}</span></div><div className="mt-5 flex flex-wrap gap-3"><Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !access ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>{e.fileUrl && access && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}{e.fileUrl && access && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger ↓</a>}{e.solution?.fileUrl && access && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Correction ↓</a>}</div></article>; }) : <div className="card p-8 md:col-span-3"><h3 className="font-bold">Aucune épreuve publiée ici pour le moment.</h3><p className="mt-2 text-sm text-slate-500">L'administration pourra ajouter les sujets directement dans cette rubrique.</p></div>}</div>
