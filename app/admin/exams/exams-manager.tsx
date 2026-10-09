@@ -21,7 +21,7 @@ type Form = {
 };
 
 const empty: Form = {
-  targetType: "ELEVE", title: "", slug: "", description: "", year: "", category: "EXERCICE", fileUrl: "",
+  targetType: "ELEVE", title: "", slug: "", description: "", year: "", category: "", fileUrl: "",
   status: "DRAFT", isPremium: false, premiumPrice: "", subjectId: "", academicLevelId: "", schoolId: "", programId: "",
   solutionText: "", solutionFileUrl: "",
 };
@@ -96,6 +96,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
   function edit(e: Exam) {
     setForm(toForm(e)); setMessage(""); setOpen(true);
+    void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) setExamConfigs(data.examConfigs || []); }).catch(() => {});
   }
 
   async function uploadPdf(file: File, target: "exam" | "solution") {
@@ -156,7 +157,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const selectedLevel = levels.find((level) => level.id === form.academicLevelId);
   const selectedConfig = examConfigs.find((config) => config.academicLevelId === form.academicLevelId);
   const isLevelTwo = /\bniv(?:eau)?\s*2\b/i.test(selectedLevel?.name || "");
-  const availableCategories = form.targetType === "ETUDIANT"
+  const availableCategories = !selectedLevel ? [] : form.targetType === "ETUDIANT"
     ? [
         ...(selectedConfig?.exercisesEnabled !== false ? [{ value: "EXERCICE", label: "Exercices" }] : []),
         ...(selectedConfig?.continuousAssessmentEnabled !== false ? [{ value: "CONTROLE_CONTINU", label: "Contrôle continu (CC)" }] : []),
