@@ -31,7 +31,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
   const isUniversityLevel = selectedLevel?.kind === "UNIVERSITAIRE";
-  const isLevelTwo = selectedLevel ? /niveau\s*2/i.test(selectedLevel.name) : false;
+  const isLevelTwo = selectedLevel ? /\bniv(?:eau)?\s*2\b/i.test(selectedLevel.name) : false;
   const categoryOptions = selectedLevel ? (
     isUniversityLevel
       ? [
