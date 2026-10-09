@@ -40,7 +40,7 @@ export async function GET() {
       },
     }),
     prisma.subject.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
