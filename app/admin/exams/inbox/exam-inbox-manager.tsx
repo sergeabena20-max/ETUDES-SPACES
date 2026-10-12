@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type Option = { id: string; name: string; kind?: string | null };
-type InboxExam = { id: string; title: string; slug: string; fileUrl: string | null; createdAt: string | Date };
+type InboxExam = { id: string; title: string; slug: string; fileUrl: string | null; createdAt: string };
 type Target = "ELEVE" | "ETUDIANT";
 const categories: Record<Target, { value: string; label: string }[]> = {
   ELEVE: [
