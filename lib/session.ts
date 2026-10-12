@@ -45,6 +45,7 @@ export const getCurrentUser = cache(async function getCurrentUser() {
             email: true,
             type: true,
             isActive: true,
+            mustChangePassword: true,
             studentStatus: true,
             school: { select: { id: true, name: true } },
             academicLevel: { select: { id: true, name: true } },

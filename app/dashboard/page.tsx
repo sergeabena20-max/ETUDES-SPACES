@@ -29,6 +29,7 @@ export default async function Dashboard() {
   if (!user) {
     redirect("/login");
   }
+  if (user.mustChangePassword) redirect("/change-password");
 
   const [attempts, favoriteCount, attemptStats, gamificationProfile, earnedBadges] = await Promise.all([
     prisma.quizAttempt.findMany({

@@ -44,6 +44,7 @@ export default async function AdminExamsPage() {
           <p className="text-sm font-bold text-sky-600">Administration</p>
           <h1 className="mt-1 text-3xl font-bold text-slate-900 sm:text-4xl">Gestion des épreuves</h1>
           <p className="mt-1 text-slate-500">Anciens sujets, épreuves, documents et corrections.</p>
+          <Link href="/admin/exams/bulk-import" className="mt-4 inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Importer plusieurs PDF</Link>
         </div>
         <div className="card animate-slide-up stagger-2 p-4 sm:p-6">
           <ExamsManager initialExams={serializableExams} initialSubjects={subjects} initialLevels={levels} initialSchools={schools} initialPrograms={programs} />

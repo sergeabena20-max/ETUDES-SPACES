@@ -23,7 +23,7 @@ export default function LoginPage() {
       const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
       const j=await r.json();
       if(!r.ok){setError(j.error||"Connexion impossible.");return;}
-      router.push("/dashboard");
+      router.push(j.mustChangePassword ? "/change-password" : "/dashboard");
     } catch {
       setError("Impossible de contacter le serveur. Vérifie ta connexion.");
     } finally {
