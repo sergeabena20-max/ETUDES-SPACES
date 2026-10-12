@@ -29,7 +29,7 @@ export async function GET() {
 
   const [exams, subjects, levels, schools, programs] = await Promise.all([
     prisma.exam.findMany({
-      where: { category: { not: "A_CLASSER" } },
+      where: { OR: [{ category: { not: "A_CLASSER" } }, { category: null }] },
       orderBy: { createdAt: "desc" },
       take: 300,
       include: {
