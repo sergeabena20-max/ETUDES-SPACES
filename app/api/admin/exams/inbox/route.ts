@@ -108,7 +108,10 @@ export async function PATCH(request: Request) {
   const status = body.status ?? "DRAFT";
 
   if (targetType !== "ELEVE" && targetType !== "ETUDIANT") return NextResponse.json({ error: "Choisis le public concerné." }, { status: 400 });
-  if (!CATEGORIES[targetType].includes(category)) return NextResponse.json({ error: "Choisis une catégorie valide." }, { status: 400 });
+  const categoriesForTarget = CATEGORIES[targetType as keyof typeof CATEGORIES] as readonly string[];
+  if (typeof category !== "string" || !categoriesForTarget.includes(category)) {
+    return NextResponse.json({ error: "Choisis une catégorie valide." }, { status: 400 });
+  }
   if (typeof academicLevelId !== "string" || !academicLevelId) return NextResponse.json({ error: "Choisis une classe ou un niveau." }, { status: 400 });
   if (targetType === "ETUDIANT" && !programId) return NextResponse.json({ error: "Choisis la filière des étudiants." }, { status: 400 });
   if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2100)) return NextResponse.json({ error: "Année invalide." }, { status: 400 });
