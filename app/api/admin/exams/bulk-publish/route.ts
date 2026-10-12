@@ -24,10 +24,13 @@ export async function POST(request: Request) {
   try {
     const existing = await prisma.exam.findMany({
       where: { id: { in: ids } },
-      select: { id: true },
+      select: { id: true, category: true },
     });
     if (existing.length !== ids.length) {
       return NextResponse.json({ error: "Certaines épreuves n'existent plus. Actualise la page." }, { status: 409 });
+    }
+    if (existing.some((exam) => exam.category === "A_CLASSER")) {
+      return NextResponse.json({ error: "Classe les fichiers de la bibliothèque avant de les publier." }, { status: 400 });
     }
 
     await prisma.$transaction([

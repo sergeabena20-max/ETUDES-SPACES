@@ -68,6 +68,7 @@ export default async function AdminPage() {
               <Link href="/admin/courses" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Gérer les cours</Link>
               <Link href="/admin/quizzes" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les petits tests</Link>
               <Link href="/admin/exams" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les épreuves</Link>
+              <Link href="/admin/exams/inbox" className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">Bibliothèque des épreuves à classer</Link>
             </div>
           </section>
           <section className="card p-6">
