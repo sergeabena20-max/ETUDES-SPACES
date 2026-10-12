@@ -19,5 +19,6 @@ export default async function ExamInboxPage() {
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ where: { kind: "FILIERE" }, orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
-  return <ExamInboxManager initialExams={initialExams} levels={levels} subjects={subjects} schools={schools} programs={programs} />;
+  const serializableExams = initialExams.map((exam) => ({ ...exam, createdAt: exam.createdAt.toISOString() }));
+  return <ExamInboxManager initialExams={serializableExams} levels={levels} subjects={subjects} schools={schools} programs={programs} />;
 }
