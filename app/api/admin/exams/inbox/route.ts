@@ -53,7 +53,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Requête d'import invalide." }, { status: 400 });
   }
 
-  const storageBase = supabaseUrl.replace(/\\/$/, "") + "/storage/v1";
+  const baseUrl = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl;
+  const storageBase = baseUrl + "/storage/v1";
 
   if (body.action === "prepare") {
     if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
     while (await prisma.exam.findUnique({ where: { slug }, select: { id: true } })) {
       slug = slugify(title) + "-" + Math.random().toString(36).slice(2, 9);
     }
-    const fileUrl = supabaseUrl.replace(/\\/$/, "") + "/storage/v1/object/public/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
+    const fileUrl = baseUrl + "/storage/v1/object/public/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
     const exam = await prisma.exam.create({
       data: { title, slug, fileUrl, category: "A_CLASSER", status: "DRAFT" },
       select: { id: true, title: true },
