@@ -108,7 +108,7 @@ export async function PATCH(request: Request) {
   const status = body.status ?? "DRAFT";
 
   if (targetType !== "ELEVE" && targetType !== "ETUDIANT") return NextResponse.json({ error: "Choisis le public concerné." }, { status: 400 });
-  const categoriesForTarget = CATEGORIES[targetType as keyof typeof CATEGORIES] as readonly string[];
+  const categoriesForTarget: readonly string[] = targetType === "ELEVE" ? CATEGORIES.ELEVE : CATEGORIES.ETUDIANT;
   if (typeof category !== "string" || !categoriesForTarget.includes(category)) {
     return NextResponse.json({ error: "Choisis une catégorie valide." }, { status: 400 });
   }
