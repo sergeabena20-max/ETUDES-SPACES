@@ -42,40 +42,91 @@ export async function POST(request: Request) {
   const admin = await requireAdmin("exams.create");
   if (!admin) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
 
-  const form = await request.formData();
-  const files = form.getAll("files").filter((item): item is File => item instanceof File);
-  if (!files.length || files.length > MAX_FILES) {
-    return NextResponse.json({ error: "Sélectionne entre 1 et 20 fichiers PDF." }, { status: 400 });
-  }
-  if (files.some((file) => !file.name.toLowerCase().endsWith(".pdf") || file.size <= 0 || file.size > MAX_SIZE || (file.type && file.type !== "application/pdf"))) {
-    return NextResponse.json({ error: "Chaque fichier doit être un PDF valide de 50 Mo maximum." }, { status: 400 });
-  }
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY;
   if (!supabaseUrl || !secretKey) {
-    return NextResponse.json({ error: "Le stockage Supabase n'est pas configuré." }, { status: 500 });
+    return NextResponse.json({ error: "Le stockage Supabase n'est pas configuré. Vérifie NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SECRET_KEY dans Vercel." }, { status: 500 });
+  }
+
+  const body = await request.json().catch(() => null);
+  if (!body || (body.action !== "prepare" && body.action !== "finalize")) {
+    return NextResponse.json({ error: "Requête d'import invalide." }, { status: 400 });
+  }
+
+  const storageBase = supabaseUrl.replace(/\\/$/, "") + "/storage/v1";
+
+  if (body.action === "prepare") {
+    if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
+      return NextResponse.json({ error: "Sélectionne entre 1 et 20 fichiers PDF." }, { status: 400 });
+    }
+
+    const files = body.files as { name?: unknown; size?: unknown; type?: unknown }[];
+    if (files.some((file) =>
+      typeof file.name !== "string" ||
+      !file.name.toLowerCase().endsWith(".pdf") ||
+      typeof file.size !== "number" || file.size <= 0 || file.size > MAX_SIZE ||
+      (typeof file.type === "string" && file.type && file.type !== "application/pdf")
+    )) {
+      return NextResponse.json({ error: "Chaque fichier doit être un PDF valide de 50 Mo maximum." }, { status: 400 });
+    }
+
+    const uploads: { name: string; storagePath: string; signedUrl: string }[] = [];
+    for (const file of files) {
+      const name = file.name as string;
+      const storagePath = "exam-inbox/" + Date.now() + "-" + Math.random().toString(36).slice(2, 10) + "-" + safeFileName(name);
+      const signedResponse = await fetch(storageBase + "/object/upload/sign/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/"), {
+        method: "POST",
+        headers: { Authorization: "Bearer " + secretKey, apikey: secretKey, "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+        cache: "no-store",
+      });
+
+      const signedData = await signedResponse.json().catch(() => null);
+      if (!signedResponse.ok || typeof signedData?.url !== "string") {
+        const detail = typeof signedData?.message === "string" ? signedData.message : typeof signedData?.error === "string" ? signedData.error : "Impossible de préparer l'envoi vers Supabase.";
+        return NextResponse.json({ error: detail }, { status: 502 });
+      }
+      const signedUrl = new URL(storageBase + signedData.url, supabaseUrl).toString();
+      uploads.push({ name, storagePath, signedUrl });
+    }
+
+    return NextResponse.json({ ok: true, uploads });
+  }
+
+  if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
+    return NextResponse.json({ error: "Liste de fichiers importés invalide." }, { status: 400 });
+  }
+
+  const uploadedFiles = body.files as { name?: unknown; storagePath?: unknown }[];
+  if (uploadedFiles.some((file) =>
+    typeof file.name !== "string" ||
+    typeof file.storagePath !== "string" ||
+    !file.storagePath.startsWith("exam-inbox/") ||
+    file.storagePath.includes("..")
+  )) {
+    return NextResponse.json({ error: "Informations de fichiers invalides." }, { status: 400 });
   }
 
   const created: { id: string; title: string }[] = [];
-  for (const file of files) {
-    const title = file.name.replace(/\.pdf$/i, "").trim().slice(0, 180) || "Épreuve à classer";
-    const storagePath = "exam-inbox/" + Date.now() + "-" + Math.random().toString(36).slice(2, 10) + "-" + safeFileName(file.name);
-    const upload = await fetch(supabaseUrl + "/storage/v1/object/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/"), {
-      method: "POST",
-      headers: { Authorization: "Bearer " + secretKey, apikey: secretKey, "Content-Type": "application/pdf", "x-upsert": "false" },
-      body: await file.arrayBuffer(),
+  for (const file of uploadedFiles) {
+    const name = file.name as string;
+    const storagePath = file.storagePath as string;
+    const objectUrl = storageBase + "/object/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
+    const verify = await fetch(objectUrl, {
+      method: "HEAD",
+      headers: { Authorization: "Bearer " + secretKey, apikey: secretKey },
       cache: "no-store",
     });
-    if (!upload.ok) {
-      return NextResponse.json({ error: "Le stockage a échoué sur « " + file.name + " ». " + created.length + " fichier(s) ont déjà été ajoutés." }, { status: 502 });
+    if (!verify.ok) {
+      return NextResponse.json({ error: "Le PDF « " + name + " » n'a pas été retrouvé dans Supabase. Vérifie que l'envoi est terminé puis réessaie." }, { status: 502 });
     }
 
-    const fileUrl = supabaseUrl + "/storage/v1/object/public/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
+    const title = name.replace(/\.pdf$/i, "").trim().slice(0, 180) || "Épreuve à classer";
     let slug = slugify(title) + "-" + Math.random().toString(36).slice(2, 7);
     while (await prisma.exam.findUnique({ where: { slug }, select: { id: true } })) {
       slug = slugify(title) + "-" + Math.random().toString(36).slice(2, 9);
     }
+    const fileUrl = supabaseUrl.replace(/\\/$/, "") + "/storage/v1/object/public/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
     const exam = await prisma.exam.create({
       data: { title, slug, fileUrl, category: "A_CLASSER", status: "DRAFT" },
       select: { id: true, title: true },
