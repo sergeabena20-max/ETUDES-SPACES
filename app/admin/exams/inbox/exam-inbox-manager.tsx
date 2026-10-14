@@ -6,6 +6,18 @@ import { useMemo, useState } from "react";
 type Option = { id: string; name: string; kind?: string | null };
 type InboxExam = { id: string; title: string; slug: string; fileUrl: string | null; createdAt: string };
 type Target = "ELEVE" | "ETUDIANT";
+
+async function readApiResponse(response: Response): Promise<any> {
+  const text = await response.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    if (response.status === 413 || /request entity too large|payload too large|function_payload_too_large/i.test(text)) {
+      throw new Error("Le fichier dépasse la limite d’envoi de Vercel. L’envoi direct vers Supabase est activé dans cette version ; si ce message persiste, actualise la page et réessaie.");
+    }
+    throw new Error(text.slice(0, 220) || "Le serveur a renvoyé une réponse illisible.");
+  }
+}
 const categories: Record<Target, { value: string; label: string }[]> = {
   ELEVE: [
     { value: "EXERCICE", label: "Exercice" },
@@ -57,7 +69,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
 
   async function refresh() {
     const response = await fetch("/api/admin/exams/inbox", { cache: "no-store" });
-    const data = await response.json();
+    const data = await readApiResponse(response);
     if (!response.ok) throw new Error(data.error || "Impossible de charger la bibliothèque.");
     setExams(data.exams);
     setSelected([]);
@@ -72,13 +84,47 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
       return;
     }
     setBusy(true);
-    const form = new FormData();
-    files.forEach((file) => form.append("files", file));
     try {
-      const response = await fetch("/api/admin/exams/inbox", { method: "POST", body: form });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Import impossible.");
-      setMessage(data.count + " fichier(s) ajouté(s) à la bibliothèque. Tu peux les classer maintenant ou plus tard.");
+      // Seuls les noms et tailles passent par Vercel ; les octets PDF vont du navigateur à Supabase.
+      const prepareResponse = await fetch("/api/admin/exams/inbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "prepare",
+          files: files.map((file) => ({ name: file.name, size: file.size, type: file.type || "application/pdf" })),
+        }),
+      });
+      const prepared = await readApiResponse(prepareResponse);
+      if (!prepareResponse.ok) throw new Error(prepared.error || "Impossible de préparer l’import.");
+
+      const uploaded: { name: string; storagePath: string }[] = [];
+      for (let index = 0; index < files.length; index++) {
+        const file = files[index];
+        const destination = prepared.uploads?.[index];
+        if (!destination?.signedUrl || !destination?.storagePath) {
+          throw new Error("Supabase n’a pas fourni de lien d’envoi pour « " + file.name + " ».");
+        }
+        const storageResponse = await fetch(destination.signedUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/pdf", "x-upsert": "false" },
+          body: file,
+        });
+        if (!storageResponse.ok) {
+          const detail = await storageResponse.text().catch(() => "");
+          throw new Error("Échec de l’envoi de « " + file.name + " » vers Supabase (" + storageResponse.status + "). " + detail.slice(0, 160));
+        }
+        uploaded.push({ name: file.name, storagePath: destination.storagePath });
+        setMessage("Envoi vers Supabase : " + uploaded.length + "/" + files.length + " PDF…");
+      }
+
+      const finalizeResponse = await fetch("/api/admin/exams/inbox", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "finalize", files: uploaded }),
+      });
+      const result = await readApiResponse(finalizeResponse);
+      if (!finalizeResponse.ok) throw new Error(result.error || "Les PDF sont envoyés, mais leur ajout à la bibliothèque a échoué.");
+      setMessage(result.count + " fichier(s) ajouté(s) à la bibliothèque. Tu peux les classer maintenant ou plus tard.");
       setFiles([]);
       await refresh();
     } catch (error) {
