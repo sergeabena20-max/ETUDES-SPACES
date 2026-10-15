@@ -42,6 +42,12 @@ export default async function ExamsPage({ searchParams }: Props) {
         ].filter((item) => item.enabled)
       : [
           { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
+          { id: "SEQUENCE_1", label: "Séquence 1 · Épreuves séquentielles", enabled: true },
+          { id: "SEQUENCE_2", label: "Séquence 2 · Épreuves séquentielles", enabled: true },
+          { id: "SEQUENCE_3", label: "Séquence 3 · Épreuves séquentielles", enabled: true },
+          { id: "SEQUENCE_4", label: "Séquence 4 · Épreuves séquentielles", enabled: true },
+          { id: "SEQUENCE_5", label: "Séquence 5 · Épreuves séquentielles", enabled: true },
+          { id: "SEQUENCE_6", label: "Séquence 6 · Épreuves séquentielles", enabled: true },
           { id: "ANCIEN_SUJET", label: "Anciens sujets d’examen", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.pastExamsEnabled ?? false) },
           { id: "EXAMEN_BLANC", label: "Examens blancs", enabled: classExamConfig?.isExamClass === true && (classExamConfig?.mockExamsEnabled ?? false) },
         ].filter((item) => item.enabled)
