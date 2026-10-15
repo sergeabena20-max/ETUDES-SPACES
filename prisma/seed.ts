@@ -27,7 +27,8 @@ async function main() {
     "Licence 1", "Licence 2", "Licence 3",
   ];
   for (const name of levelNames) {
-    await prisma.academicLevel.upsert({ where: { name }, update: {}, create: { name } });
+    const kind = name.startsWith("Licence") ? "UNIVERSITAIRE" : "SCOLAIRE";
+    await prisma.academicLevel.upsert({ where: { name }, update: { kind }, create: { name, kind } });
   }
 
   // Matières du sous-système francophone de l'enseignement secondaire général.
