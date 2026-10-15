@@ -92,12 +92,12 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
   function startNew() {
     setForm(empty); setMessage(""); setOpen(true);
-    void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) setExamConfigs(data.examConfigs || []); }).catch(() => {});
+    void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) { setExamConfigs(data.examConfigs || []); setSubjects(data.subjects || []); setLevels(data.levels || []); setSchools(data.schools || []); setPrograms((data.programs || []).filter((o: Option) => o.kind === "FILIERE")); } }).catch(() => {});
   }
 
   function edit(e: Exam) {
     setForm(toForm(e)); setMessage(""); setOpen(true);
-    void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) setExamConfigs(data.examConfigs || []); }).catch(() => {});
+    void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) { setExamConfigs(data.examConfigs || []); setSubjects(data.subjects || []); setLevels(data.levels || []); setSchools(data.schools || []); setPrograms((data.programs || []).filter((o: Option) => o.kind === "FILIERE")); } }).catch(() => {});
   }
 
   async function uploadPdf(file: File, target: "exam" | "solution") {
