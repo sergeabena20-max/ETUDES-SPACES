@@ -49,14 +49,14 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => null);
-  if (!body || (body.action !== "prepare" && body.action !== "finalize")) {
+  if (!body || !["prepare", "finalize", "prepareSolution", "finalizeSolution"].includes(body.action)) {
     return NextResponse.json({ error: "Requête d'import invalide." }, { status: 400 });
   }
 
   const baseUrl = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl;
   const storageBase = baseUrl + "/storage/v1";
 
-  if (body.action === "prepare") {
+  if (body.action === "prepare" || body.action === "prepareSolution") {
     if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
       return NextResponse.json({ error: "Sélectionne entre 1 et 20 fichiers PDF." }, { status: 400 });
     }
@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     const uploads: { name: string; storagePath: string; signedUrl: string }[] = [];
     for (const file of files) {
       const name = file.name as string;
-      const storagePath = "exam-inbox/" + Date.now() + "-" + Math.random().toString(36).slice(2, 10) + "-" + safeFileName(name);
+      const prefix = body.action === "prepareSolution" ? "exam-solutions/" : "exam-inbox/";
+      const storagePath = prefix + Date.now() + "-" + Math.random().toString(36).slice(2, 10) + "-" + safeFileName(name);
       const signedResponse = await fetch(storageBase + "/object/upload/sign/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/"), {
         method: "POST",
         headers: { Authorization: "Bearer " + secretKey, apikey: secretKey, "Content-Type": "application/json" },
@@ -92,6 +93,25 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true, uploads });
+  }
+
+  if (body.action === "finalizeSolution") {
+    if (typeof body.examId !== "string" || !body.examId || !Array.isArray(body.files) || body.files.length !== 1) {
+      return NextResponse.json({ error: "Choisis une épreuve et un seul fichier PDF de correction." }, { status: 400 });
+    }
+    const file = body.files[0] as { name?: unknown; storagePath?: unknown };
+    if (typeof file.name !== "string" || typeof file.storagePath !== "string" || !file.storagePath.startsWith("exam-solutions/") || file.storagePath.includes("..")) {
+      return NextResponse.json({ error: "Informations de correction invalides." }, { status: 400 });
+    }
+    const exam = await prisma.exam.findUnique({ where: { id: body.examId }, select: { id: true } });
+    if (!exam) return NextResponse.json({ error: "Épreuve introuvable. Actualise la page." }, { status: 404 });
+    const objectUrl = storageBase + "/object/exam-files/" + file.storagePath.split("/").map(encodeURIComponent).join("/");
+    const verify = await fetch(objectUrl, { method: "HEAD", headers: { Authorization: "Bearer " + secretKey, apikey: secretKey }, cache: "no-store" });
+    if (!verify.ok) return NextResponse.json({ error: "Le corrigé n'a pas été retrouvé dans Supabase. Réessaie." }, { status: 502 });
+    const fileUrl = baseUrl + "/storage/v1/object/public/exam-files/" + file.storagePath.split("/").map(encodeURIComponent).join("/");
+    await prisma.examSolution.upsert({ where: { examId: exam.id }, create: { examId: exam.id, fileUrl }, update: { fileUrl, text: null } });
+    await prisma.auditLog.create({ data: { actorId: admin.id, action: "EXAM_SOLUTION_UPLOADED", entity: "ExamSolution", entityId: exam.id, metadata: { name: file.name } } });
+    return NextResponse.json({ ok: true, message: "Corrigé associé à l'épreuve." }, { status: 201 });
   }
 
   if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
