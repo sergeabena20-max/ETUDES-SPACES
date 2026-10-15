@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { getSchoolSubjectNames } from "@/lib/school-subjects";
 
 type Option = { id: string; name: string; kind?: string | null };
 type InboxExam = { id: string; title: string; slug: string; fileUrl: string | null; createdAt: string };
@@ -62,6 +63,8 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   const visibleLevels = useMemo(() => levels.filter((level) => targetType === "ELEVE"
     ? level.kind !== "UNIVERSITAIRE" && !["Licence 1", "Licence 2", "Licence 3"].includes(level.name)
     : level.kind === "UNIVERSITAIRE" || ["Licence 1", "Licence 2", "Licence 3"].includes(level.name)), [levels, targetType]);
+  const selectedLevel = levels.find((level) => level.id === academicLevelId);
+  const visibleSubjects = useMemo(() => targetType === "ETUDIANT" ? subjects : selectedLevel ? subjects.filter((subject) => getSchoolSubjectNames(selectedLevel.name).includes(subject.name)) : [], [targetType, selectedLevel, subjects]);
   const visibleExams = useMemo(() => exams.filter((exam) => exam.title.toLowerCase().includes(search.toLowerCase())), [exams, search]);
 
   function changeTarget(value: Target) {
@@ -274,10 +277,10 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="text-sm font-semibold">Public<select value={targetType} onChange={(event) => changeTarget(event.target.value as Target)} className="mt-1.5 w-full rounded-xl border p-3"><option value="ELEVE">Élève</option><option value="ETUDIANT">Étudiant</option></select></label>
-          <label className="text-sm font-semibold">{targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire"}<select value={academicLevelId} onChange={(event) => setAcademicLevelId(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{visibleLevels.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="text-sm font-semibold">{targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire"}<select value={academicLevelId} onChange={(event) => { setAcademicLevelId(event.target.value); setSubjectId(""); }} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{visibleLevels.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label className="text-sm font-semibold">Rubrique<select value={category} onChange={(event) => setCategory(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3">{categories[targetType].map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
           {targetType === "ETUDIANT" && <label className="text-sm font-semibold">Filière<select value={programId} onChange={(event) => setProgramId(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{programs.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
-          <label className="text-sm font-semibold">Matière<select value={subjectId} onChange={(event) => setSubjectId(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Non précisée</option>{subjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="text-sm font-semibold">Matière<select value={subjectId} onChange={(event) => setSubjectId(event.target.value)} disabled={targetType === "ELEVE" && !academicLevelId} className="mt-1.5 w-full rounded-xl border p-3 disabled:bg-slate-100"><option value="">{targetType === "ELEVE" && !academicLevelId ? "Choisis d’abord une classe / série" : "Non précisée"}</option>{visibleSubjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><span className="mt-1 block text-xs font-normal text-slate-500">{targetType === "ELEVE" && selectedLevel ? visibleSubjects.length + " matières pour " + selectedLevel.name : "Choisis la classe pour afficher son programme."}</span></label>
           <label className="text-sm font-semibold">Établissement<select value={schoolId} onChange={(event) => setSchoolId(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Non précisé</option>{schools.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label className="text-sm font-semibold">Année de l’épreuve<input type="number" min="1900" max="2100" value={year} onChange={(event) => setYear(event.target.value)} placeholder="Ex. 2025" className="mt-1.5 w-full rounded-xl border p-3" /></label>
           <label className="text-sm font-semibold">Après classement<select value={status} onChange={(event) => setStatus(event.target.value as "DRAFT" | "PUBLISHED" | "ARCHIVED")} className="mt-1.5 w-full rounded-xl border p-3"><option value="DRAFT">Garder en brouillon</option><option value="PUBLISHED">Publier immédiatement</option><option value="ARCHIVED">Archiver</option></select></label>
