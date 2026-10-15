@@ -246,7 +246,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
 
       <section className="mt-5 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-lg font-bold">2. Importer plusieurs corrigés PDF</h2>
-        <p className="mt-1 text-sm text-slate-500">Sélectionne jusqu'à 20 corrigés, puis associe chacun au sujet correspondant dans la liste des fichiers en attente. Un corrigé peut être ajouté avant ou après le classement du sujet, tant que celui-ci est encore dans cette bibliothèque.</p>
+        <p className="mt-1 text-sm text-slate-500">Sélectionne jusqu'à 20 corrigés, puis associe chacun au sujet correspondant dans la liste des fichiers en attente. Importe les corrigés pendant que les sujets correspondants sont encore dans cette bibliothèque, avant de les classer.</p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input type="file" accept="application/pdf,.pdf" multiple onChange={(event) => { setSolutionFiles(Array.from(event.target.files || [])); setSolutionExamIds({}); }} className="block min-w-0 flex-1 rounded-xl border bg-slate-50 p-3 text-sm" />
           <button type="button" onClick={uploadSolutions} disabled={busy || !solutionFiles.length} className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Importer " + solutionFiles.length + " corrigé(s)"}</button>
