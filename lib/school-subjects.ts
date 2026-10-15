@@ -1,6 +1,6 @@
 export const schoolSubjectNames = [
   "Mathématiques", "Français", "Anglais", "Informatique", "Histoire", "Géographie",
-  "Éducation à la citoyenneté", "Éducation physique et sportive (EPS)", "Éducation artistique",
+  "Éducation à la citoyenneté", "Éducation physique et sportive (EPS)", "Éducation artistique", "Langues nationales",
   "Sciences (PCT et SVTEEHB)", "Physique, Chimie et Technologie (PCT)",
   "Sciences de la Vie et de la Terre, Éducation à l’Environnement, Hygiène et Biotechnologie (SVTEEHB)",
   "Philosophie", "Littérature", "Langue vivante II", "Allemand", "Espagnol", "Arabe",
