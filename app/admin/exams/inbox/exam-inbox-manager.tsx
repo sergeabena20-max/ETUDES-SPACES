@@ -21,6 +21,12 @@ async function readApiResponse(response: Response): Promise<any> {
 const categories: Record<Target, { value: string; label: string }[]> = {
   ELEVE: [
     { value: "EXERCICE", label: "Exercice" },
+    { value: "SEQUENCE_1", label: "Épreuve séquentielle — Séquence 1" },
+    { value: "SEQUENCE_2", label: "Épreuve séquentielle — Séquence 2" },
+    { value: "SEQUENCE_3", label: "Épreuve séquentielle — Séquence 3" },
+    { value: "SEQUENCE_4", label: "Épreuve séquentielle — Séquence 4" },
+    { value: "SEQUENCE_5", label: "Épreuve séquentielle — Séquence 5" },
+    { value: "SEQUENCE_6", label: "Épreuve séquentielle — Séquence 6" },
     { value: "ANCIEN_SUJET", label: "Ancien sujet d'examen" },
     { value: "EXAMEN_BLANC", label: "Examen blanc" },
     { value: "AUTRE", label: "Autre" },
