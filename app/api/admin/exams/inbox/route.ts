@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
+import { schoolSubjectNames } from "@/lib/school-subjects";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +25,12 @@ export async function GET() {
   const admin = await requireAdmin("exams.read");
   if (!admin) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
 
+  // Keep the school catalogue available in Supabase even if the seed command was not run.
+  await Promise.all([
+    ...schoolSubjectNames.map((name) => prisma.subject.upsert({ where: { name }, update: {}, create: { name } })),
+    ...["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "SCOLAIRE" }, create: { name, kind: "SCOLAIRE" } })),
+    ...["Licence 1", "Licence 2", "Licence 3"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "UNIVERSITAIRE" }, create: { name, kind: "UNIVERSITAIRE" } })),
+  ]);
   const [exams, levels, subjects, schools, programs] = await Promise.all([
     prisma.exam.findMany({
       where: { category: "A_CLASSER", status: "DRAFT" },
