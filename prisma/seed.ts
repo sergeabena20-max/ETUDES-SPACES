@@ -30,7 +30,50 @@ async function main() {
     await prisma.academicLevel.upsert({ where: { name }, update: {}, create: { name } });
   }
 
-  const subjectNames = ["Mathématiques", "Français", "Informatique"];
+  // Matières du sous-système francophone de l'enseignement secondaire général.
+  // La liste est volontairement additive : les matières déjà utilisées par les étudiants sont conservées.
+  const subjectNames = [
+    // Matières de base
+    "Mathématiques",
+    "Français",
+    "Anglais",
+    "Informatique",
+    "Histoire",
+    "Géographie",
+    "Éducation à la citoyenneté",
+    "Éducation physique et sportive (EPS)",
+    "Éducation artistique",
+    "Langues nationales",
+
+    // Sciences : regroupées en 6e/5e, puis distinguées selon les classes et programmes
+    "Sciences (PCT et SVTEEHB)",
+    "Physique, Chimie et Technologie (PCT)",
+    "Sciences de la Vie et de la Terre, Éducation à l’Environnement, Hygiène et Biotechnologie (SVTEEHB)",
+
+    // Langues et matières littéraires du second cycle
+    "Philosophie",
+    "Littérature",
+    "Langue vivante II",
+    "Allemand",
+    "Espagnol",
+    "Arabe",
+    "Latin",
+    "Grec",
+    "Langue vivante III",
+    "Arts cinématographiques",
+
+    // Matières scientifiques du second cycle
+    "Physique",
+    "Chimie",
+    "Biologie",
+    "Sciences de la Vie et de la Terre (SVT)",
+    "Technologie de l’Information (TI)",
+    "Éducation à la citoyenneté et à la morale",
+
+    // Matières de spécialité selon les séries et options
+    "Bilingue Français-Anglais",
+    "Bilingue English-French",
+  ];
   for (const name of subjectNames) {
     await prisma.subject.upsert({ where: { name }, update: {}, create: { name } });
   }
