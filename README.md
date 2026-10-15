@@ -80,6 +80,16 @@ L’objectif est de conserver une séparation claire :
 
 Cette organisation facilite l’ajout progressif de ressources sans devoir recréer chaque entrée manuellement.
 
+## 📲 Installation sur Windows, Android et iPhone
+
+Études Space est préparé pour être installable comme une **Progressive Web App (PWA)** : l'application utilise le même projet web sur ordinateur et sur téléphone.
+
+- **Windows :** ouvre le site dans Microsoft Edge ou Google Chrome, puis choisis l'option d'installation proposée par le navigateur.
+- **Android :** ouvre le site dans Chrome, puis utilise « Installer l'application » ou « Ajouter à l'écran d'accueil » selon le navigateur.
+- **iPhone / iPad :** ouvre le site dans Safari, appuie sur « Partager », puis « Sur l'écran d'accueil » et « Ajouter ».
+
+L'installation nécessite que le site soit accessible en HTTPS. Le manifeste PWA et l'invite d'installation sont intégrés au projet. Le fonctionnement réel doit encore être vérifié sur les navigateurs et appareils cibles après déploiement. L'installation PWA ne publie pas automatiquement l'application dans le Microsoft Store, Google Play ou l'App Store.
+
 ## 🛠️ Technologies
 
 | Technologie | Utilisation |
