@@ -39,7 +39,8 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   const [exams, setExams] = useState(initialExams);
   const [selected, setSelected] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
-  const [solutionFiles, setSolutionFiles] = useState<Record<string, File | undefined>>({});
+  const [solutionFiles, setSolutionFiles] = useState<File[]>([]);
+  const [solutionExamIds, setSolutionExamIds] = useState<Record<number, string>>({});
   const [targetType, setTargetType] = useState<Target>("ELEVE");
   const [academicLevelId, setAcademicLevelId] = useState("");
   const [category, setCategory] = useState("EXERCICE");
@@ -135,12 +136,21 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
     }
   }
 
-  async function uploadSolution(examId: string) {
-    const file = solutionFiles[examId];
+  async function uploadSolutions() {
     setMessage("");
-    if (!file) { setMessage("Choisis le PDF du corrigé à associer à cette épreuve."); return; }
-    if (!file.name.toLowerCase().endsWith(".pdf") || file.size <= 0 || file.size > 50 * 1024 * 1024) {
-      setMessage("Le corrigé doit être un PDF valide de 50 Mo maximum.");
+    if (!solutionFiles.length) { setMessage("Sélectionne au moins un PDF de correction."); return; }
+    if (solutionFiles.length > 20) { setMessage("Tu peux importer 20 corrigés maximum par envoi."); return; }
+    if (solutionFiles.some((file) => !file.name.toLowerCase().endsWith(".pdf") || file.size <= 0 || file.size > 50 * 1024 * 1024)) {
+      setMessage("Chaque corrigé doit être un PDF valide de 50 Mo maximum.");
+      return;
+    }
+    if (solutionFiles.some((_, index) => !solutionExamIds[index])) {
+      setMessage("Associe chaque corrigé à son sujet avant de lancer l'import.");
+      return;
+    }
+    const selectedExamIds = solutionFiles.map((_, index) => solutionExamIds[index]);
+    if (new Set(selectedExamIds).size !== selectedExamIds.length) {
+      setMessage("Chaque sujet ne peut recevoir qu'un seul corrigé par import. Vérifie les associations.");
       return;
     }
     setBusy(true);
@@ -148,32 +158,42 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
       const prepareResponse = await fetch("/api/admin/exams/inbox", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "prepareSolution", files: [{ name: file.name, size: file.size, type: file.type || "application/pdf" }] }),
+        body: JSON.stringify({
+          action: "prepareSolution",
+          files: solutionFiles.map((file) => ({ name: file.name, size: file.size, type: file.type || "application/pdf" })),
+        }),
       });
       const prepared = await readApiResponse(prepareResponse);
-      if (!prepareResponse.ok) throw new Error(prepared.error || "Impossible de préparer l'envoi du corrigé.");
-      const destination = prepared.uploads?.[0];
-      if (!destination?.signedUrl || !destination?.storagePath) throw new Error("Supabase n'a pas fourni de lien d'envoi pour le corrigé.");
-      const uploadResponse = await fetch(destination.signedUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/pdf", "x-upsert": "false" },
-        body: file,
-      });
-      if (!uploadResponse.ok) {
-        const detail = await uploadResponse.text().catch(() => "");
-        throw new Error("Échec de l'envoi du corrigé vers Supabase (" + uploadResponse.status + "). " + detail.slice(0, 160));
+      if (!prepareResponse.ok) throw new Error(prepared.error || "Impossible de préparer l'import des corrigés.");
+      if (!Array.isArray(prepared.uploads) || prepared.uploads.length !== solutionFiles.length) throw new Error("La préparation Supabase est incomplète. Réessaie.");
+      const uploaded: { name: string; storagePath: string; examId: string }[] = [];
+      for (let index = 0; index < solutionFiles.length; index++) {
+        const file = solutionFiles[index];
+        const destination = prepared.uploads[index];
+        const uploadResponse = await fetch(destination.signedUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/pdf", "x-upsert": "false" },
+          body: file,
+        });
+        if (!uploadResponse.ok) {
+          const detail = await uploadResponse.text().catch(() => "");
+          throw new Error("Échec de l'envoi du corrigé « " + file.name + " » vers Supabase (" + uploadResponse.status + "). " + detail.slice(0, 160));
+        }
+        uploaded.push({ name: file.name, storagePath: destination.storagePath, examId: solutionExamIds[index] });
+        setMessage("Envoi des corrigés vers Supabase : " + uploaded.length + "/" + solutionFiles.length + " PDF…");
       }
       const finalizeResponse = await fetch("/api/admin/exams/inbox", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "finalizeSolution", examId, files: [{ name: file.name, storagePath: destination.storagePath }] }),
+        body: JSON.stringify({ action: "finalizeSolution", files: uploaded }),
       });
       const result = await readApiResponse(finalizeResponse);
-      if (!finalizeResponse.ok) throw new Error(result.error || "Le corrigé a été envoyé, mais son association a échoué.");
-      setMessage("Corrigé associé à « " + (exams.find((exam) => exam.id === examId)?.title || "l'épreuve") + " ».");
-      setSolutionFiles((current) => ({ ...current, [examId]: undefined }));
+      if (!finalizeResponse.ok) throw new Error(result.error || "Les PDF sont envoyés, mais leur association a échoué.");
+      setMessage(result.message || result.count + " corrigé(s) associé(s) avec succès.");
+      setSolutionFiles([]);
+      setSolutionExamIds({});
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Erreur réseau pendant l'import du corrigé.");
+      setMessage(error instanceof Error ? error.message : "Erreur réseau pendant l'import des corrigés.");
     } finally {
       setBusy(false);
     }
@@ -224,9 +244,25 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
         {files.length > 0 && <div className="mt-3 max-h-28 overflow-auto rounded-xl bg-slate-50 p-3 text-xs text-slate-600">{files.map((file, index) => <p key={file.name + index}>{file.name} · {(file.size / 1024 / 1024).toFixed(1)} Mo</p>)}</div>}
       </section>
 
+      <section className="mt-5 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-lg font-bold">2. Importer plusieurs corrigés PDF</h2>
+        <p className="mt-1 text-sm text-slate-500">Sélectionne jusqu'à 20 corrigés, puis associe chacun au sujet correspondant dans la liste des fichiers en attente. Un corrigé peut être ajouté avant ou après le classement du sujet, tant que celui-ci est encore dans cette bibliothèque.</p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input type="file" accept="application/pdf,.pdf" multiple onChange={(event) => { setSolutionFiles(Array.from(event.target.files || [])); setSolutionExamIds({}); }} className="block min-w-0 flex-1 rounded-xl border bg-slate-50 p-3 text-sm" />
+          <button type="button" onClick={uploadSolutions} disabled={busy || !solutionFiles.length} className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Importer " + solutionFiles.length + " corrigé(s)"}</button>
+        </div>
+        {solutionFiles.length > 0 && <div className="mt-4 space-y-3">{solutionFiles.map((file, index) => <div key={file.name + index} className="grid gap-2 rounded-xl border p-3 sm:grid-cols-2 sm:items-center">
+          <p className="break-words text-sm font-medium text-slate-800">{file.name} <span className="text-xs text-slate-500">({(file.size / 1024 / 1024).toFixed(1)} Mo)</span></p>
+          <select value={solutionExamIds[index] || ""} onChange={(event) => setSolutionExamIds((current) => ({ ...current, [index]: event.target.value }))} className="w-full rounded-lg border p-2.5 text-sm" aria-label={"Associer le corrigé " + file.name + " à un sujet"}>
+            <option value="">Choisir le sujet correspondant</option>
+            {exams.map((exam) => <option key={exam.id} value={exam.id}>{exam.title}</option>)}
+          </select>
+        </div>)}</div>}
+      </section>
+
       <section className="mt-5 rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div><h2 className="text-lg font-bold">2. Classer les fichiers</h2><p className="mt-1 text-sm text-slate-500">Sélectionne un seul fichier pour le classer individuellement, ou plusieurs pour appliquer les mêmes informations à tout le lot.</p></div>
+          <div><h2 className="text-lg font-bold">3. Classer les fichiers</h2><p className="mt-1 text-sm text-slate-500">Sélectionne un seul fichier pour le classer individuellement, ou plusieurs pour appliquer les mêmes informations à tout le lot.</p></div>
           <span className="rounded-full bg-sky-50 px-3 py-1.5 text-sm font-bold text-sky-800">{exams.length} en attente</span>
         </div>
 
@@ -258,11 +294,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
               <p className="break-words font-semibold text-slate-900">{exam.title}</p>
               <p className="mt-1 text-xs text-slate-500">Ajouté le {new Date(exam.createdAt).toLocaleDateString("fr-FR")}</p>
             </div>
-            <div className="flex max-w-xs flex-col gap-2">
-              {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50">Voir le sujet ↗</a>}
-              <input type="file" accept="application/pdf,.pdf" aria-label={"Choisir le corrigé pour " + exam.title} onChange={(event) => setSolutionFiles((current) => ({ ...current, [exam.id]: event.target.files?.[0] }))} className="w-full text-xs" />
-              <button type="button" onClick={() => uploadSolution(exam.id)} disabled={busy || !solutionFiles[exam.id]} className="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-700 disabled:opacity-50">Importer le corrigé</button>
-            </div>
+            {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50">Voir le sujet ↗</a>}
           </div>) : <p className="px-4 py-12 text-center text-sm text-slate-500">{search ? "Aucun fichier ne correspond à cette recherche." : "La bibliothèque est vide. Ajoute des PDF ci-dessus pour commencer."}</p>}
         </div>
         <p className="mt-3 text-xs text-slate-500">Les épreuves publiées quittent automatiquement cette bibliothèque et rejoignent leur rubrique dans le catalogue.</p>
