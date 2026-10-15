@@ -166,6 +166,12 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
       ]
     : [
         ...(selectedConfig?.exercisesEnabled !== false ? [{ value: "EXERCICE", label: "Exercices" }] : []),
+        { value: "SEQUENCE_1", label: "Épreuve séquentielle — Séquence 1" },
+        { value: "SEQUENCE_2", label: "Épreuve séquentielle — Séquence 2" },
+        { value: "SEQUENCE_3", label: "Épreuve séquentielle — Séquence 3" },
+        { value: "SEQUENCE_4", label: "Épreuve séquentielle — Séquence 4" },
+        { value: "SEQUENCE_5", label: "Épreuve séquentielle — Séquence 5" },
+        { value: "SEQUENCE_6", label: "Épreuve séquentielle — Séquence 6" },
         ...(selectedConfig?.isExamClass && selectedConfig?.pastExamsEnabled ? [{ value: "ANCIEN_SUJET", label: "Anciens sujets d’examen" }] : []),
         ...(selectedConfig?.isExamClass && selectedConfig?.mockExamsEnabled ? [{ value: "EXAMEN_BLANC", label: "Examens blancs" }] : []),
         ...(form.category === "Ancien sujet" ? [{ value: "Ancien sujet", label: "Ancien sujet (ancienne catégorie)" }] : []),
