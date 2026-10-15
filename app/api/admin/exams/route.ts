@@ -118,7 +118,7 @@ async function save(req: Request, editing: boolean) {
       if (category === "SIMULATION_BTS_DUT" && (!isLevelTwo || levelConfig?.btsDutExamEnabled !== true)) return NextResponse.json({ error: "La simulation BTS / DUT est disponible uniquement si elle est activée en Niveau 2." }, { status: 400 });
     } else return NextResponse.json({ error: "Sélectionne une rubrique universitaire valide." }, { status: 400 });
   } else {
-    const known = ["EXERCICE", "ANCIEN_SUJET", "EXAMEN_BLANC", "Ancien sujet", "AUTRE"];
+    const known = ["EXERCICE", "SEQUENCE_1", "SEQUENCE_2", "SEQUENCE_3", "SEQUENCE_4", "SEQUENCE_5", "SEQUENCE_6", "ANCIEN_SUJET", "EXAMEN_BLANC", "Ancien sujet", "AUTRE"];
     if (!known.includes(category)) return NextResponse.json({ error: "Sélectionne une rubrique scolaire valide." }, { status: 400 });
     if (category === "EXERCICE" && levelConfig?.exercisesEnabled === false) return NextResponse.json({ error: "La rubrique Exercices est désactivée pour ce niveau." }, { status: 400 });
     if (category === "ANCIEN_SUJET" && (!levelConfig?.isExamClass || levelConfig?.pastExamsEnabled !== true)) return NextResponse.json({ error: "Les anciens sujets sont disponibles uniquement pour une classe d’examen où la rubrique est activée." }, { status: 400 });
