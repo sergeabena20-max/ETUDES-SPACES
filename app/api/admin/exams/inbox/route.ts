@@ -96,22 +96,37 @@ export async function POST(request: Request) {
   }
 
   if (body.action === "finalizeSolution") {
-    if (typeof body.examId !== "string" || !body.examId || !Array.isArray(body.files) || body.files.length !== 1) {
-      return NextResponse.json({ error: "Choisis une épreuve et un seul fichier PDF de correction." }, { status: 400 });
+    if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
+      return NextResponse.json({ error: "Sélectionne entre 1 et 20 corrigés." }, { status: 400 });
     }
-    const file = body.files[0] as { name?: unknown; storagePath?: unknown };
-    if (typeof file.name !== "string" || typeof file.storagePath !== "string" || !file.storagePath.startsWith("exam-solutions/") || file.storagePath.includes("..")) {
-      return NextResponse.json({ error: "Informations de correction invalides." }, { status: 400 });
+    const files = body.files as { name?: unknown; storagePath?: unknown; examId?: unknown }[];
+    if (files.some((file) => typeof file.name !== "string" || typeof file.examId !== "string" || !file.examId ||
+      typeof file.storagePath !== "string" || !file.storagePath.startsWith("exam-solutions/") || file.storagePath.includes(".."))) {
+      return NextResponse.json({ error: "Informations de correction invalides. Associe chaque PDF à une épreuve." }, { status: 400 });
     }
-    const exam = await prisma.exam.findUnique({ where: { id: body.examId }, select: { id: true } });
-    if (!exam) return NextResponse.json({ error: "Épreuve introuvable. Actualise la page." }, { status: 404 });
-    const objectUrl = storageBase + "/object/exam-files/" + file.storagePath.split("/").map(encodeURIComponent).join("/");
-    const verify = await fetch(objectUrl, { method: "HEAD", headers: { Authorization: "Bearer " + secretKey, apikey: secretKey }, cache: "no-store" });
-    if (!verify.ok) return NextResponse.json({ error: "Le corrigé n'a pas été retrouvé dans Supabase. Réessaie." }, { status: 502 });
-    const fileUrl = baseUrl + "/storage/v1/object/public/exam-files/" + file.storagePath.split("/").map(encodeURIComponent).join("/");
-    await prisma.examSolution.upsert({ where: { examId: exam.id }, create: { examId: exam.id, fileUrl }, update: { fileUrl, text: null } });
-    await prisma.auditLog.create({ data: { actorId: admin.id, action: "EXAM_SOLUTION_UPLOADED", entity: "ExamSolution", entityId: exam.id, metadata: { name: file.name } } });
-    return NextResponse.json({ ok: true, message: "Corrigé associé à l'épreuve." }, { status: 201 });
+    const examIds = files.map((file) => file.examId as string);
+    if (new Set(examIds).size !== examIds.length) {
+      return NextResponse.json({ error: "Chaque épreuve ne peut recevoir qu'un seul corrigé par import." }, { status: 400 });
+    }
+    const existingExams = await prisma.exam.findMany({ where: { id: { in: examIds } }, select: { id: true } });
+    if (existingExams.length !== examIds.length) return NextResponse.json({ error: "Une épreuve sélectionnée est introuvable. Actualise la page." }, { status: 404 });
+    for (const file of files) {
+      const storagePath = file.storagePath as string;
+      const objectUrl = storageBase + "/object/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
+      const verify = await fetch(objectUrl, { method: "HEAD", headers: { Authorization: "Bearer " + secretKey, apikey: secretKey }, cache: "no-store" });
+      if (!verify.ok) return NextResponse.json({ error: "Le corrigé « " + file.name + " » n'a pas été retrouvé dans Supabase. Réessaie." }, { status: 502 });
+    }
+    await prisma.$transaction(files.map((file) => {
+      const storagePath = file.storagePath as string;
+      const fileUrl = baseUrl + "/storage/v1/object/public/exam-files/" + storagePath.split("/").map(encodeURIComponent).join("/");
+      return prisma.examSolution.upsert({
+        where: { examId: file.examId as string },
+        create: { examId: file.examId as string, fileUrl },
+        update: { fileUrl, text: null },
+      });
+    }));
+    await prisma.auditLog.create({ data: { actorId: admin.id, action: "EXAM_SOLUTIONS_UPLOADED", entity: "ExamSolution", metadata: { count: files.length, examIds } } });
+    return NextResponse.json({ ok: true, count: files.length, message: files.length + " corrigé(s) associé(s) aux épreuves." }, { status: 201 });
   }
 
   if (!Array.isArray(body.files) || body.files.length < 1 || body.files.length > MAX_FILES) {
