@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   if (!level) return NextResponse.json({ error: "Niveau introuvable." }, { status: 400 });
   if (targetType === "ELEVE" && level.kind === "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau scolaire." }, { status: 400 });
   if (targetType === "ETUDIANT" && level.kind !== "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau universitaire." }, { status: 400 });
-  const known = targetType === "ETUDIANT" ? ["EXERCICE","CONTROLE_CONTINU","SESSION_NORMALE","SIMULATION_BTS_DUT"] : ["EXERCICE","ANCIEN_SUJET","EXAMEN_BLANC","AUTRE"];
+  const known = targetType === "ETUDIANT" ? ["EXERCICE","CONTROLE_CONTINU","SESSION_NORMALE","SIMULATION_BTS_DUT"] : ["EXERCICE","SEQUENCE_1","SEQUENCE_2","SEQUENCE_3","SEQUENCE_4","SEQUENCE_5","SEQUENCE_6","ANCIEN_SUJET","EXAMEN_BLANC","AUTRE"];
   if (!known.includes(category)) return NextResponse.json({ error: "Catégorie invalide pour le public sélectionné." }, { status: 400 });
   const config = await prisma.classExamConfig.findUnique({ where: { academicLevelId } });
   if (category === "EXERCICE" && config?.exercisesEnabled === false) return NextResponse.json({ error: "Les exercices sont désactivés pour ce niveau." }, { status: 400 });
