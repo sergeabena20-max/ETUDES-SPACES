@@ -11,6 +11,7 @@ export default function PwaInstallPrompt() {
   const [installEvent, setInstallEvent] = useState<InstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [showIOSHelp, setShowIOSHelp] = useState(false);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function PwaInstallPrompt() {
     };
   }, []);
 
-  if (isInstalled) return null;
+  if (isInstalled || isDismissed) return null;
   if (!installEvent && !isIOS) return null;
 
   async function install() {
@@ -54,7 +55,16 @@ export default function PwaInstallPrompt() {
   }
 
   return (
-    <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl border border-sky-200 bg-white/95 p-4 shadow-2xl shadow-sky-900/15 backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:right-5">
+    <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl border border-sky-200 bg-white/95 p-4 pr-12 shadow-2xl shadow-sky-900/15 backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:right-5">
+      <button
+        type="button"
+        onClick={() => setIsDismissed(true)}
+        aria-label="Fermer la notification d’installation"
+        title="Fermer"
+        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-sky-100">
           <img src="/icons/icon-192.png" alt="" className="h-full w-full" />
