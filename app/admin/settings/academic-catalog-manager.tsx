@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { formatAcademicLevelName } from "@/lib/academic-level-label";
+import { formatAcademicLevelName, toStoredAcademicLevelName } from "@/lib/academic-level-label";
 
 type Program = {
   id: string;
@@ -59,7 +59,7 @@ export default function AcademicCatalogManager() {
 
   function edit(level: Level) {
     setEditingId(level.id);
-    setName(level.name);
+    setName(formatAcademicLevelName(level.name));
     setKind(level.kind === "UNIVERSITAIRE" ? "UNIVERSITAIRE" : "SCOLAIRE");
     setProgramIds(level.programLevels.map((item) => item.programId));
     setMessage("");
@@ -86,7 +86,7 @@ export default function AcademicCatalogManager() {
       const res = await fetch("/api/admin/academic-levels", {
         method: editingId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editingId, name: name.trim(), kind, programIds }),
+        body: JSON.stringify({ id: editingId, name: toStoredAcademicLevelName(name.trim()), kind, programIds }),
       });
       const data = await res.json();
       if (!res.ok) {
