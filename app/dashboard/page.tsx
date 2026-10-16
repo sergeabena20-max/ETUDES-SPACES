@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 import { prisma } from "@/lib/prisma";
 import { canAccessQuiz } from "@/lib/quiz-access";
 import { getGamificationLevel } from "@/lib/gamification";
@@ -112,7 +113,7 @@ export default async function Dashboard() {
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
                   Classe ou niveau :{" "}
-                  {user.academicLevel?.name ?? "non renseigné"}
+                  {formatAcademicLevelName(user.academicLevel?.name) || "non renseigné"}
                   {user.program?.name ? ` · ${user.program.name}` : ""}
                 </p>
               </div>
