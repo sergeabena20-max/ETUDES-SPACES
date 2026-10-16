@@ -6,3 +6,11 @@ export function formatAcademicLevelName(name: string | null | undefined): string
     .replace(/^Premi[eè]re(?=\s|$)/i, "1ère")
     .replace(/^Terminale(?=\s|$)/i, "Tle");
 }
+
+/** Convertit les abréviations saisies dans l'administration vers les noms canoniques déjà utilisés en base. */
+export function toStoredAcademicLevelName(name: string): string {
+  return name
+    .replace(/^2nde(?=\s|$)/i, "Seconde")
+    .replace(/^1ère(?=\s|$)/i, "Première")
+    .replace(/^Tle(?=\s|$)/i, "Terminale");
+}
