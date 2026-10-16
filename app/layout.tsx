@@ -14,8 +14,12 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Études Space" },
   formatDetection: { telephone: false },
   icons: {
-    icon: [{ url: "/icons/etudes-space.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icons/etudes-space.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" },
+      { url: "/icons/etudes-space.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
   },
 };
 
