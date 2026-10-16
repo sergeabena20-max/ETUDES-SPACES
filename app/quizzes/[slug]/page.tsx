@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import QuizPlayer from "./quiz-player";
 import { getCurrentUser } from "@/lib/session";
 import { canAccessQuiz } from "@/lib/quiz-access";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export default async function QuizDetailPage({ params }: { params: Promise<{ slu
     </header>
     <section className="container relative z-10 max-w-4xl py-10">
       <div className="animate-slide-up">
-        <div className="inline-flex rounded-full border border-sky-200 bg-white/75 px-3 py-1 text-sm font-bold text-sky-600 shadow-sm backdrop-blur">{quiz.subject?.name || "Matière"} · {quiz.academicLevel?.name || "Tous niveaux"}</div>
+        <div className="inline-flex rounded-full border border-sky-200 bg-white/75 px-3 py-1 text-sm font-bold text-sky-600 shadow-sm backdrop-blur">{quiz.subject?.name || "Matière"} · {formatAcademicLevelName(quiz.academicLevel?.name) || "Tous niveaux"}</div>
         <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{quiz.title}</h1>
         <p className="mt-3 text-lg leading-8 text-slate-600">{quiz.description || "Petit test d'entraînement."}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-500">{quiz.program && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{quiz.program.name}</span>}<span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{questions.length} question{questions.length > 1 ? "s" : ""}</span></div>
