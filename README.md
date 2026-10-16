@@ -39,7 +39,7 @@
 Les ressources scolaires sont pensées pour être classées par classe et série, afin d’éviter de mélanger les programmes. Le catalogue comprend notamment les niveaux suivants :
 
 - **Premier cycle :** 6e, 5e, 4e et 3e.
-- **Second cycle :** Seconde, Première et Terminale, avec des séries telles que A, C et D.
+- **Second cycle :** 2nde, 1ère et Tle, avec des séries telles que A, C et D.
 - **Université :** niveaux Licence et parcours organisés par département et filière.
 
 Les matières proposées dans l’administration s’adaptent à la classe ou à la série sélectionnée. Le catalogue de matières constitue une base de travail alignée sur les programmes camerounais disponibles ; il reste à vérifier et compléter avec les établissements et programmes spécifiques qui ne seraient pas encore couverts.
