@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { getSchoolSubjectNames } from "@/lib/school-subjects";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 type Option = { id: string; name: string; kind?: string | null };
 type InboxExam = { id: string; title: string; slug: string; fileUrl: string | null; createdAt: string };
