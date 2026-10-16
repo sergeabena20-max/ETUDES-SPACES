@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 type Program = { id: string; name: string };
 type Level = { id: string; name: string; kind: string | null };
@@ -98,7 +99,7 @@ export default function RegisterPage() {
           <label className="mb-2 block text-sm font-bold">Classe</label>
           <select name="academicLevelName" required className="w-full rounded-xl border p-3">
             <option value="">Sélectionner ma classe</option>
-            {schoolLevels.map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
+            {schoolLevels.map((level) => <option key={level.id} value={level.name}>{formatAcademicLevelName(level.name)}</option>)}
           </select>
           {!schoolLevels.length && <p className="mt-1 text-xs text-amber-700">Aucune classe n'est encore configurée. Réessaie dans un instant ou contacte l'administration.</p>}
         </div>}
@@ -131,7 +132,7 @@ export default function RegisterPage() {
           <label className="mb-2 block text-sm font-bold">Niveau universitaire</label>
           <select name="academicLevelName" required className="w-full rounded-xl border p-3">
             <option value="">Sélectionner mon niveau universitaire</option>
-            {universityLevels.map((level) => <option key={level.id} value={level.name}>{level.name}</option>)}
+            {universityLevels.map((level) => <option key={level.id} value={level.name}>{formatAcademicLevelName(level.name)}</option>)}
           </select>
           {!universityLevels.length && <p className="mt-1 text-xs text-amber-700">Aucun niveau n'est associé à cette filière. Le Super Administrateur doit configurer les niveaux de cette filière.</p>}
         </div>}
