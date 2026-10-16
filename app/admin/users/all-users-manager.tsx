@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 type Payment = {
   id: string; amount: string; currency: string; status: string;
