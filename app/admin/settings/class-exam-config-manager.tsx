@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 type ClassConfig = {
   id: string;
@@ -92,7 +93,7 @@ export default function ClassExamConfigManager() {
         return <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="font-bold">{item.name}</h3>
+              <h3 className="font-bold">{formatAcademicLevelName(item.name)}</h3>
               <p className="mt-1 text-xs text-slate-500">{isUniversity ? "Étudiants · filière universitaire" : "Élèves · enseignement scolaire"}</p>
             </div>
             {!isUniversity && <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={item.isExamClass} onChange={(event) => update(item.id, { isExamClass: event.target.checked })} /> Classe d'examen</label>}
