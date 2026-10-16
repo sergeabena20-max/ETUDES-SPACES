@@ -57,7 +57,7 @@ export default function PwaInstallPrompt() {
     <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl border border-sky-200 bg-white/95 p-4 shadow-2xl shadow-sky-900/15 backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:right-5">
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-sky-100">
-          <img src="/icons/etudes-space.svg" alt="" className="h-full w-full" />
+          <img src="/icons/icon-192.png" alt="" className="h-full w-full" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-extrabold text-slate-900">Installer Études Space</p>
