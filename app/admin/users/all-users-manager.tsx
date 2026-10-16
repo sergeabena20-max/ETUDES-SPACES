@@ -19,6 +19,15 @@ type U = {
   _count: { payments: number }; payments: Payment[]; subscriptions: Subscription[];
 };
 type R = { id: string; name: string };
+const roleDescriptions: Record<string, string> = {
+  "Gestionnaire de contenu": "Crée et modifie les cours, les épreuves et les petits tests.",
+  "Gestionnaire des épreuves": "Gère les épreuves et les petits tests, y compris leur suppression.",
+  "Gestionnaire des cours": "Gère les cours et les matières.",
+  "Gestionnaire des utilisateurs": "Consulte et met à jour les comptes, sans gérer les administrateurs.",
+  "Gestionnaire des paiements": "Consulte et gère les paiements.",
+  "Analyste": "Consulte les données et statistiques sans modifier les contenus.",
+  "Administrateur polyvalent": "Accès étendu aux tâches courantes, sans les pouvoirs du super administrateur.",
+};
 type Q = { id: string; requestedAt: string; user: { firstName: string; lastName: string; email: string } };
 
 function dateLabel(value: string | null) {
@@ -155,7 +164,8 @@ export default function AllUsersManager({
                     <select aria-label={`Rôle à attribuer à ${user.email}`} value={selectedRoles[user.id] || ""} onChange={(event) => setSelectedRoles((current) => ({ ...current, [user.id]: event.target.value }))} className="rounded border p-2">
                       <option value="">Choisir les permissions</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
                     </select>
-                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN")} className="rounded bg-sky-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
+                    {selectedRoles[user.id] && <p className="rounded-lg bg-sky-50 p-3 text-xs leading-5 text-sky-900">{roleDescriptions[roles.find((role) => role.id === selectedRoles[user.id])?.name || ""] || "Rôle personnalisé : les permissions exactes sont définies dans la gestion des rôles."}</p>}
+                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN") className="rounded bg-sky-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
                   </> : <button disabled={busyId === user.id} onClick={() => setRole(user.id, "USER")} className="rounded border px-3 py-2 disabled:opacity-50">Retirer les droits admin</button>}
                   <button disabled={busyId === user.id} onClick={() => deleteUser(user)} className="rounded border border-red-200 px-3 py-2 text-red-700 disabled:opacity-50">Supprimer le compte</button>
                 </div>}
