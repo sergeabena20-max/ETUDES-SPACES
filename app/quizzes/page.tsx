@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { canAccessQuiz } from "@/lib/quiz-access";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function QuizzesPage() {
           <h2 className="mt-3 text-xl font-bold">{q.title}</h2>
           <p className="mt-2 text-sm text-slate-500">{q.description || "Petit test d'entraînement."}</p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-            {q.academicLevel && <span className="rounded-full bg-slate-100 px-3 py-1">{q.academicLevel.name}</span>}
+            {q.academicLevel && <span className="rounded-full bg-slate-100 px-3 py-1">{formatAcademicLevelName(q.academicLevel.name)}</span>}
             {q.program && <span className="rounded-full bg-slate-100 px-3 py-1">{q.program.name}</span>}
           </div>
           <Link href={"/quizzes/" + q.slug} className="mt-5 inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Commencer le test →</Link>
