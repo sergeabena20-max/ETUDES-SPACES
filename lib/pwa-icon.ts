@@ -104,6 +104,37 @@ export function generatePwaIcon(size: number): Buffer {
   line(117, 163, 117, 329, 8, [255, 255, 255, 255]);
   line(395, 163, 395, 329, 8, [255, 255, 255, 255]);
 
+  // Marque courte « ÉTUDES », dessinée en bitmap pour rester nette à petite taille.
+  const glyphs: Record<string, string[]> = {
+    E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+    T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+    U: ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
+    D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+    S: ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
+  };
+  const word = ["E", "T", "U", "D", "E", "S"];
+  const unit = Math.max(1, px(5));
+  const letterWidth = 5 * unit;
+  const gap = unit;
+  const totalWidth = word.length * letterWidth + (word.length - 1) * gap;
+  const startX = Math.floor((width - totalWidth) / 2);
+  const startY = px(405);
+  word.forEach((letter, letterIndex) => {
+    glyphs[letter].forEach((row, rowIndex) => {
+      for (let col = 0; col < row.length; col++) {
+        if (row[col] === "1") {
+          const x0 = startX + letterIndex * (letterWidth + gap) + col * unit;
+          const y0 = startY + rowIndex * unit;
+          for (let oy = 0; oy < unit; oy++) for (let ox = 0; ox < unit; ox++) {
+            put(x0 + ox, y0 + oy, [255, 255, 255, 255]);
+          }
+        }
+      }
+    });
+  });
+  // Accent aigu au-dessus du premier E.
+  line(startX + unit * 2, startY - unit * 2, startX + unit * 3, startY - unit * 3, Math.max(1, unit), [255, 255, 255, 255]);
+
   const scanlines = Buffer.alloc(height * (1 + width * 4));
   for (let y = 0; y < height; y++) {
     const row = y * (1 + width * 4);
