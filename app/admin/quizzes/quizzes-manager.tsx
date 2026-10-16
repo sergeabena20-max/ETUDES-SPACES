@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 type Option = { id: string; name: string };
 type Question = {
@@ -98,7 +99,7 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
         <label className="text-sm font-medium">Titre<input value={form.title} onChange={(e) => field("title", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Petit test de mathématiques" /></label>
         <label className="text-sm font-medium">Slug<input value={form.slug} onChange={(e) => field("slug", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /><button type="button" onClick={() => field("slug", slugify(form.title))} className="mt-1 text-xs font-semibold text-sky-600">Générer depuis le titre</button></label>
         <label className="text-sm font-medium">Matière<select value={form.subjectId ?? ""} onChange={(e) => field("subjectId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Toutes / non précisée</option>{subjects.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
-        <label className="text-sm font-medium">Niveau<select value={form.academicLevelId ?? ""} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Tous / non précisé</option>{levels.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
+        <label className="text-sm font-medium">Niveau<select value={form.academicLevelId ?? ""} onChange={(e) => field("academicLevelId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Tous / non précisé</option>{levels.map(o => <option key={o.id} value={o.id}>{formatAcademicLevelName(o.name)}</option>)}</select></label>
         <label className="text-sm font-medium">Filière / série<select value={form.programId ?? ""} onChange={(e) => field("programId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Toutes / non précisée</option>{programs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className="text-sm font-medium">⏱️ Chronomètre
           <div className="mt-1 flex gap-2">
@@ -132,7 +133,7 @@ export default function QuizzesManager({ initialQuizzes, initialSubjects, initia
 
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
       <div className="overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-4">Quiz</th><th className="px-5 py-4">Matière / niveau</th><th className="px-5 py-4">Filière</th><th className="px-5 py-4">Questions</th><th className="px-5 py-4">Statut</th><th className="px-5 py-4">Actions</th></tr></thead>
-      <tbody className="divide-y divide-slate-100">{filtered.map(q => <tr key={q.id} className="hover:bg-slate-50"><td className="px-5 py-4"><div className="font-semibold">{q.title}</div><div className="text-xs text-slate-400">{q.description || "Petit test"}</div></td><td className="px-5 py-4">{q.subject?.name || "—"}<div className="text-xs text-slate-400">{q.academicLevel?.name || "Tous niveaux"}</div></td><td className="px-5 py-4">{q.program?.name || "Toutes"}</td><td className="px-5 py-4">{q.questions.length}</td><td className="px-5 py-4">{q.status}</td><td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => edit(q)} className="rounded-lg border px-3 py-1.5 font-semibold">Modifier</button><button onClick={() => remove(q.id)} className="rounded-lg border border-red-200 px-3 py-1.5 font-semibold text-red-600">Supprimer</button></div></td></tr>)}</tbody></table></div>
+      <tbody className="divide-y divide-slate-100">{filtered.map(q => <tr key={q.id} className="hover:bg-slate-50"><td className="px-5 py-4"><div className="font-semibold">{q.title}</div><div className="text-xs text-slate-400">{q.description || "Petit test"}</div></td><td className="px-5 py-4">{q.subject?.name || "—"}<div className="text-xs text-slate-400">{formatAcademicLevelName(q.academicLevel?.name) || "Tous niveaux"}</div></td><td className="px-5 py-4">{q.program?.name || "Toutes"}</td><td className="px-5 py-4">{q.questions.length}</td><td className="px-5 py-4">{q.status}</td><td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => edit(q)} className="rounded-lg border px-3 py-1.5 font-semibold">Modifier</button><button onClick={() => remove(q.id)} className="rounded-lg border border-red-200 px-3 py-1.5 font-semibold text-red-600">Supprimer</button></div></td></tr>)}</tbody></table></div>
       {!filtered.length && <p className="px-5 py-12 text-center text-slate-500">Aucun petit test pour le moment.</p>}
     </div>
   </div>;
