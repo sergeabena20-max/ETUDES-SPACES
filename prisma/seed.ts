@@ -21,9 +21,9 @@ async function main() {
   await prisma.plan.upsert({ where: { code: PlanCode.PREMIUM }, update: {}, create: { code: PlanCode.PREMIUM, name: "Premium", description: "Architecture réservée aux fonctionnalités futures." } });
   const levelNames = [
     "6e", "5e", "4e", "3e",
-    "Seconde A", "Seconde C", "Seconde D",
-    "Première A", "Première C", "Première D",
-    "Terminale A", "Terminale C", "Terminale D",
+    "2nde A", "2nde C", "2nde D",
+    "1ère A", "1ère C", "1ère D",
+    "Tle A", "Tle C", "Tle D",
     "Licence 1", "Licence 2", "Licence 3",
   ];
   for (const name of levelNames) {
