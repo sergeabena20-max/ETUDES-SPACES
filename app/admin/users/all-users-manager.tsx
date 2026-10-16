@@ -165,7 +165,7 @@ export default function AllUsersManager({
                       <option value="">Choisir les permissions</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
                     </select>
                     {selectedRoles[user.id] && <p className="rounded-lg bg-sky-50 p-3 text-xs leading-5 text-sky-900">{roleDescriptions[roles.find((role) => role.id === selectedRoles[user.id])?.name || ""] || "Rôle personnalisé : les permissions exactes sont définies dans la gestion des rôles."}</p>}
-                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN") className="rounded bg-sky-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
+                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN")} className="rounded bg-sky-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
                   </> : <button disabled={busyId === user.id} onClick={() => setRole(user.id, "USER")} className="rounded border px-3 py-2 disabled:opacity-50">Retirer les droits admin</button>}
                   <button disabled={busyId === user.id} onClick={() => deleteUser(user)} className="rounded border border-red-200 px-3 py-2 text-red-700 disabled:opacity-50">Supprimer le compte</button>
                 </div>}
