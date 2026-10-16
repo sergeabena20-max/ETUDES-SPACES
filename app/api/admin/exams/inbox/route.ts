@@ -28,7 +28,7 @@ export async function GET() {
   // Keep the school catalogue available in Supabase even if the seed command was not run.
   await Promise.all([
     ...schoolSubjectNames.map((name) => prisma.subject.upsert({ where: { name }, update: {}, create: { name } })),
-    ...["6e", "5e", "4e", "3e", "Seconde A", "Seconde C", "Seconde D", "Première A", "Première C", "Première D", "Terminale A", "Terminale C", "Terminale D"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "SCOLAIRE" }, create: { name, kind: "SCOLAIRE" } })),
+    ...["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "SCOLAIRE" }, create: { name, kind: "SCOLAIRE" } })),
     ...["Licence 1", "Licence 2", "Licence 3"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "UNIVERSITAIRE" }, create: { name, kind: "UNIVERSITAIRE" } })),
   ]);
   const [exams, levels, subjects, schools, programs] = await Promise.all([
