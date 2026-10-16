@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { hasExamAccess } from "@/lib/premium";
 import ExamActions from "./exam-actions";
+import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +86,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <p className="mt-4 text-lg leading-8 text-slate-600">{exam.description || "Ancienne épreuve disponible pour entraînement."}</p>
         {exam.isPremium && !canViewPremium && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Contenu Premium</p><p className="mt-1 text-sm">Cette épreuve et ses documents sont réservés aux membres Premium.</p><Link href={"/premium?exam=" + exam.id} className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Activer Premium →</Link></div>}
         <div className="mt-6 flex flex-wrap gap-2 text-sm text-slate-600">
-          {exam.academicLevel && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.academicLevel.name}</span>}
+          {exam.academicLevel && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{formatAcademicLevelName(exam.academicLevel.name)}</span>}
           {exam.program && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.program.name}</span>}
           {exam.school && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.school.name}</span>}
         </div>
