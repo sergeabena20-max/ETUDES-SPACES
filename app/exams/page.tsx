@@ -6,7 +6,7 @@ import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string; category?: string }> };
+type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string; category?: string; subject?: string }> };
 
 export default async function ExamsPage({ searchParams }: Props) {
   const params = await searchParams;
@@ -17,6 +17,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const departmentId = params.department;
   const universityLevelId = params.universityLevel;
   const category = params.category;
+  const subjectId = params.subject;
   const selected = levelId || programId || departmentId;
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
@@ -31,6 +32,11 @@ export default async function ExamsPage({ searchParams }: Props) {
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
+  const subjects = (levelId || programId) ? await prisma.subject.findMany({
+    where: { exams: { some: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}) } } },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  }) : [];
   const isUniversityLevel = selectedLevel?.kind === "UNIVERSITAIRE";
   const isLevelTwo = selectedLevel ? /\bniv(?:eau)?\s*2\b/i.test(selectedLevel.name) : false;
   const categoryOptions = selectedLevel ? (
@@ -64,6 +70,7 @@ export default async function ExamsPage({ searchParams }: Props) {
       ...(programId ? { programId } : {}),
       ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
+      ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}),
       ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? { category: activeCategory } : {}),
       ...(q ? { OR: [
         { title: { contains: q, mode: "insensitive" } },
@@ -76,7 +83,7 @@ export default async function ExamsPage({ searchParams }: Props) {
     take: 60,
     }),
     prisma.exam.findMany({
-    where: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}), ...(universityLevelId ? { academicLevelId: universityLevelId } : {}), year: { not: null } },
+    where: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}), ...(universityLevelId ? { academicLevelId: universityLevelId } : {}), ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}), year: { not: null } },
       select: { year: true }, distinct: ["year"], orderBy: { year: "desc" }, take: 30,
     }),
   ]) : [[], []];
@@ -123,7 +130,7 @@ export default async function ExamsPage({ searchParams }: Props) {
             <Link href={(isUniversityLevel && programId ? "/exams?program=" + programId + "&universityLevel=" + selectedLevel.id : "/exams?level=" + selectedLevel.id) + "&category=ALL"} className={"rounded-xl border px-4 py-2 text-sm font-bold " + (activeCategory === "ALL" ? "border-sky-500 bg-sky-600 text-white" : "border-slate-200 bg-white text-slate-600")}>Toutes les épreuves</Link>
           </nav>}
           {selectedLevel && !categoryOptions.length && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">Aucune rubrique n’est activée pour cette classe. Le Super Administrateur peut les configurer dans Paramètres de la plateforme.</p>}
-          <form className="mt-6 grid gap-3 md:grid-cols-[1fr_180px_auto]"><input type="hidden" name={levelId ? "level" : "program"} value={selected} />{universityLevelId && <input type="hidden" name="universityLevel" value={universityLevelId} />}<input name="q" defaultValue={q} placeholder="Rechercher une matière ou une épreuve..." className="rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200" /><select name="year" defaultValue={year?.toString() || ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les années</option>{years.map((x) => <option key={x.year} value={x.year!}>{x.year}</option>)}</select><button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Rechercher</button></form>
+          <form className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><input type="hidden" name={levelId ? "level" : "program"} value={selected} />{universityLevelId && <input type="hidden" name="universityLevel" value={universityLevelId} />}{departmentId && <input type="hidden" name="department" value={departmentId} />}{category && <input type="hidden" name="category" value={category} />}<input name="q" defaultValue={q} placeholder="Rechercher une matière ou une épreuve..." className="rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200" /><select name="subject" defaultValue={subjects.some((subject) => subject.id === subjectId) ? subjectId : ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les matières</option>{subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}</select><select name="year" defaultValue={year?.toString() || ""} className="rounded-xl border px-4 py-3"><option value="">Toutes les années</option>{years.map((x) => <option key={x.year} value={x.year!}>{x.year}</option>)}</select><button className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white">Filtrer les épreuves</button></form>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{exams.length ? exams.map((e) => { const access = !e.isPremium || accessByExam.get(e.id) === true || user?.type === "ADMIN" || user?.type === "SUPER_ADMIN"; return <article key={e.id} className="card p-5"><div className="text-xs font-bold uppercase text-sky-600">{e.subject?.name || "Matière"} · {e.year || "—"}</div><h3 className="mt-3 text-xl font-bold">{e.title}</h3><p className="mt-2 text-sm text-slate-500">{e.description || "Épreuve disponible."}</p>{e.isPremium && !access && <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">🔒 Épreuve Premium · <Link href={"/premium?exam=" + e.id} className="underline">Activer Premium</Link></div>}<div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">{e.isPremium && <span className="rounded-full bg-amber-50 px-3 py-1 font-bold text-amber-700">⭐ Premium</span>}<span className="rounded-full bg-slate-100 px-3 py-1">{selectedLevel?.name || selectedProgram?.name}</span></div><div className="mt-5 flex flex-wrap gap-3"><Link href={"/exams/" + e.slug} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">{e.isPremium && !access ? "Voir les conditions Premium" : "Voir l’épreuve"}</Link>{e.fileUrl && access && <a className="rounded-xl border px-4 py-2 text-sm font-bold" href={e.fileUrl} target="_blank" rel="noreferrer">Voir le PDF</a>}{e.fileUrl && access && <a className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700" href={"/api/exams/" + e.id + "/download"}>Télécharger ↓</a>}{e.solution?.fileUrl && access && <a className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700" href={"/api/exams/" + e.id + "/download?kind=solution"}>Correction ↓</a>}</div></article>; }) : <div className="card p-8 md:col-span-3"><h3 className="font-bold">Aucune épreuve publiée ici pour le moment.</h3><p className="mt-2 text-sm text-slate-500">L'administration pourra ajouter les sujets directement dans cette rubrique.</p></div>}</div>
       </div>}
