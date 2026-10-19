@@ -32,6 +32,33 @@ export default async function Dashboard() {
   }
   if (user.mustChangePassword) redirect("/change-password");
 
+  // Recommend only published content matching the learner's class or university program.
+  const learnerContentFilter = user.academicLevel?.id || user.program?.id
+    ? {
+        status: "PUBLISHED" as const,
+        OR: [
+          ...(user.academicLevel?.id ? [{ academicLevelId: user.academicLevel.id }] : []),
+          ...(user.program?.id ? [{ programId: user.program.id }] : []),
+        ],
+      }
+    : null;
+  const [recommendedExams, recommendedCourses] = learnerContentFilter
+    ? await Promise.all([
+        prisma.exam.findMany({
+          where: learnerContentFilter,
+          select: { id: true, title: true, slug: true, year: true, category: true, isPremium: true, subject: { select: { name: true } } },
+          orderBy: [{ year: "desc" }, { createdAt: "desc" }],
+          take: 4,
+        }),
+        prisma.course.findMany({
+          where: learnerContentFilter,
+          select: { id: true, title: true, slug: true, isPremium: true, subject: { select: { name: true } } },
+          orderBy: { createdAt: "desc" },
+          take: 4,
+        }),
+      ])
+    : [[], []];
+
   const [attempts, favoriteCount, attemptStats, gamificationProfile, earnedBadges] = await Promise.all([
     prisma.quizAttempt.findMany({
       where: { userId: user.id },
@@ -102,6 +129,52 @@ export default async function Dashboard() {
         <p className="mt-2 text-slate-500">
           Que veux-tu apprendre aujourd'hui ?
         </p>
+
+        {(recommendedExams.length > 0 || recommendedCourses.length > 0) && (
+          <section className="mt-10">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-sky-600">Sélection personnalisée</p>
+                <h2 className="mt-1 text-2xl font-black">Pour ta classe ou ta filière</h2>
+                <p className="mt-1 text-sm text-slate-500">Des contenus publiés correspondant à ton profil académique.</p>
+              </div>
+              <Link href="/exams" className="text-sm font-bold text-sky-600">Toute la bibliothèque →</Link>
+            </div>
+            {recommendedExams.length > 0 && (
+              <div className="mt-5">
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-sky-600">Tout voir</Link></div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {recommendedExams.map((exam) => (
+                    <Link key={exam.id} href={`/exams/${exam.slug}`} className="card p-4 transition hover:-translate-y-0.5">
+                      <p className="text-xs font-bold text-sky-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
+                      <h4 className="mt-2 font-bold">{exam.title}</h4>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                        {exam.category && <span className="rounded-full bg-slate-100 px-2 py-1">{exam.category.replaceAll("_", " ")}</span>}
+                        {exam.isPremium && <span className="rounded-full bg-amber-50 px-2 py-1 font-bold text-amber-700">Premium</span>}
+                      </div>
+                      <p className="mt-3 text-sm font-bold text-sky-600">Consulter →</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {recommendedCourses.length > 0 && (
+              <div className="mt-6">
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📚 Cours à découvrir</h3><Link href="/courses" className="text-sm font-bold text-sky-600">Tous les cours</Link></div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {recommendedCourses.map((course) => (
+                    <Link key={course.id} href={`/courses/${course.slug}`} className="card p-4 transition hover:-translate-y-0.5">
+                      <p className="text-xs font-bold text-sky-600">{course.subject?.name ?? "Matière"}</p>
+                      <h4 className="mt-2 font-bold">{course.title}</h4>
+                      {course.isPremium && <span className="mt-3 inline-block rounded-full bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">Premium</span>}
+                      <p className="mt-3 text-sm font-bold text-sky-600">Découvrir →</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {myQuizzes.length > 0 && (
           <section className="mt-10">
