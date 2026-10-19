@@ -106,36 +106,46 @@ export default async function Dashboard() {
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
-    <main className="min-h-screen">
-      <header className="border-b bg-white">
+    <main className="relative min-h-screen overflow-hidden pb-10">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-32 top-36 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-96 h-96 w-96 rounded-full bg-indigo-300/15 blur-3xl" />
+      <header className="sticky top-0 z-30 border-b border-white/70 bg-white/75 backdrop-blur-xl">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="font-black">
             Études <span className="gradient-text">Space</span> 🇨🇲
           </Link>
 
           <form action="/api/auth/logout" method="post">
-            <button className="rounded-xl border px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            <button className="rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-sky-200 hover:bg-sky-50">
               Déconnexion
             </button>
           </form>
         </div>
       </header>
 
-      <section className="container py-10">
-        <p className="text-sm font-semibold text-sky-600">Mon espace</p>
-        <h1 className="mt-2 text-4xl font-black">
-          Bonjour {user.firstName} 👋🏾
-        </h1>
-        <p className="mt-2 text-slate-500">
-          Que veux-tu apprendre aujourd'hui ?
-        </p>
+      <section className="container relative z-10 py-7 sm:py-10">
+        <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-gradient-to-br from-white via-sky-50/90 to-blue-100/70 p-6 shadow-[0_18px_55px_rgba(14,116,144,0.08)] sm:p-9">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-48 w-48 rounded-full border-[28px] border-white/50" />
+          <div aria-hidden="true" className="pointer-events-none absolute right-24 top-10 h-3 w-3 rounded-full bg-sky-300/70" />
+          <p className="relative text-sm font-bold tracking-wide text-sky-700">TON ESPACE D’APPRENTISSAGE</p>
+          <h1 className="relative mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+            Bonjour {user.firstName} <span className="inline-block origin-bottom animate-bob">👋🏾</span>
+          </h1>
+          <p className="relative mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
+            Prêt à progresser aujourd’hui ? Retrouve tes cours, entraîne-toi et suis tes résultats au même endroit.
+          </p>
+          <div className="relative mt-5 flex flex-wrap gap-3">
+            <Link href="/exams" className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-600/15 transition hover:bg-sky-700">Explorer les épreuves <span aria-hidden="true">→</span></Link>
+            <Link href="/courses" className="inline-flex items-center gap-2 rounded-xl border border-white bg-white/80 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700">Découvrir les cours</Link>
+          </div>
+        </div>
 
         {(recommendedExams.length > 0 || recommendedCourses.length > 0) && (
-          <section className="mt-10">
+          <section className="mt-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-sky-600">Sélection personnalisée</p>
-                <h2 className="mt-1 text-2xl font-black">Pour ta classe ou ta filière</h2>
+                <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">Pour ta classe ou ta filière</h2>
                 <p className="mt-1 text-sm text-slate-500">Des contenus publiés correspondant à ton profil académique.</p>
               </div>
               <Link href="/exams" className="text-sm font-bold text-sky-600">Toute la bibliothèque →</Link>
@@ -145,7 +155,7 @@ export default async function Dashboard() {
                 <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-sky-600">Tout voir</Link></div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {recommendedExams.map((exam) => (
-                    <Link key={exam.id} href={`/exams/${exam.slug}`} className="card p-4 transition hover:-translate-y-0.5">
+                    <Link key={exam.id} href={`/exams/${exam.slug}`} className="card group p-5 transition hover:-translate-y-0.5">
                       <p className="text-xs font-bold text-sky-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
                       <h4 className="mt-2 font-bold">{exam.title}</h4>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs">
