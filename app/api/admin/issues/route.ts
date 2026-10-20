@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
 export async function POST(request:Request){
@@ -7,7 +8,7 @@ export async function POST(request:Request){
  if(!id||!["OPEN","RESOLVED"].includes(status))return NextResponse.json({error:"Données invalides."},{status:400});
  const row=await prisma.auditLog.findFirst({where:{id,action:"USER_ISSUE_REPORTED",entity:"SUPPORT_REPORT"}});
  if(!row)return NextResponse.json({error:"Signalement introuvable."},{status:404});
- const metadata=(row.metadata??{}) as Record<string,unknown>;
- await prisma.auditLog.update({where:{id},data:{metadata:{...metadata,status,reviewedBy:admin.id,reviewedAt:new Date().toISOString()}}});
+ const metadata=(row.metadata??{}) as unknown as Record<string,unknown>;
+ await prisma.auditLog.update({where:{id},data:{metadata:{...metadata,status,reviewedBy:admin.id,reviewedAt:new Date().toISOString()} as Prisma.InputJsonObject}});
  return NextResponse.redirect(new URL("/admin/issues",request.url),303);
 }
