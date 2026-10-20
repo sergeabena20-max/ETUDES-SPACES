@@ -106,15 +106,15 @@ export default async function Dashboard() {
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb] pb-10">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
+    <main className="min-h-screen bg-[#f5f8fc] pb-10">
+      <header className="site-header sticky top-0 z-30">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="font-black">
             Études <span className="gradient-text">Space</span> 🇨🇲
           </Link>
 
           <form action="/api/auth/logout" method="post">
-            <button className="rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-sky-200 hover:bg-sky-50">
+            <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-blue-200 hover:bg-blue-50">
               Déconnexion
             </button>
           </form>
@@ -122,9 +122,9 @@ export default async function Dashboard() {
       </header>
 
       <section className="container relative z-10 py-7 sm:py-10">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-sky-700">Ton espace d’apprentissage</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
+          <p className="eyebrow">Ton espace d’apprentissage</p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#14253d] sm:text-4xl">
             Bonjour {user.firstName} <span className="inline-block origin-bottom animate-bob">👋🏾</span>
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
