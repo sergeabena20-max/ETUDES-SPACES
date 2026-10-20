@@ -1,123 +1,39 @@
 import Link from "next/link";
 
 const features = [
-  { number: "01", title: "Cours bien organisés", description: "Retrouve les ressources par classe, matière et filière." },
-  { number: "02", title: "Épreuves et corrections", description: "Prépare tes examens avec des sujets adaptés à ton niveau." },
-  { number: "03", title: "Entraînement régulier", description: "Teste tes connaissances et mesure tes progrès au fil du temps." },
+  { n: "01", title: "Cours par matière", text: "Retrouve tes notions et supports sans te perdre dans les fichiers.", icon: "▤", bg: "bg-[#e9f3ee]", fg: "text-[#2f7658]" },
+  { n: "02", title: "Épreuves et corrections", text: "Révise avec des sujets organisés par classe, année et filière.", icon: "✎", bg: "bg-[#fff0e7]", fg: "text-[#b85c35]" },
+  { n: "03", title: "Entraînement", text: "Teste tes connaissances et avance à ton rythme, étape par étape.", icon: "↗", bg: "bg-[#f0eaff]", fg: "text-[#7452b5]" },
 ];
 
 export default function Home() {
-  return (
-    <main className="min-h-screen overflow-hidden bg-white">
-      <header className="site-header sticky top-0 z-40">
-        <nav className="container flex h-[76px] items-center justify-between gap-5">
-          <Link href="/" className="flex items-center gap-3" aria-label="Études Space, accueil">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1769e0] text-lg font-black text-white">É</span>
-            <span className="text-lg font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span>
-          </Link>
-          <div className="hidden items-center gap-8 text-sm font-semibold text-slate-600 md:flex">
-            <Link href="/courses" className="transition hover:text-blue-700">Cours</Link>
-            <Link href="/exams" className="transition hover:text-blue-700">Épreuves</Link>
-            <Link href="/quizzes" className="transition hover:text-blue-700">Entraînement</Link>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/login" className="rounded-lg px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 sm:px-4">Connexion</Link>
-            <Link href="/register" className="rounded-lg bg-[#1769e0] px-3 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#124fb0] sm:px-5">Créer un compte</Link>
-          </div>
-        </nav>
-      </header>
-
-      <section className="relative border-b border-slate-100 bg-[#f5f9ff]">
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] bg-[#eaf3ff] lg:block" />
-        <div className="container relative grid items-center gap-12 py-14 sm:py-20 lg:min-h-[590px] lg:grid-cols-[1.02fr_.98fr] lg:gap-16 lg:py-20">
-          <div className="max-w-2xl">
-            <p className="eyebrow">La réussite scolaire, mieux préparée</p>
-            <h1 className="mt-5 max-w-[680px] text-4xl font-extrabold leading-[1.08] tracking-[-.045em] text-[#14253d] sm:text-5xl lg:text-[62px]">
-              Toutes tes révisions.<br /><span className="text-[#1769e0]">Au même endroit.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-              Cours, épreuves et entraînements réunis dans un espace conçu pour accompagner les élèves et étudiants du Cameroun.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/register" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#1769e0] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_18px_rgba(23,105,224,.18)] hover:bg-[#124fb0]">
-                Commencer gratuitement <span className="ml-2" aria-hidden="true">→</span>
-              </Link>
-              <Link href="/exams" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-blue-700">
-                Explorer les épreuves
-              </Link>
-            </div>
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-500">
-              <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Ressources classées par niveau</span>
-              <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Accessible sur mobile</span>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[540px] lg:ml-auto">
-            <div className="absolute -right-5 -top-5 h-28 w-28 rounded-2xl border border-blue-100 bg-white/70" />
-            <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-2xl bg-[#dbeaff]" />
-            <div className="relative overflow-hidden rounded-2xl border border-[#e0e8f3] bg-white shadow-[0_24px_70px_rgba(27,61,108,.13)]">
-              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-sm font-extrabold text-blue-700">ÉS</span>
-                  <div><p className="text-sm font-bold text-slate-800">Mon espace d’étude</p><p className="mt-0.5 text-xs text-slate-500">Tout pour progresser</p></div>
-                </div>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">En ligne</span>
-              </div>
-              <div className="p-5 sm:p-6">
-                <div className="rounded-xl bg-[#1769e0] p-5 text-white sm:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[.13em] text-blue-100">Ton objectif</p>
-                  <h2 className="mt-2 text-2xl font-bold tracking-tight">Prépare ta réussite.</h2>
-                  <p className="mt-2 max-w-xs text-sm leading-6 text-blue-100">Avance à ton rythme avec les bonnes ressources.</p>
-                  <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/25"><div className="h-full w-[68%] rounded-full bg-white" /></div>
-                </div>
-                <div className="mt-5 grid grid-cols-2 gap-3">
-                  <Link href="/courses" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700"><svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h7"/></svg></span>
-                    <p className="mt-3 text-sm font-bold text-slate-800">Mes cours</p><p className="mt-1 text-xs text-slate-500">Apprendre les notions</p>
-                  </Link>
-                  <Link href="/exams" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300 hover:bg-blue-50/50">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-sky-700"><svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8"><path d="M8 4h8M9 3h6v3H9z"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="m8 12 2 2 5-5M8 17h8"/></svg></span>
-                    <p className="mt-3 text-sm font-bold text-slate-800">Épreuves</p><p className="mt-1 text-xs text-slate-500">S’entraîner en pratique</p>
-                  </Link>
-                </div>
-                <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
-                  <div><p className="text-sm font-bold text-slate-800">Un pas après l’autre</p><p className="mt-1 text-xs text-slate-500">La régularité fait la différence.</p></div>
-                  <span className="text-lg font-bold text-blue-700" aria-hidden="true">↗</span>
-                </div>
-              </div>
-            </div>
-          </div>
+  return <main className="min-h-screen overflow-hidden bg-[#faf8f3] text-[#202c38]">
+    <header className="sticky top-0 z-40 border-b border-[#e9e5dc] bg-[#faf8f3]/95 backdrop-blur">
+      <nav className="container flex h-[74px] items-center justify-between gap-4">
+        <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Études Space, accueil"><span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#193b35] text-xl font-black text-white">E</span><span className="text-lg font-extrabold tracking-tight">Études <span className="text-[#d66d49]">Space</span></span></Link>
+        <div className="hidden items-center gap-8 text-sm font-semibold text-[#59655f] md:flex"><Link href="/courses" className="hover:text-[#d66d49]">Cours</Link><Link href="/exams" className="hover:text-[#d66d49]">Épreuves</Link><Link href="/quizzes" className="hover:text-[#d66d49]">Entraînement</Link></div>
+        <div className="flex items-center gap-2"><Link href="/login" className="rounded-lg px-3 py-2.5 text-sm font-bold text-[#33413d] hover:bg-[#efede6] sm:px-4">Connexion</Link><Link href="/register" className="rounded-lg bg-[#d66d49] px-3 py-2.5 text-sm font-bold text-white hover:bg-[#bd5838] sm:px-5">Créer un compte</Link></div>
+      </nav>
+    </header>
+    <section>
+      <div className="container grid items-center gap-10 py-12 sm:py-16 lg:min-h-[600px] lg:grid-cols-[.94fr_1.06fr] lg:gap-14 lg:py-20">
+        <div className="relative z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#d9e5d9] bg-white px-3.5 py-2 text-xs font-bold text-[#386b56]"><span className="h-2 w-2 rounded-full bg-[#d66d49]"/> LA PLATEFORME ÉDUCATIVE DU CAMEROUN</div>
+          <h1 className="mt-6 text-[42px] font-extrabold leading-[1.04] tracking-[-.05em] text-[#202c38] sm:text-6xl lg:text-[66px]">Tes révisions.<br/>Ton rythme.<br/><span className="text-[#d66d49]">Ta réussite.</span></h1>
+          <p className="mt-6 max-w-lg text-base leading-7 text-[#69736e] sm:text-lg sm:leading-8">Les cours et les épreuves dont tu as besoin, réunis dans un espace simple pour apprendre et mieux préparer tes examens.</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#193b35] px-6 py-3 text-sm font-bold text-white hover:bg-[#28554b]">Commencer gratuitement <span>↗</span></Link><Link href="/exams" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d8d7cf] bg-white px-6 py-3 text-sm font-bold text-[#33413d] hover:border-[#d66d49]">Voir les épreuves</Link></div>
+          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#69736e]"><span><span className="mr-2 text-[#3e8062]">✓</span>Ressources classées par niveau</span><span><span className="mr-2 text-[#3e8062]">✓</span>Pensé pour mobile</span></div>
         </div>
-      </section>
-
-      <section className="container py-16 sm:py-20">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div><p className="eyebrow">Une méthode plus simple</p><h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[#14253d] sm:text-4xl">Tout ce qu’il te faut pour avancer.</h2></div>
-          <p className="max-w-md text-sm leading-6 text-slate-500">Des outils utiles, une organisation claire et moins de temps perdu à chercher tes supports.</p>
+        <div className="relative mx-auto w-full max-w-[620px]"><div className="absolute -right-3 -top-4 h-24 w-24 rounded-2xl bg-[#e9c6a7] sm:-right-5 sm:-top-5 sm:h-32 sm:w-32"/><div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-2xl bg-[#dce8dc] sm:-bottom-5 sm:-left-5 sm:h-32 sm:w-32"/>
+          <div className="relative overflow-hidden rounded-[22px] border-[6px] border-white bg-[#e7e6dd] shadow-[0_24px_65px_rgba(32,44,56,.16)]"><img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=85" alt="Un élève qui prend des notes pendant ses révisions" className="h-[330px] w-full object-cover sm:h-[440px]"/><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#152923]/90 via-[#152923]/35 to-transparent p-5 pt-20 text-white sm:p-7 sm:pt-28"><p className="text-xs font-bold uppercase tracking-[.16em] text-[#f4c7a9]">Un pas à la fois</p><p className="mt-2 max-w-sm text-2xl font-bold leading-tight sm:text-3xl">Chaque séance te rapproche de ton objectif.</p></div><div className="absolute left-4 top-4 rounded-xl border border-white/70 bg-white/95 px-4 py-3 shadow-lg sm:left-6 sm:top-6"><p className="text-[10px] font-extrabold uppercase tracking-[.14em] text-[#8a938c]">Ton espace</p><p className="mt-1 text-sm font-extrabold text-[#193b35]">Apprendre autrement</p></div></div>
         </div>
-        <div className="mt-9 grid gap-4 md:grid-cols-3">
-          {features.map((feature) => (
-            <article key={feature.number} className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
-              <span className="text-xs font-extrabold tracking-[.15em] text-blue-700">{feature.number}</span>
-              <h3 className="mt-5 text-lg font-bold tracking-tight text-[#14253d]">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500">{feature.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="container pb-16 sm:pb-20">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#14253d] px-6 py-9 text-white sm:flex-row sm:items-center sm:px-10 sm:py-10">
-          <div><p className="text-xs font-bold uppercase tracking-[.14em] text-blue-200">Études Space · Cameroun</p><h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Prêt à mieux préparer tes examens ?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">Crée ton espace et retrouve tes ressources au même endroit.</p></div>
-          <Link href="/register" className="inline-flex shrink-0 items-center rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#14253d] hover:bg-blue-50">Créer mon compte <span className="ml-2">→</span></Link>
-        </div>
-      </section>
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="container flex flex-col gap-3 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-bold text-slate-700">Études Space 🇨🇲</p><p>Apprendre. S’entraîner. Réussir.</p>
-          <div className="flex gap-4"><Link href="/courses" className="hover:text-blue-700">Cours</Link><Link href="/exams" className="hover:text-blue-700">Épreuves</Link><Link href="/login" className="hover:text-blue-700">Connexion</Link></div>
-        </div>
-      </footer>
-    </main>
-  );
+      </div>
+    </section>
+    <section className="border-y border-[#e9e5dc] bg-white"><div className="container grid gap-6 py-7 sm:grid-cols-3 sm:gap-8 sm:py-9"><div className="flex items-center gap-4"><span className="text-2xl font-black text-[#d66d49]">01</span><div><p className="font-bold">Trouve tes ressources</p><p className="mt-1 text-sm text-[#79817b]">Par classe, matière ou filière</p></div></div><div className="flex items-center gap-4"><span className="text-2xl font-black text-[#d66d49]">02</span><div><p className="font-bold">Travaille à ton rythme</p><p className="mt-1 text-sm text-[#79817b]">Cours et sujets accessibles</p></div></div><div className="flex items-center gap-4"><span className="text-2xl font-black text-[#d66d49]">03</span><div><p className="font-bold">Prépare tes examens</p><p className="mt-1 text-sm text-[#79817b]">Entraîne-toi régulièrement</p></div></div></div></section>
+    <section className="container py-16 sm:py-20"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#b65a3c]">Tout au même endroit</p><h2 className="mt-3 max-w-xl text-3xl font-extrabold leading-tight tracking-[-.035em] sm:text-4xl">Les bons outils pour faire la différence.</h2></div><p className="max-w-md text-sm leading-6 text-[#69736e]">Une bibliothèque organisée, des repères simples et moins de temps perdu à chercher tes supports.</p></div>
+      <div className="mt-9 grid gap-4 md:grid-cols-3">{features.map((x)=><article key={x.n} className="rounded-2xl border border-[#e9e5dc] bg-white p-6 transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_35px_rgba(32,44,56,.08)] sm:p-7"><div className="flex items-center justify-between"><span className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl ${x.bg} ${x.fg}`}>{x.icon}</span><span className="text-xs font-extrabold tracking-[.15em] text-[#a5aaa4]">{x.n}</span></div><h3 className="mt-6 text-lg font-extrabold">{x.title}</h3><p className="mt-2 text-sm leading-6 text-[#69736e]">{x.text}</p></article>)}</div>
+    </section>
+    <section className="container pb-16 sm:pb-20"><div className="relative overflow-hidden rounded-[22px] bg-[#193b35] px-6 py-9 text-white sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-10 sm:py-11"><div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full border-[32px] border-white/5"/><div className="relative"><p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#f4c7a9]">Études Space · Cameroun</p><h2 className="mt-3 max-w-2xl text-2xl font-extrabold sm:text-3xl">On prépare la suite ensemble ?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-white/70">Crée ton compte et garde tes ressources à portée de main.</p></div><Link href="/register" className="relative mt-6 inline-flex shrink-0 items-center rounded-lg bg-[#e9a17e] px-5 py-3 text-sm font-extrabold text-[#34251e] hover:bg-[#f3b492] sm:mt-0">Créer mon compte <span className="ml-2">↗</span></Link></div></section>
+    <footer className="border-t border-[#e9e5dc] bg-white"><div className="container flex flex-col gap-3 py-6 text-sm text-[#69736e] sm:flex-row sm:items-center sm:justify-between"><p className="font-extrabold text-[#193b35]">Études Space 🇨🇲</p><p>Apprendre. S’entraîner. Réussir.</p><div className="flex gap-4"><Link href="/courses" className="hover:text-[#d66d49]">Cours</Link><Link href="/exams" className="hover:text-[#d66d49]">Épreuves</Link><Link href="/login" className="hover:text-[#d66d49]">Connexion</Link></div></div></footer>
+  </main>;
 }
