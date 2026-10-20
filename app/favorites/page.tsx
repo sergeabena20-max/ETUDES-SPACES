@@ -18,7 +18,7 @@ export default async function Favorites() {
   return <main className="min-h-screen">
     <header className="border-b bg-white">
       <div className="container flex items-center justify-between py-4">
-        <Link href="/dashboard" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
+        <Link href="/dashboard" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
         <Link href="/dashboard" className="text-sm text-sky-600">Mon espace</Link>
       </div>
     </header>
