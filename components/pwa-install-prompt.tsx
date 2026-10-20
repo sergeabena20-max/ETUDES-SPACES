@@ -7,7 +7,7 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 };
 
-export default function PwaInstallPrompt() {
+export default function PwaInstallPrompt({ enabled = false }: { enabled?: boolean }) {
   const [installEvent, setInstallEvent] = useState<InstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -38,7 +38,7 @@ export default function PwaInstallPrompt() {
     };
   }, []);
 
-  if (isInstalled || isDismissed) return null;
+  if (!enabled || isInstalled || isDismissed) return null;
   if (!installEvent && !isIOS) return null;
 
   async function install() {
@@ -73,7 +73,7 @@ export default function PwaInstallPrompt() {
           <p className="font-extrabold text-slate-900">Installer Études Space</p>
           <p className="text-sm text-slate-600">Retrouve l’application depuis ton écran d’accueil ou ton menu.</p>
         </div>
-        <button onClick={install} className="shrink-0 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-sky-700">
+        <button onClick={install} className="shrink-0 rounded-xl bg-[#193b35] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#28554b]">
           Installer
         </button>
       </div>
