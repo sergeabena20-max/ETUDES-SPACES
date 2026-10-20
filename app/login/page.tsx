@@ -34,7 +34,7 @@ export default function LoginPage() {
     <div className="animate-float-slow pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-emerald-300/25 blur-3xl"/>
     <div className="animate-float pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-orange-400/20 blur-3xl"/>
     <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_18px_55px_rgba(20,37,61,.08)] sm:p-9">
-      <Link href="/" className="mb-7 inline-flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#193b35] text-lg font-black text-white">É</span><span className="text-lg font-extrabold tracking-tight text-[#202c38]">Études <span className="text-[#193b35]">Space</span></span></Link>
+      <Link href="/" className="mb-7 inline-flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#193b35] text-lg font-black text-white">E</span><span className="text-lg font-extrabold tracking-tight text-[#202c38]">Etudes <span className="text-[#193b35]">Space</span></span></Link>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#202c38]">Bienvenue de nouveau</h1>
       <p className="mt-2 text-slate-500">Connecte-toi pour retrouver tes cours, tes épreuves et ta progression.</p>
       <form onSubmit={submit} className="mt-7 space-y-4">
