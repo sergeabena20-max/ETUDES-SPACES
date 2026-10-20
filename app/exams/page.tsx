@@ -94,7 +94,7 @@ export default async function ExamsPage({ searchParams }: Props) {
       : new Map<string, boolean>();
 
   return <main className="min-h-screen bg-[#f5f8fc]">
-    <header className="site-header sticky top-0 z-30"><div className="container flex h-[72px] items-center justify-between gap-4"><Link href="/" className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1769e0] font-black text-white">É</span><span className="font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span></Link><Link href="/dashboard" className="rounded-lg bg-[#1769e0] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#124fb0]">Mon espace</Link></div></header>
+    <header className="site-header sticky top-0 z-30"><div className="container flex h-[72px] items-center justify-between gap-4"><Link href="/" className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1769e0] font-black text-white">E</span><span className="font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span></Link><Link href="/dashboard" className="rounded-lg bg-[#1769e0] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#124fb0]">Mon espace</Link></div></header>
     <section className="container relative z-10 py-10">
       <p className="text-sm font-semibold text-sky-600">📝 Épreuves</p>
       <h1 className="mt-2 text-3xl font-black tracking-tight">Choisis ta rubrique</h1>
