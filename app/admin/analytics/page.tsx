@@ -75,7 +75,7 @@ export default async function AdminAnalyticsPage() {
     <main className="min-h-screen bg-slate-50">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/admin" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
+          <Link href="/admin" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
           <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
         </div>
       </header>
