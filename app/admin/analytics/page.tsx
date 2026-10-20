@@ -72,18 +72,18 @@ export default async function AdminAnalyticsPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-[#f7f3eb]">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/admin" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
-          <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
+          <Link href="/dashboard" className="text-sm font-semibold text-[#b65a3c]">Mon espace</Link>
         </div>
       </header>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/admin" className="text-sm font-medium text-sky-600">← Administration</Link>
+        <Link href="/admin" className="text-sm font-medium text-[#b65a3c]">← Administration</Link>
         <div className="mt-3">
-          <p className="text-sm font-semibold text-sky-600">Analytics</p>
+          <p className="text-sm font-semibold text-[#b65a3c]">Analytics</p>
           <h1 className="mt-1 text-3xl font-black text-slate-900">Vue d’ensemble</h1>
           <p className="mt-2 text-slate-500">Une lecture simple de l’utilisation actuelle de la plateforme.</p>
         </div>
@@ -104,19 +104,19 @@ export default async function AdminAnalyticsPage() {
           <section className="card p-6 lg:col-span-2">
             <h2 className="text-lg font-black text-slate-900">Utilisateurs</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-sky-50 p-5">
-                <p className="text-sm text-sky-700">Élèves</p>
+              <div className="rounded-2xl bg-[#e9f3ee] p-5">
+                <p className="text-sm text-[#b65a3c]">Élèves</p>
                 <p className="mt-1 text-3xl font-black text-slate-900">{formatNumber(pupils)}</p>
               </div>
-              <div className="rounded-2xl bg-indigo-50 p-5">
-                <p className="text-sm text-indigo-700">Étudiants</p>
+              <div className="rounded-2xl bg-[#f0eaff] p-5">
+                <p className="text-sm text-[#7452b5]">Étudiants</p>
                 <p className="mt-1 text-3xl font-black text-slate-900">{formatNumber(students)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 p-5">
+              <div className="rounded-2xl border border-[#e9e5dc] p-5">
                 <p className="text-sm text-slate-500">Nouvelles inscriptions · 7 jours</p>
                 <p className="mt-1 text-3xl font-black">{formatNumber(registrations7)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 p-5">
+              <div className="rounded-2xl border border-[#e9e5dc] p-5">
                 <p className="text-sm text-slate-500">Nouvelles inscriptions · 30 jours</p>
                 <p className="mt-1 text-3xl font-black">{formatNumber(registrations30)}</p>
               </div>
@@ -138,9 +138,9 @@ export default async function AdminAnalyticsPage() {
             <h2 className="text-lg font-black text-slate-900">Recherches les plus fréquentes</h2>
             <div className="mt-4 space-y-3">
               {topSearches.length ? topSearches.map((item) => (
-                <div key={item.query} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+                <div key={item.query} className="flex items-center justify-between rounded-xl bg-[#f7f3eb] px-4 py-3">
                   <span className="truncate pr-4 font-medium">{item.query}</span>
-                  <span className="shrink-0 text-sm font-bold text-sky-600">{item._count.query}</span>
+                  <span className="shrink-0 text-sm font-bold text-[#b65a3c]">{item._count.query}</span>
                 </div>
               )) : <p className="text-sm text-slate-500">Aucune recherche enregistrée pour le moment.</p>}
             </div>
