@@ -23,22 +23,28 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
         ? "INFORMATION"
         : "INFO";
 
+  const palette = notice.type === "WARNING" || notice.type === "MAINTENANCE"
+    ? { border: "border-amber-200", rail: "bg-amber-500", iconBg: "bg-amber-50", icon: "text-amber-700", ring: "ring-amber-200", label: "text-amber-700", dot: "bg-amber-500", hover: "hover:bg-amber-50 hover:text-amber-700" }
+    : notice.type === "SUCCESS"
+      ? { border: "border-emerald-200", rail: "bg-emerald-500", iconBg: "bg-emerald-50", icon: "text-emerald-700", ring: "ring-emerald-200", label: "text-emerald-700", dot: "bg-emerald-500", hover: "hover:bg-emerald-50 hover:text-emerald-700" }
+      : { border: "border-[#dce8dc]", rail: "bg-[#3e8062]", iconBg: "bg-[#e9f3ee]", icon: "text-[#2f7658]", ring: "ring-[#dce8dc]", label: "text-[#2f7658]", dot: "bg-[#3e8062]", hover: "hover:bg-[#e9f3ee] hover:text-[#193b35]" };
+
   return (
     <aside
       role="status"
       aria-live="polite"
       className="fixed bottom-4 right-4 z-[100] w-[min(320px,calc(100vw-2rem))] animate-slide-up"
     >
-      <div className="relative overflow-hidden rounded-2xl border border-red-200 bg-white shadow-[0_12px_36px_rgba(127,29,29,0.18)]">
-        <div className="absolute inset-y-0 left-0 w-1 bg-red-500" />
+      <div className={`relative overflow-hidden rounded-2xl border bg-white shadow-[0_12px_36px_rgba(32,44,56,0.14)] ${palette.border}`}>
+        <div className={`absolute inset-y-0 left-0 w-1 ${palette.rail}`} />
         <div className="flex items-start gap-3 p-3 pl-4">
-          <span className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-sm font-black text-red-600 ring-1 ring-red-200">
+          <span className={`relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black ring-1 ${palette.iconBg} ${palette.icon} ${palette.ring}`}>
             {icon}
-            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500" />
+            <span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${palette.dot}`} />
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold tracking-[0.14em] text-red-600">{label}</span>
+              <span className={`text-[10px] font-extrabold tracking-[0.14em] ${palette.label}`}>{label}</span>
               <span className="h-1 w-1 rounded-full bg-red-300" />
               <span className="text-[10px] font-medium text-slate-400">Études Space</span>
             </div>
@@ -48,7 +54,7 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
           <button
             type="button"
             onClick={() => setVisible(false)}
-            className="-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-lg leading-none text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+            className={`-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-lg leading-none text-slate-400 transition ${palette.hover} focus:outline-none focus:ring-2 focus:ring-slate-300`}
             aria-label="Fermer le message"
           >
             ×
