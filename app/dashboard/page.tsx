@@ -106,10 +106,8 @@ export default async function Dashboard() {
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
-    <main className="relative min-h-screen overflow-hidden pb-10">
-      <div aria-hidden="true" className="pointer-events-none absolute -left-32 top-36 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-96 h-96 w-96 rounded-full bg-indigo-300/15 blur-3xl" />
-      <header className="sticky top-0 z-30 border-b border-white/70 bg-white/75 backdrop-blur-xl">
+    <main className="min-h-screen bg-[#f6f8fb] pb-10">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="font-black">
             Études <span className="gradient-text">Space</span> 🇨🇲
@@ -124,19 +122,17 @@ export default async function Dashboard() {
       </header>
 
       <section className="container relative z-10 py-7 sm:py-10">
-        <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-gradient-to-br from-white via-sky-50/90 to-blue-100/70 p-6 shadow-[0_18px_55px_rgba(14,116,144,0.08)] sm:p-9">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-48 w-48 rounded-full border-[28px] border-white/50" />
-          <div aria-hidden="true" className="pointer-events-none absolute right-24 top-10 h-3 w-3 rounded-full bg-sky-300/70" />
-          <p className="relative text-sm font-bold tracking-wide text-sky-700">TON ESPACE D’APPRENTISSAGE</p>
-          <h1 className="relative mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-sky-700">Ton espace d’apprentissage</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Bonjour {user.firstName} <span className="inline-block origin-bottom animate-bob">👋🏾</span>
           </h1>
-          <p className="relative mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
             Prêt à progresser aujourd’hui ? Retrouve tes cours, entraîne-toi et suis tes résultats au même endroit.
           </p>
-          <div className="relative mt-5 flex flex-wrap gap-3">
-            <Link href="/exams" className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-600/15 transition hover:bg-sky-700">Explorer les épreuves <span aria-hidden="true">→</span></Link>
-            <Link href="/courses" className="inline-flex items-center gap-2 rounded-xl border border-white bg-white/80 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700">Découvrir les cours</Link>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/exams" className="inline-flex items-center gap-2 rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-800">Explorer les épreuves <span aria-hidden="true">→</span></Link>
+            <Link href="/courses" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-700">Découvrir les cours</Link>
           </div>
         </div>
 
