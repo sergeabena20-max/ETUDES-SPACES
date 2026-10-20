@@ -15,6 +15,7 @@ export default async function AdminPage() {
     prisma.exam.count(),
     prisma.quiz.count(),
     prisma.searchNoResult.count(),
+    prisma.auditLog.count({ where: { action: "USER_ISSUE_REPORTED", entity: "SUPPORT_REPORT" } }),
   ]);
 
   const cards = [
@@ -23,7 +24,8 @@ export default async function AdminPage() {
     { label: "Épreuves", value: exams, icon: "📝", href: "/admin/exams" },
     { label: "Petits tests", value: quizzes, icon: "🧠", href: "/admin/quizzes" },
     { label: "Recherches sans résultat", value: searches, icon: "🔎", href: "/admin/searches" },
-    { label: "Signalements", value: openIssues, icon: "🛠️", href: "/admin/issues" },\n    { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
+    { label: "Signalements", value: openIssues, icon: "🛠️", href: "/admin/issues" },
+    { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
   ];
 
   return (
