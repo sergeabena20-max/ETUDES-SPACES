@@ -9,7 +9,7 @@ export default async function AdminPage() {
   const user = await requireAdmin();
   if (!user) redirect("/login");
 
-  const [users, courses, exams, quizzes, searches] = await Promise.all([
+  const [users, courses, exams, quizzes, searches, openIssues] = await Promise.all([
     prisma.user.count(),
     prisma.course.count(),
     prisma.exam.count(),
@@ -23,7 +23,7 @@ export default async function AdminPage() {
     { label: "Épreuves", value: exams, icon: "📝", href: "/admin/exams" },
     { label: "Petits tests", value: quizzes, icon: "🧠", href: "/admin/quizzes" },
     { label: "Recherches sans résultat", value: searches, icon: "🔎", href: "/admin/searches" },
-    { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
+    { label: "Signalements", value: openIssues, icon: "🛠️", href: "/admin/issues" },\n    { label: "Analytics", value: "→", icon: "📊", href: "/admin/analytics" },
   ];
 
   return (
@@ -79,7 +79,7 @@ export default async function AdminPage() {
               <Link href="/admin/payments" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Paiements Premium</Link>
               {user.type === "SUPER_ADMIN" && <><Link href="/admin/settings" className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">⚙️ Paramètres plateforme</Link><Link href="/admin/premium" className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">💳 Configuration Premium</Link></>}
               {user.type === "SUPER_ADMIN" && <><Link href="/admin/roles" className="rounded-xl border px-4 py-2 text-sm font-bold">Rôles & permissions</Link><Link href="/admin/notice" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Message / maintenance</Link></>}
-              <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link>
+              <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link><Link href="/admin/issues" className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-900">🛠️ Signalements ({openIssues})</Link>
             </div>
           </section>
         </div>
