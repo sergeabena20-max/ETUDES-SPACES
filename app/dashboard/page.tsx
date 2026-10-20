@@ -114,7 +114,7 @@ export default async function Dashboard() {
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
-    <main className="min-h-screen bg-[#f5f8fc] pb-10">
+    <main className="min-h-screen bg-[#faf8f3] pb-10">
       <header className="site-header sticky top-0 z-30">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="font-black">
@@ -122,7 +122,7 @@ export default async function Dashboard() {
           </Link>
 
           <form action="/api/auth/logout" method="post">
-            <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-blue-200 hover:bg-blue-50">
+            <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-orange-200 hover:bg-orange-50">
               Déconnexion
             </button>
           </form>
@@ -134,15 +134,15 @@ export default async function Dashboard() {
       <section className="container relative z-10 py-7 sm:py-10">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
           <p className="eyebrow">Ton espace d’apprentissage</p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#14253d] sm:text-4xl">
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[#202c38] sm:text-4xl">
             Bonjour {user.firstName} <span className="inline-block origin-bottom animate-bob">👋🏾</span>
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
             Prêt à progresser aujourd’hui ? Retrouve tes cours, entraîne-toi et suis tes résultats au même endroit.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/exams" className="inline-flex items-center gap-2 rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-800">Explorer les épreuves <span aria-hidden="true">→</span></Link>
-            <Link href="/courses" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:text-sky-700">Découvrir les cours</Link>
+            <Link href="/exams" className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">Explorer les épreuves <span aria-hidden="true">→</span></Link>
+            <Link href="/courses" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700">Découvrir les cours</Link>
           </div>
         </div>
 
@@ -150,25 +150,25 @@ export default async function Dashboard() {
           <section className="mt-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-sky-600">Sélection personnalisée</p>
+                <p className="text-sm font-semibold text-emerald-600">Sélection personnalisée</p>
                 <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">Pour ta classe ou ta filière</h2>
                 <p className="mt-1 text-sm text-slate-500">Des contenus publiés correspondant à ton profil académique.</p>
               </div>
-              <Link href="/exams" className="text-sm font-bold text-sky-600">Toute la bibliothèque →</Link>
+              <Link href="/exams" className="text-sm font-bold text-emerald-600">Toute la bibliothèque →</Link>
             </div>
             {recommendedExams.length > 0 && (
               <div className="mt-5">
-                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-sky-600">Tout voir</Link></div>
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-emerald-600">Tout voir</Link></div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {recommendedExams.map((exam) => (
                     <Link key={exam.id} href={`/exams/${exam.slug}`} className="card group p-5 transition hover:-translate-y-0.5">
-                      <p className="text-xs font-bold text-sky-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
+                      <p className="text-xs font-bold text-emerald-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
                       <h4 className="mt-2 font-bold">{exam.title}</h4>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         {exam.category && <span className="rounded-full bg-slate-100 px-2 py-1">{exam.category.replaceAll("_", " ")}</span>}
                         {exam.isPremium && <span className="rounded-full bg-amber-50 px-2 py-1 font-bold text-amber-700">Premium</span>}
                       </div>
-                      <p className="mt-3 text-sm font-bold text-sky-600">Consulter →</p>
+                      <p className="mt-3 text-sm font-bold text-emerald-600">Consulter →</p>
                     </Link>
                   ))}
                 </div>
@@ -176,14 +176,14 @@ export default async function Dashboard() {
             )}
             {recommendedCourses.length > 0 && (
               <div className="mt-6">
-                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📚 Cours à découvrir</h3><Link href="/courses" className="text-sm font-bold text-sky-600">Tous les cours</Link></div>
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📚 Cours à découvrir</h3><Link href="/courses" className="text-sm font-bold text-emerald-600">Tous les cours</Link></div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {recommendedCourses.map((course) => (
                     <Link key={course.id} href={`/courses/${course.slug}`} className="card p-4 transition hover:-translate-y-0.5">
-                      <p className="text-xs font-bold text-sky-600">{course.subject?.name ?? "Matière"}</p>
+                      <p className="text-xs font-bold text-emerald-600">{course.subject?.name ?? "Matière"}</p>
                       <h4 className="mt-2 font-bold">{course.title}</h4>
                       {course.isPremium && <span className="mt-3 inline-block rounded-full bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">Premium</span>}
-                      <p className="mt-3 text-sm font-bold text-sky-600">Découvrir →</p>
+                      <p className="mt-3 text-sm font-bold text-emerald-600">Découvrir →</p>
                     </Link>
                   ))}
                 </div>
@@ -196,7 +196,7 @@ export default async function Dashboard() {
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-sm font-semibold text-sky-600">Pour toi</p>
+                <p className="text-sm font-semibold text-emerald-600">Pour toi</p>
                 <h2 className="mt-1 text-2xl font-black">
                   Petits tests adaptés à ton profil
                 </h2>
@@ -209,7 +209,7 @@ export default async function Dashboard() {
 
               <Link
                 href="/quizzes"
-                className="text-sm font-bold text-sky-600"
+                className="text-sm font-bold text-emerald-600"
               >
                 Voir tous →
               </Link>
@@ -228,7 +228,7 @@ export default async function Dashboard() {
                     {q._count.questions} questions ·{" "}
                     {q.subject?.name ?? "Matière"}
                   </p>
-                  <span className="mt-4 inline-block text-sm font-bold text-sky-600">
+                  <span className="mt-4 inline-block text-sm font-bold text-emerald-600">
                     Commencer →
                   </span>
                 </Link>
@@ -241,7 +241,7 @@ export default async function Dashboard() {
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-sm font-semibold text-sky-600">Ma progression</p>
+                <p className="text-sm font-semibold text-emerald-600">Ma progression</p>
                 <h2 className="mt-1 text-2xl font-black">Mes récompenses</h2>
               </div>
               <span className="text-sm font-bold text-slate-500">{gamificationProfile.points} points</span>
@@ -251,7 +251,7 @@ export default async function Dashboard() {
                 <div><p className="text-sm text-slate-500">Niveau actuel</p><p className="mt-1 text-xl font-black">{gamificationLevel?.current.icon} {gamificationLevel?.current.name}</p><p className="mt-1 text-xs text-slate-500">{gamificationLevel?.current.description}</p></div>
                 <div className="text-right"><p className="text-sm font-bold">{gamificationProfile.points} points</p>{gamificationLevel?.next && <p className="mt-1 text-xs text-slate-500">{gamificationLevel.pointsToNext} points avant {gamificationLevel.next.name}</p>}</div>
               </div>
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-sky-500 transition-all" style={{ width: `${gamificationLevel?.progress ?? 0}%` }} /></div>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${gamificationLevel?.progress ?? 0}%` }} /></div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamificationProfile.points}</p></div>
@@ -275,10 +275,10 @@ export default async function Dashboard() {
         <section className="mt-10">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-sm font-semibold text-sky-600">Ma progression</p>
+              <p className="text-sm font-semibold text-emerald-600">Ma progression</p>
               <h2 className="mt-1 text-2xl font-black">Mes statistiques</h2>
             </div>
-            <Link href="/quizzes/history" className="text-sm font-bold text-sky-600">
+            <Link href="/quizzes/history" className="text-sm font-bold text-emerald-600">
               Voir mon historique →
             </Link>
           </div>
@@ -297,7 +297,7 @@ export default async function Dashboard() {
               const percentage = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
               return <Link key={attempt.id} href={"/quizzes/" + attempt.quiz.slug} className="card flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5">
                 <div><p className="font-bold">{attempt.quiz.title}</p><p className="mt-1 text-xs text-slate-500">{new Date(attempt.completedAt).toLocaleDateString("fr-FR")} · {attempt.durationSec ? Math.floor(attempt.durationSec / 60) + " min " + (attempt.durationSec % 60) + " s" : "durée inconnue"}</p></div>
-                <span className="rounded-full bg-sky-50 px-3 py-1 text-sm font-black text-sky-700">{percentage}%</span>
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">{percentage}%</span>
               </Link>;
             })}
           </div>
@@ -335,7 +335,7 @@ export default async function Dashboard() {
           </Link>
 
           {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && (
-            <Link href="/admin" className="card border-sky-200 bg-sky-50 p-6 transition hover:-translate-y-1">
+            <Link href="/admin" className="card border-emerald-200 bg-emerald-50 p-6 transition hover:-translate-y-1">
               <span className="text-3xl">⚙️</span>
               <h2 className="mt-4 font-bold">Administration</h2>
               <p className="mt-1 text-sm text-slate-500">Gérer la plateforme.</p>
