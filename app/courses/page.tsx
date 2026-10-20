@@ -26,7 +26,7 @@ export default async function CoursesPage() {
         <div className="container flex h-[72px] items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#193b35] font-black text-white">E</span>
-            <span className="font-extrabold tracking-tight">Études <span className="text-[#193b35]">Space</span></span>
+            <span className="font-extrabold tracking-tight">Etudes <span className="text-[#193b35]">Space</span></span>
           </Link>
           <nav className="flex items-center gap-4 text-sm font-semibold text-slate-600 sm:gap-6">
             <Link href="/exams" className="hover:text-orange-700">Épreuves</Link>
