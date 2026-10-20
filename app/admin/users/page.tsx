@@ -63,7 +63,7 @@ export default async function AdminUsersPage() {
     <main className="min-h-screen bg-slate-50">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl justify-between px-4 py-4">
-          <Link href="/admin" className="font-black">Études Space 🇨🇲</Link>
+          <Link href="/admin" className="font-black">Etudes Space 🇨🇲</Link>
           <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
         </div>
       </header>
