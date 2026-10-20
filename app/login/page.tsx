@@ -30,22 +30,22 @@ export default function LoginPage() {
       setLoading(false);
     }
   }
-  return <main className="grid min-h-screen place-items-center bg-[#f5f8fc] px-4 py-8">
-    <div className="animate-float-slow pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-sky-300/25 blur-3xl"/>
-    <div className="animate-float pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-blue-400/20 blur-3xl"/>
+  return <main className="grid min-h-screen place-items-center bg-[#faf8f3] px-4 py-8">
+    <div className="animate-float-slow pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-emerald-300/25 blur-3xl"/>
+    <div className="animate-float pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-orange-400/20 blur-3xl"/>
     <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_18px_55px_rgba(20,37,61,.08)] sm:p-9">
-      <Link href="/" className="mb-7 inline-flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1769e0] text-lg font-black text-white">É</span><span className="text-lg font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span></Link>
-      <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#14253d]">Bienvenue de nouveau</h1>
+      <Link href="/" className="mb-7 inline-flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#193b35] text-lg font-black text-white">É</span><span className="text-lg font-extrabold tracking-tight text-[#202c38]">Études <span className="text-[#193b35]">Space</span></span></Link>
+      <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#202c38]">Bienvenue de nouveau</h1>
       <p className="mt-2 text-slate-500">Connecte-toi pour retrouver tes cours, tes épreuves et ta progression.</p>
       <form onSubmit={submit} className="mt-7 space-y-4">
         <input name="email" type="email" required placeholder="Adresse e-mail" className="w-full rounded-lg border border-slate-200 bg-white p-3.5 text-sm"/>
         <input name="password" type="password" required placeholder="Mot de passe" className="w-full rounded-xl border p-3"/>
-        <div className="-mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-[#1769e0] hover:underline">Mot de passe oublié ?</Link></div>
+        <div className="-mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-[#193b35] hover:underline">Mot de passe oublié ?</Link></div>
         {success&&<p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        <button disabled={loading} className="w-full rounded-lg bg-[#1769e0] p-3.5 font-bold text-white hover:bg-[#124fb0] disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
+        <button disabled={loading} className="w-full rounded-lg bg-[#193b35] p-3.5 font-bold text-white hover:bg-[#28554b] disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Pas encore de compte ? <Link href="/register" className="font-bold text-[#1769e0]">Créer un compte</Link></p>
+      <p className="mt-6 text-sm text-slate-500">Pas encore de compte ? <Link href="/register" className="font-bold text-[#193b35]">Créer un compte</Link></p>
       <Link href="/" className="mt-4 inline-block text-sm font-semibold text-slate-500">← Retour à l'accueil</Link>
     </div>
   </main>;
