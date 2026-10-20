@@ -25,7 +25,7 @@ export default function ChangePasswordPage() {
     finally { setLoading(false); }
   }
   return <main className="grid min-h-screen place-items-center px-4 py-8"><section className="card w-full max-w-md p-7">
-    <Link href="/" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
+    <Link href="/" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
     <h1 className="mt-7 text-2xl font-black">Choisis un nouveau mot de passe</h1>
     <p className="mt-2 text-sm text-slate-500">L’administration a validé ta demande. Crée un nouveau mot de passe et confirme-le.</p>
     <form onSubmit={submit} className="mt-6 space-y-4">
