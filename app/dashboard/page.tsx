@@ -117,10 +117,17 @@ export default async function Dashboard() {
     <main className="min-h-screen bg-[#faf8f3] pb-10">
       <header className="site-header sticky top-0 z-30">
         <div className="container flex items-center justify-between py-4">
-          <Link href="/" className="font-black">
-            Etudes <span className="gradient-text">Space</span> 🇨🇲
-          </Link>
-
+          <div className="flex min-w-0 items-center gap-5">
+            <Link href="/" className="shrink-0 font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
+            <nav aria-label="Navigation principale" className="hidden items-center gap-3 text-sm font-bold text-slate-600 lg:flex">
+              <Link href="/courses" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Cours</Link>
+              <Link href="/exams" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Épreuves</Link>
+              <Link href="/quizzes" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Entraînement</Link>
+              <Link href="/favorites" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Favoris</Link>
+              <Link href="/profile" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Profil</Link>
+              {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="rounded-lg bg-[#193b35] px-3 py-2 text-white hover:bg-[#28554b]">Administration</Link>}
+            </nav>
+          </div>
           <form action="/api/auth/logout" method="post">
             <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:border-orange-200 hover:bg-orange-50">
               Déconnexion
