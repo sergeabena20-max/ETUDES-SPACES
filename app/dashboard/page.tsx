@@ -118,7 +118,7 @@ export default async function Dashboard() {
       <header className="site-header sticky top-0 z-30">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="font-black">
-            Études <span className="gradient-text">Space</span> 🇨🇲
+            Etudes <span className="gradient-text">Space</span> 🇨🇲
           </Link>
 
           <form action="/api/auth/logout" method="post">
