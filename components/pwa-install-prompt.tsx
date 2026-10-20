@@ -70,7 +70,7 @@ export default function PwaInstallPrompt({ enabled = false }: { enabled?: boolea
           <img src="/icons/icon-192.png" alt="" className="h-full w-full" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-extrabold text-slate-900">Installer Études Space</p>
+          <p className="font-extrabold text-slate-900">Installer Etudes Space</p>
           <p className="text-sm text-slate-600">Retrouve l’application depuis ton écran d’accueil ou ton menu.</p>
         </div>
         <button onClick={install} className="shrink-0 rounded-xl bg-[#193b35] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#28554b]">
