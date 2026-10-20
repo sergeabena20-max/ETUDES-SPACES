@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
   return <main className="grid min-h-screen place-items-center bg-[#faf8f3] px-4 py-8">
     <div className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_55px_rgba(20,37,61,.08)] sm:p-9">
-      <Link href="/" className="inline-flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#193b35] font-black text-white">É</span><span className="font-extrabold tracking-tight text-[#202c38]">Études <span className="text-[#193b35]">Space</span></span></Link>
+      <Link href="/" className="inline-flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#193b35] font-black text-white">E</span><span className="font-extrabold tracking-tight text-[#202c38]">Etudes <span className="text-[#193b35]">Space</span></span></Link>
       <h1 className="mt-8 text-3xl font-extrabold tracking-tight text-[#202c38]">Créer mon compte</h1>
       <p className="mt-2 text-slate-500">Renseigne ton profil pour recevoir des contenus adaptés à ton parcours.</p>
 
