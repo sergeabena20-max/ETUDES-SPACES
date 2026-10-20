@@ -32,6 +32,14 @@ export default async function Dashboard() {
   }
   if (user.mustChangePassword) redirect("/change-password");
 
+  const pendingAdminIssues = user.type === "ADMIN" || user.type === "SUPER_ADMIN"
+    ? (await prisma.auditLog.findMany({
+        where: { action: "USER_ISSUE_REPORTED", entity: "SUPPORT_REPORT" },
+        select: { metadata: true },
+        take: 100,
+      })).filter((row) => ((row.metadata ?? {}) as unknown as { status?: string }).status !== "RESOLVED").length
+    : 0;
+
   // Recommend only published content matching the learner's class or university program.
   const learnerContentFilter = user.academicLevel?.id || user.program?.id
     ? {
@@ -120,6 +128,8 @@ export default async function Dashboard() {
           </form>
         </div>
       </header>
+
+      {pendingAdminIssues > 0 && (user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <section className="container pt-6"><Link href="/admin/issues" className="flex items-center justify-between gap-4 rounded-2xl border border-[#e9c6a7] bg-[#fff0e7] p-4 text-[#8d462b] transition hover:bg-[#ffe8da] sm:p-5"><span><span className="block font-extrabold">{pendingAdminIssues} signalement(s) à traiter</span><span className="mt-1 block text-sm">Des utilisateurs ont signalé un problème sur la plateforme.</span></span><span className="shrink-0 rounded-lg bg-white px-3 py-2 text-sm font-bold">Consulter →</span></Link></section>}
 
       <section className="container relative z-10 py-7 sm:py-10">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
