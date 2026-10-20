@@ -134,6 +134,14 @@ export default async function Dashboard() {
             </button>
           </form>
         </div>
+        <nav aria-label="Navigation mobile" className="container flex gap-2 overflow-x-auto pb-3 text-xs font-bold text-slate-600 lg:hidden">
+          <Link href="/courses" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Cours</Link>
+          <Link href="/exams" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Épreuves</Link>
+          <Link href="/quizzes" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Entraînement</Link>
+          <Link href="/favorites" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Favoris</Link>
+          <Link href="/profile" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Profil</Link>
+          {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="shrink-0 rounded-full bg-[#193b35] px-3 py-2 text-white">Administration</Link>}
+        </nav>
       </header>
 
       {pendingAdminIssues > 0 && (user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <section className="container pt-6"><Link href="/admin/issues" className="flex items-center justify-between gap-4 rounded-2xl border border-[#e9c6a7] bg-[#fff0e7] p-4 text-[#8d462b] transition hover:bg-[#ffe8da] sm:p-5"><span><span className="block font-extrabold">{pendingAdminIssues} signalement(s) à traiter</span><span className="mt-1 block text-sm">Des utilisateurs ont signalé un problème sur la plateforme.</span></span><span className="shrink-0 rounded-lg bg-white px-3 py-2 text-sm font-bold">Consulter →</span></Link></section>}
