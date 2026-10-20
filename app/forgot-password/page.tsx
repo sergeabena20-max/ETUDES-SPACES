@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
 
   return <main className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-8">
     <div className="card w-full max-w-md p-7">
-      <Link href="/" className="inline-flex rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">🇨🇲 Études Space</Link>
+      <Link href="/" className="inline-flex rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">🇨🇲 Etudes Space</Link>
       <h1 className="mt-7 text-3xl font-black">Mot de passe oublié ?</h1>
       <p className="mt-2 text-sm text-slate-500">Entre l’adresse e-mail de ton compte. Une demande sera envoyée au super-administrateur pour validation.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
