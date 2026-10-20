@@ -93,10 +93,8 @@ export default async function ExamsPage({ searchParams }: Props) {
       ? await getExamAccessMap(user.id, exams.filter((e) => e.isPremium).map((e) => e.id))
       : new Map<string, boolean>();
 
-  return <main className="relative min-h-screen overflow-hidden">
-    <div className="pointer-events-none absolute -left-28 top-20 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
-    <div className="pointer-events-none absolute -right-28 top-1/3 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-float" />
-    <header className="relative z-10 border-b border-white/70 bg-white/70 backdrop-blur-xl"><div className="container flex items-center justify-between py-4"><Link href="/" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link><Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link></div></header>
+  return <main className="min-h-screen bg-[#f5f8fc]">
+    <header className="site-header sticky top-0 z-30"><div className="container flex h-[72px] items-center justify-between gap-4"><Link href="/" className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1769e0] font-black text-white">É</span><span className="font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span></Link><Link href="/dashboard" className="rounded-lg bg-[#1769e0] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#124fb0]">Mon espace</Link></div></header>
     <section className="container relative z-10 py-10">
       <p className="text-sm font-semibold text-sky-600">📝 Épreuves</p>
       <h1 className="mt-2 text-3xl font-black tracking-tight">Choisis ta rubrique</h1>
