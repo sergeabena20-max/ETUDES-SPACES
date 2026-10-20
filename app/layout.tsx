@@ -5,6 +5,7 @@ import { getSiteNotice, shouldShowNotice } from "@/lib/site-notice";
 import SiteNoticeBubble from "@/components/site-notice-bubble";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import ReportProblem from "@/components/report-problem";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [notice, user] = await Promise.all([getSiteNotice(), getCurrentUser()]);
+  const [notice, user, installSetting] = await Promise.all([
+    getSiteNotice(),
+    getCurrentUser(),
+    prisma.platformSetting.findUnique({ where: { key: "PWA_INSTALL_PROMPT_ENABLED" }, select: { value: true, enabled: true } }).catch(() => null),
+  ]);
   const showNotice = Boolean(notice?.enabled && shouldShowNotice(notice.audience, Boolean(user)));
 
   return (
@@ -34,7 +39,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {showNotice && notice && <SiteNoticeBubble notice={{ type: notice.type, title: notice.title, message: notice.message }} />}
         {children}
         <ReportProblem />
-        <PwaInstallPrompt />
+        <PwaInstallPrompt enabled={installSetting?.enabled !== false && installSetting?.value === "true"} />
       </body>
     </html>
   );
