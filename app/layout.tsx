@@ -33,6 +33,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         {showNotice && notice && <SiteNoticeBubble notice={{ type: notice.type, title: notice.title, message: notice.message }} />}
         {children}
+        <ReportProblem />
         <PwaInstallPrompt />
       </body>
     </html>
