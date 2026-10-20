@@ -67,14 +67,14 @@ export default function RegisterPage() {
     }
   }
 
-  return <main className="grid min-h-screen place-items-center px-4 py-8">
-    <div className="card w-full max-w-3xl p-7">
-      <Link href="/" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
-      <h1 className="mt-8 text-3xl font-black">Créer mon compte</h1>
+  return <main className="grid min-h-screen place-items-center bg-[#f5f8fc] px-4 py-8">
+    <div className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_55px_rgba(20,37,61,.08)] sm:p-9">
+      <Link href="/" className="inline-flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1769e0] font-black text-white">É</span><span className="font-extrabold tracking-tight text-[#14253d]">Études <span className="text-[#1769e0]">Space</span></span></Link>
+      <h1 className="mt-8 text-3xl font-extrabold tracking-tight text-[#14253d]">Créer mon compte</h1>
       <p className="mt-2 text-slate-500">Renseigne ton profil pour recevoir des contenus adaptés à ton parcours.</p>
 
       <form onSubmit={submit} className="mt-7 grid gap-4 sm:grid-cols-2">
-        <input name="firstName" required placeholder="Prénom" className="rounded-xl border p-3" />
+        <input name="firstName" required placeholder="Prénom" className="rounded-lg border border-slate-200 bg-white p-3.5 text-sm" />
         <input name="lastName" required placeholder="Nom" className="rounded-xl border p-3" />
         <input name="email" type="email" required placeholder="Adresse e-mail" className="rounded-xl border p-3 sm:col-span-2" />
         <input name="password" type="password" minLength={8} required placeholder="Mot de passe (8 caractères min.)" className="rounded-xl border p-3" />
@@ -82,7 +82,7 @@ export default function RegisterPage() {
 
         <div className="sm:col-span-2">
           <label className="mb-2 block text-sm font-bold">Je suis</label>
-          <select name="studentStatus" required value={status} onChange={(e) => setStatus(e.target.value as "ELEVE" | "ETUDIANT")} className="w-full rounded-xl border p-3">
+          <select name="studentStatus" required value={status} onChange={(e) => setStatus(e.target.value as "ELEVE" | "ETUDIANT")} className="w-full rounded-lg border border-slate-200 bg-white p-3.5 text-sm">
             <option value="">Sélectionner mon profil</option>
             <option value="ELEVE">Élève</option>
             <option value="ETUDIANT">Étudiant</option>
@@ -143,9 +143,9 @@ export default function RegisterPage() {
         </div>}
 
         {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
-        <button disabled={loading} className="rounded-xl bg-sky-600 p-3 font-bold text-white sm:col-span-2 disabled:opacity-60">{loading ? "Création…" : "Créer mon compte"}</button>
+        <button disabled={loading} className="rounded-lg bg-[#1769e0] p-3.5 font-bold text-white hover:bg-[#124fb0] sm:col-span-2 disabled:opacity-60">{loading ? "Création…" : "Créer mon compte"}</button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Déjà inscrit ? <Link href="/login" className="font-bold text-sky-600">Se connecter</Link></p>
+      <p className="mt-6 text-sm text-slate-500">Déjà inscrit ? <Link href="/login" className="font-bold text-[#1769e0]">Se connecter</Link></p>
     </div>
   </main>;
 }
