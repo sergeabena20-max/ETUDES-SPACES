@@ -55,13 +55,13 @@ export default function AdminNoticePage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-50/60">
-      <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
-      <div className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-float" />
-      <div className="pointer-events-none absolute right-[15%] top-24 h-3 w-3 rounded-full bg-sky-400 shadow-[0_0_28px_8px_rgba(56,189,248,.3)] animate-orbit" />
+      <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-emerald-300/20 blur-3xl animate-float-slow" />
+      <div className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-orange-500/10 blur-3xl animate-float" />
+      <div className="pointer-events-none absolute right-[15%] top-24 h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_28px_8px_rgba(56,189,248,.3)] animate-orbit" />
       <div className="relative z-10 mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Link href="/admin" className="rounded-xl px-3 py-2 text-sm font-semibold text-sky-600 transition hover:bg-white hover:shadow-sm">← Administration</Link>
+        <Link href="/admin" className="rounded-xl px-3 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-white hover:shadow-sm">← Administration</Link>
         <div className="mt-4 animate-slide-up">
-          <p className="text-sm font-semibold text-sky-600">Super Administration</p>
+          <p className="text-sm font-semibold text-emerald-600">Super Administration</p>
           <h1 className="mt-1 text-3xl font-black sm:text-4xl">Message aux utilisateurs</h1>
           <p className="mt-2 text-slate-500">Choisis précisément qui voit le message : avant connexion, après connexion, ou les deux.</p>
         </div>
@@ -103,8 +103,8 @@ export default function AdminNoticePage() {
             </label>
 
             {notice.enabled && (
-              <div className="animate-pulse-soft rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-sky-700">
+              <div className="animate-pulse-soft rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
+                <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">
                   Aperçu · {notice.audience === "BOTH" ? "les deux côtés" : notice.audience === "BEFORE_LOGIN" ? "avant connexion" : "après connexion"}
                 </p>
                 <strong className="mt-1 block">{notice.title}</strong>
@@ -113,7 +113,7 @@ export default function AdminNoticePage() {
             )}
 
             {message && <p className="text-sm text-slate-600">{message}</p>}
-            <button onClick={save} disabled={saving} className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white shadow-lg shadow-sky-600/20 disabled:opacity-50">
+            <button onClick={save} disabled={saving} className="rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white shadow-lg shadow-emerald-600/20 disabled:opacity-50">
               {saving ? "Enregistrement..." : "Enregistrer le message"}
             </button>
           </div>
