@@ -239,7 +239,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
     <div className="mx-auto max-w-6xl">
       <Link href="/admin/exams" className="text-sm font-semibold text-sky-700">← Retour à la gestion des épreuves</Link>
       <header className="mt-5">
-        <p className="text-sm font-bold text-sky-600">Études Space · Administration</p>
+        <p className="text-sm font-bold text-sky-600">Etudes Space · Administration</p>
         <h1 className="mt-1 text-3xl font-black text-slate-900 sm:text-4xl">Bibliothèque des épreuves à classer</h1>
         <p className="mt-3 max-w-3xl text-slate-600">Dépose tes PDF en une seule fois, même si tu ne connais pas encore leur rubrique. Ils restent en attente ici jusqu’à ce que tu les classes dans la bonne classe, filière et matière.</p>
       </header>
