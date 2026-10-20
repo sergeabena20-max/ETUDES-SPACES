@@ -45,7 +45,7 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className={`text-[10px] font-extrabold tracking-[0.14em] ${palette.label}`}>{label}</span>
-              <span className="h-1 w-1 rounded-full bg-red-300" />
+              <span className={`h-1 w-1 rounded-full ${palette.dot}`} />
               <span className="text-[10px] font-medium text-slate-400">Études Space</span>
             </div>
             <p className="mt-1 text-sm font-bold leading-5 text-slate-900">{notice.title}</p>
