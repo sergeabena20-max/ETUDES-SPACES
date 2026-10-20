@@ -1,6 +1,6 @@
-# Études Space 🇨🇲
+# Etudes Space 🇨🇲
 
-**Études Space** est une plateforme éducative conçue pour aider les élèves et les étudiants, en particulier au Cameroun, à retrouver et organiser leurs ressources pédagogiques au même endroit : cours, exercices, séquences, anciens sujets et épreuves classées par niveau, série ou filière.
+**Etudes Space** est une plateforme éducative conçue pour aider les élèves et les étudiants, en particulier au Cameroun, à retrouver et organiser leurs ressources pédagogiques au même endroit : cours, exercices, séquences, anciens sujets et épreuves classées par niveau, série ou filière.
 
 > **Objectif du projet :** proposer un espace d’apprentissage clair, accessible et évolutif, adapté aux parcours scolaires et universitaires camerounais.
 
@@ -82,7 +82,7 @@ Cette organisation facilite l’ajout progressif de ressources sans devoir recr�
 
 ## 📲 Installation sur Windows, Android et iPhone
 
-Études Space est préparé pour être installable comme une **Progressive Web App (PWA)** : l'application utilise le même projet web sur ordinateur et sur téléphone.
+Etudes Space est préparé pour être installable comme une **Progressive Web App (PWA)** : l'application utilise le même projet web sur ordinateur et sur téléphone.
 
 - **Windows :** ouvre le site dans Microsoft Edge ou Google Chrome, puis choisis l'option d'installation proposée par le navigateur.
 - **Android :** ouvre le site dans Chrome, puis utilise « Installer l'application » ou « Ajouter à l'écran d'accueil » selon le navigateur.
@@ -219,7 +219,7 @@ Pour un déploiement :
 
 ## 📌 État du projet
 
-Études Space est en cours de développement. Les modules de comptes, de structuration scolaire/universitaire, de consultation et de gestion des épreuves, d’import de fichiers et d’administration sont développés progressivement.
+Etudes Space est en cours de développement. Les modules de comptes, de structuration scolaire/universitaire, de consultation et de gestion des épreuves, d’import de fichiers et d’administration sont développés progressivement.
 
 Les prochaines étapes sont notamment :
 - vérifier le build et le déploiement après chaque changement ;
