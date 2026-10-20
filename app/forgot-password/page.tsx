@@ -32,16 +32,16 @@ export default function ForgotPasswordPage() {
 
   return <main className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-8">
     <div className="card w-full max-w-md p-7">
-      <Link href="/" className="inline-flex rounded-2xl bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">🇨🇲 Études Space</Link>
+      <Link href="/" className="inline-flex rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">🇨🇲 Études Space</Link>
       <h1 className="mt-7 text-3xl font-black">Mot de passe oublié ?</h1>
       <p className="mt-2 text-sm text-slate-500">Entre l’adresse e-mail de ton compte. Une demande sera envoyée au super-administrateur pour validation.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Adresse e-mail" className="w-full rounded-xl border p-3" autoComplete="email" />
         {message && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{message}</p>}
         {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        <button disabled={loading} className="w-full rounded-xl bg-sky-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Envoi…" : "Envoyer ma demande"}</button>
+        <button disabled={loading} className="w-full rounded-xl bg-emerald-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Envoi…" : "Envoyer ma demande"}</button>
       </form>
-      <Link href="/login" className="mt-6 inline-block text-sm font-bold text-sky-700">← Retour à la connexion</Link>
+      <Link href="/login" className="mt-6 inline-block text-sm font-bold text-emerald-700">← Retour à la connexion</Link>
     </div>
   </main>;
 }
