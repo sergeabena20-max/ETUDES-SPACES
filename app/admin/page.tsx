@@ -32,7 +32,7 @@ export default async function AdminPage() {
     <main className="min-h-screen">
       <header className="border-b bg-white/90">
         <div className="container flex items-center justify-between py-4">
-          <Link href="/" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
+          <Link href="/" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
           <div className="flex items-center gap-4">
             <span className="hidden text-sm text-slate-500 sm:block">{user.firstName} {user.lastName}</span>
             <Link href="/dashboard" className="text-sm font-semibold text-emerald-600">Mon espace</Link>
