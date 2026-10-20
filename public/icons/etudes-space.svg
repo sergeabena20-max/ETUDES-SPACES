@@ -1,12 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
-    <linearGradient id="book" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbeafe"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#24594d"/><stop offset="1" stop-color="#142f2a"/></linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf7"/><stop offset="1" stop-color="#f2e9d8"/></linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <circle cx="400" cy="108" r="62" fill="#ffffff" opacity=".12"/>
-  <path d="M256 356c-38-27-83-39-139-35V170c58-5 104 9 139 37 35-28 81-42 139-37v151c-56-4-101 8-139 35Z" fill="url(#book)" stroke="#ffffff" stroke-width="12" stroke-linejoin="round"/>
-  <path d="M256 207v149M145 208c35-1 66 7 91 24M367 208c-35-1-66 7-91 24M145 253c35-1 66 7 91 24M367 253c-35-1-66 7-91 24" fill="none" stroke="#0284c7" stroke-width="13" stroke-linecap="round"/>
-  <path d="m256 86 15 31 34 5-25 24 6 34-30-16-30 16 6-34-25-24 34-5Z" fill="#fef08a"/>
-  <text x="256" y="438" font-family="Arial,sans-serif" font-size="43" font-weight="800" text-anchor="middle" fill="#ffffff">ETUDES</text>
+  <circle cx="405" cy="105" r="86" fill="#e8a17f" opacity=".16"/>
+  <circle cx="104" cy="405" r="92" fill="#e8a17f" opacity=".10"/>
+  <path d="M256 355c-38-29-83-41-137-36V171c58-6 103 8 137 37 34-29 79-43 137-37v148c-54-5-99 7-137 36Z" fill="url(#page)" stroke="#fffdf7" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M256 211v143M148 213c33 0 62 8 86 23M364 213c-33 0-62 8-86 23M148 257c33 0 62 8 86 23M364 257c-33 0-62 8-86 23" fill="none" stroke="#24594d" stroke-width="12" stroke-linecap="round"/>
+  <path d="m256 73 16 32 35 5-25 24 6 35-32-17-32 17 6-35-25-24 35-5Z" fill="#f4c66a"/>
+  <path d="M177 392h158" stroke="#e8a17f" stroke-width="10" stroke-linecap="round"/>
+  <text x="256" y="451" font-family="Arial,sans-serif" font-size="38" font-weight="800" letter-spacing="3" text-anchor="middle" fill="#fffdf7">ETUDES</text>
 </svg>
