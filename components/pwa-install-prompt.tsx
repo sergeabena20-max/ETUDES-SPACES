@@ -66,8 +66,8 @@ export default function PwaInstallPrompt({ enabled = false }: { enabled?: boolea
         <span aria-hidden="true">×</span>
       </button>
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-sky-100">
-          <img src="/icons/icon-192.png" alt="" className="h-full w-full" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#24594d]">
+          <img src="/icons/etudes-space.svg" alt="" className="h-full w-full" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-extrabold text-slate-900">Installer Etudes Space</p>
