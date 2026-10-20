@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/session";
 import { getSiteNotice, shouldShowNotice } from "@/lib/site-notice";
 import SiteNoticeBubble from "@/components/site-notice-bubble";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
+import ReportProblem from "@/components/report-problem";
 
 export const dynamic = "force-dynamic";
 
