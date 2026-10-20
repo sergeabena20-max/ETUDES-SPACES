@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Études Space",
-    short_name: "Études Space",
+    name: "Etudes Space",
+    short_name: "Etudes Space",
     description: "Apprendre. S'entraîner. Réussir. La plateforme éducative camerounaise.",
     start_url: "/",
     scope: "/",
