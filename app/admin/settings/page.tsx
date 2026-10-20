@@ -6,6 +6,7 @@ import SettingsManager from "./settings-manager";
 import PlatformSettingsManager from "./platform-settings-manager";
 import GamificationLevelsManager from "./gamification-levels-manager";
 import ClassExamConfigManager from "./class-exam-config-manager";
+import PwaInstallSettings from "./pwa-install-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function AdminSettingsPage() {
             Centralise ici les réglages qui ne doivent plus nécessiter une modification du code.
           </p>
         </div>
+        <PwaInstallSettings />
         <PlatformSettingsManager
           initialSettings={settings.map((setting) => ({
             ...setting,
