@@ -33,11 +33,11 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
     <aside
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 right-4 z-[100] w-[min(320px,calc(100vw-2rem))] animate-slide-up"
+      className="fixed left-1/2 top-4 z-[110] w-[min(440px,calc(100vw-2rem))] -translate-x-1/2 animate-slide-up"
     >
       <div className={`relative overflow-hidden rounded-2xl border bg-white shadow-[0_12px_36px_rgba(32,44,56,0.14)] ${palette.border}`}>
         <div className={`absolute inset-y-0 left-0 w-1 ${palette.rail}`} />
-        <div className="flex items-start gap-3 p-3 pl-4">
+        <div className="flex items-start gap-3 p-4 pl-5 sm:p-5">
           <span className={`relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black ring-1 ${palette.iconBg} ${palette.icon} ${palette.ring}`}>
             {icon}
             <span className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${palette.dot}`} />
@@ -46,10 +46,10 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
             <div className="flex items-center gap-2">
               <span className={`text-[10px] font-extrabold tracking-[0.14em] ${palette.label}`}>{label}</span>
               <span className={`h-1 w-1 rounded-full ${palette.dot}`} />
-              <span className="text-[10px] font-medium text-slate-400">Études Space</span>
+              <span className="text-[10px] font-medium text-slate-400">Etudes Space</span>
             </div>
-            <p className="mt-1 text-sm font-bold leading-5 text-slate-900">{notice.title}</p>
-            <p className="mt-1 whitespace-pre-line break-words text-xs leading-5 text-slate-600">{notice.message}</p>
+            <p className="mt-1 text-base font-extrabold leading-6 text-slate-900">{notice.title}</p>
+            <p className="mt-1 whitespace-pre-line break-words text-sm leading-6 text-slate-700">{notice.message}</p>
           </div>
           <button
             type="button"
