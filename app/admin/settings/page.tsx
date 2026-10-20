@@ -29,7 +29,7 @@ export default async function AdminSettingsPage() {
       <div className="pointer-events-none absolute -right-32 bottom-10 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-float" />
       <header className="relative z-10 border-b border-white/70 bg-white/80 backdrop-blur-xl">
         <div className="container flex items-center justify-between py-4">
-          <Link href="/admin" className="font-black">Études <span className="gradient-text">Space</span> 🇨🇲</Link>
+          <Link href="/admin" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
           <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
         </div>
       </header>
