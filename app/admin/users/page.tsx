@@ -64,11 +64,11 @@ export default async function AdminUsersPage() {
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl justify-between px-4 py-4">
           <Link href="/admin" className="font-black">Etudes Space 🇨🇲</Link>
-          <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
+          <Link href="/dashboard" className="text-sm font-semibold text-violet-600">Mon espace</Link>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <Link href="/admin" className="text-sm text-sky-600">← Administration</Link>
+        <Link href="/admin" className="text-sm text-violet-600">← Administration</Link>
         <h1 className="mb-2 mt-3 text-3xl font-black">Utilisateurs & administrateurs</h1>
         <p className="mb-6 text-slate-500">Tous les comptes inscrits, leurs forfaits, paiements et droits d’accès.</p>
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
