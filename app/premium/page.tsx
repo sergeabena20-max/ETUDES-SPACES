@@ -65,23 +65,23 @@ export default function PremiumPage() {
   }
 
   return <main className="relative min-h-screen overflow-hidden">
-    <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-sky-300/25 blur-3xl animate-float-slow" />
+    <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-violet-300/25 blur-3xl animate-float-slow" />
     <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-blue-400/20 blur-3xl animate-float" />
     <section className="container relative z-10 max-w-3xl py-12">
-      <Link href="/dashboard" className="text-sm font-semibold text-sky-600">← Mon espace</Link>
+      <Link href="/dashboard" className="text-sm font-semibold text-violet-600">← Mon espace</Link>
       <div className="card mt-5 p-7 sm:p-9">
         <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-black text-amber-700">⭐ PREMIUM</span>
         <h1 className="mt-4 text-4xl font-black">{exam ? "Acheter cette épreuve" : "Activer mon accès Premium"}</h1>
         <p className="mt-3 text-slate-500">{exam ? exam.title : "Effectue le paiement puis envoie la référence. L'accès n'est activé qu'après validation administrative."}</p>
 
-        {settings && <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5">
-          <p className="text-sm font-semibold text-sky-700">Montant à payer</p>
-          <p className="mt-1 text-3xl font-black text-sky-900">{exam ? Number(exam.premiumPrice).toLocaleString("fr-FR") : Number(settings.premiumPrice).toLocaleString("fr-FR")} FCFA</p>
+        {settings && <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-5">
+          <p className="text-sm font-semibold text-violet-700">Montant à payer</p>
+          <p className="mt-1 text-3xl font-black text-violet-900">{exam ? Number(exam.premiumPrice).toLocaleString("fr-FR") : Number(settings.premiumPrice).toLocaleString("fr-FR")} FCFA</p>
           {!exam && <p className="mt-1 text-sm text-slate-600">Durée : {settings.durationDays} jours</p>}
         </div>}
 
         {settings && <div className="mt-7 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5"><p className="font-black text-orange-700">Orange Money</p><p className="mt-2 text-lg font-black">{settings.orangeMoneyNumber}</p><p className="text-sm text-slate-600">{settings.orangeMoneyName}</p></div>
+          <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><p className="font-black text-violet-700">Orange Money</p><p className="mt-2 text-lg font-black">{settings.orangeMoneyNumber}</p><p className="text-sm text-slate-600">{settings.orangeMoneyName}</p></div>
           <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-5"><p className="font-black text-yellow-800">MTN Mobile Money</p><p className="mt-2 text-lg font-black">{settings.mtnMomoNumber}</p><p className="text-sm text-slate-600">{settings.mtnMomoName}</p></div>
         </div>}
 
@@ -93,9 +93,9 @@ export default function PremiumPage() {
           <select value={provider} onChange={(e) => setProvider(e.target.value)} className="w-full rounded-xl border p-3"><option value="ORANGE_MONEY">Orange Money</option><option value="MTN_MOMO">MTN Mobile Money</option></select>
           <input value={reference} onChange={(e) => setReference(e.target.value)} required placeholder="Référence de transaction" className="w-full rounded-xl border p-3" />
           <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={4} placeholder="Précise ce que tu souhaites avec cette transaction..." className="w-full rounded-xl border p-3" />
-          {message && <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</p>}
+          {message && <p className="rounded-xl bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-700">{message}</p>}
           {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
-          <button disabled={loading} className="w-full rounded-xl bg-sky-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Envoi…" : "Envoyer ma demande de validation →"}</button>
+          <button disabled={loading} className="w-full rounded-xl bg-violet-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Envoi…" : "Envoyer ma demande de validation →"}</button>
         </form>}
       </div>
     </section>
