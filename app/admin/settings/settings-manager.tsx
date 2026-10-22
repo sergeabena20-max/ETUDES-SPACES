@@ -81,11 +81,11 @@ export default function SettingsManager({ initialPrograms }: { initialPrograms: 
       <section className="card p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-bold text-sky-600">Catalogue académique</p>
+            <p className="text-sm font-bold text-violet-600">Catalogue académique</p>
             <h2 className="mt-1 text-2xl font-black">Filières étudiants</h2>
             <p className="mt-1 text-sm text-slate-500">Ajoute, renomme ou supprime les filières disponibles sur la plateforme.</p>
           </div>
-          <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{programs.length} filière(s)</span>
+          <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">{programs.length} filière(s)</span>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -94,9 +94,9 @@ export default function SettingsManager({ initialPrograms }: { initialPrograms: 
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void save(); }}
             placeholder="Ex. Génie Civil"
-            className="flex-1 rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-sky-200"
+            className="flex-1 rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200"
           />
-          <button onClick={() => void save()} disabled={saving} className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white disabled:opacity-50">
+          <button onClick={() => void save()} disabled={saving} className="rounded-xl bg-violet-600 px-5 py-3 font-bold text-white disabled:opacity-50">
             {saving ? "Enregistrement..." : editingId ? "Enregistrer la modification" : "+ Ajouter la filière"}
           </button>
           {editingId && <button onClick={() => { setEditingId(null); setName(""); }} className="rounded-xl border px-5 py-3 font-bold">Annuler</button>}
@@ -116,7 +116,7 @@ export default function SettingsManager({ initialPrograms }: { initialPrograms: 
                       {program._count.users} utilisateur(s) · {program._count.exams} épreuve(s) · {program._count.courses} cours · {program._count.quizzes} test(s)
                     </p>
                   </div>
-                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">FILIÈRE</span>
+                  <span className="rounded-full bg-violet-50 px-2 py-1 text-[11px] font-bold text-violet-700">FILIÈRE</span>
                 </div>
                 <div className="mt-4 flex gap-2">
                   <button onClick={() => edit(program)} className="rounded-lg border px-3 py-2 text-sm font-bold">Modifier</button>
