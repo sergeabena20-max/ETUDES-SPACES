@@ -35,14 +35,14 @@ export default async function AdminPage() {
           <Link href="/" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
           <div className="flex items-center gap-4">
             <span className="hidden text-sm text-slate-500 sm:block">{user.firstName} {user.lastName}</span>
-            <Link href="/dashboard" className="text-sm font-semibold text-emerald-600">Mon espace</Link>
+            <Link href="/dashboard" className="text-sm font-semibold text-violet-600">Mon espace</Link>
           </div>
         </div>
       </header>
 
       <section className="container py-10">
         <div>
-          <p className="text-sm font-semibold text-emerald-600">Administration</p>
+          <p className="text-sm font-semibold text-violet-600">Administration</p>
           <h1 className="mt-2 text-4xl font-black tracking-tight">Centre de contrôle</h1>
           <p className="mt-2 max-w-2xl text-slate-500">
             Gérez les utilisateurs, les contenus et suivez l'activité de la plateforme.
@@ -67,10 +67,10 @@ export default async function AdminPage() {
             <h2 className="text-lg font-bold">Contenu</h2>
             <p className="mt-1 text-sm text-slate-500">Accès rapide aux espaces de publication.</p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/admin/courses" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Gérer les cours</Link>
+              <Link href="/admin/courses" className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">Gérer les cours</Link>
               <Link href="/admin/quizzes" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les petits tests</Link>
               <Link href="/admin/exams" className="rounded-xl border px-4 py-2 text-sm font-bold">Gérer les épreuves</Link>
-              <Link href="/admin/exams/inbox" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">Bibliothèque des épreuves à classer</Link>
+              <Link href="/admin/exams/inbox" className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-700">Bibliothèque des épreuves à classer</Link>
             </div>
           </section>
           <section className="card p-6">
@@ -79,9 +79,9 @@ export default async function AdminPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/admin/users" className="rounded-xl border px-4 py-2 text-sm font-bold">Utilisateurs</Link>
               <Link href="/admin/payments" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Paiements Premium</Link>
-              {user.type === "SUPER_ADMIN" && <><Link href="/admin/settings" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">⚙️ Paramètres plateforme</Link><Link href="/admin/premium" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">💳 Configuration Premium</Link></>}
+              {user.type === "SUPER_ADMIN" && <><Link href="/admin/settings" className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-700">⚙️ Paramètres plateforme</Link><Link href="/admin/premium" className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-700">💳 Configuration Premium</Link></>}
               {user.type === "SUPER_ADMIN" && <><Link href="/admin/roles" className="rounded-xl border px-4 py-2 text-sm font-bold">Rôles & permissions</Link><Link href="/admin/notice" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Message / maintenance</Link></>}
-              <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link><Link href="/admin/issues" className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-900">🛠️ Signalements ({openIssues})</Link>
+              <Link href="/admin/searches" className="rounded-xl border px-4 py-2 text-sm font-bold">Recherches sans résultat</Link><Link href="/admin/issues" className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-bold text-violet-900">🛠️ Signalements ({openIssues})</Link>
             </div>
           </section>
         </div>
