@@ -59,7 +59,7 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
 
   return <section className="card p-6">
     <div>
-      <p className="text-sm font-bold text-sky-600">Configuration dynamique</p>
+      <p className="text-sm font-bold text-violet-600">Configuration dynamique</p>
       <h2 className="mt-1 text-2xl font-black">Réglages de la plateforme</h2>
       <p className="mt-1 max-w-3xl text-sm text-slate-500">Les réglages métier sont stockés en base. Tu peux les activer, modifier ou supprimer sans toucher au code.</p>
     </div>
@@ -75,7 +75,7 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
       <input value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})} placeholder="Description / rôle du réglage" className="rounded-xl border bg-white px-3 py-2" />
       <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.enabled} onChange={(e)=>setForm({...form,enabled:e.target.checked})} /> Réglage actif</label>
       <div className="flex gap-2">
-        <button onClick={()=>void save()} disabled={saving} className="rounded-xl bg-sky-600 px-4 py-2 font-bold text-white disabled:opacity-50">{saving ? "Enregistrement..." : editing ? "Modifier" : "Ajouter"}</button>
+        <button onClick={()=>void save()} disabled={saving} className="rounded-xl bg-violet-600 px-4 py-2 font-bold text-white disabled:opacity-50">{saving ? "Enregistrement..." : editing ? "Modifier" : "Ajouter"}</button>
         {editing && <button onClick={reset} className="rounded-xl border px-4 py-2 font-bold">Annuler</button>}
       </div>
     </div>
@@ -87,7 +87,7 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
         <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">{category}</h3>
         <div className="mt-2 space-y-2">
           {items.map((setting) => <div key={setting.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div><div className="flex flex-wrap items-center gap-2"><span className="font-black">{setting.label}</span><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold">{setting.type}</span><span className={setting.enabled ? "rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700" : "rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700"}>{setting.enabled ? "ACTIF" : "DÉSACTIVÉ"}</span></div><p className="mt-1 text-xs text-slate-500">{setting.description || setting.key} · valeur : <strong>{setting.value}</strong></p></div>
+            <div><div className="flex flex-wrap items-center gap-2"><span className="font-black">{setting.label}</span><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold">{setting.type}</span><span className={setting.enabled ? "rounded-full bg-violet-50 px-2 py-1 text-[10px] font-bold text-violet-700" : "rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700"}>{setting.enabled ? "ACTIF" : "DÉSACTIVÉ"}</span></div><p className="mt-1 text-xs text-slate-500">{setting.description || setting.key} · valeur : <strong>{setting.value}</strong></p></div>
             <div className="flex gap-2"><button onClick={()=>startEdit(setting)} className="rounded-lg border px-3 py-2 text-sm font-bold">Modifier</button><button onClick={()=>void remove(setting)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-bold text-red-600">Supprimer</button></div>
           </div>)}
         </div>
