@@ -25,7 +25,7 @@ export default async function CoursesPage() {
       <header className="site-header sticky top-0 z-30">
         <div className="container flex h-[72px] items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4c1d95] font-black text-white">E</span>
+            <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-[#4c1d95]"><img src="/icons/etudes-space.svg" alt="" className="h-full w-full object-cover" /></span>
             <span className="font-extrabold tracking-tight">Etudes <span className="text-[#4c1d95]">Space</span></span>
           </Link>
           <nav className="flex items-center gap-4 text-sm font-semibold text-slate-600 sm:gap-6">
