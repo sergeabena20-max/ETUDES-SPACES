@@ -67,9 +67,9 @@ export default function RegisterPage() {
     }
   }
 
-  return <main className="grid min-h-screen place-items-center bg-[#faf8f3] px-4 py-8">
+  return <main className="grid min-h-screen place-items-center bg-[#f8f7ff] px-4 py-8">
     <div className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_55px_rgba(20,37,61,.08)] sm:p-9">
-      <Link href="/" className="inline-flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#193b35] font-black text-white">E</span><span className="font-extrabold tracking-tight text-[#202c38]">Etudes <span className="text-[#193b35]">Space</span></span></Link>
+      <Link href="/" className="inline-flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4c1d95] font-black text-white">E</span><span className="font-extrabold tracking-tight text-[#202c38]">Etudes <span className="text-[#4c1d95]">Space</span></span></Link>
       <h1 className="mt-8 text-3xl font-extrabold tracking-tight text-[#202c38]">Créer mon compte</h1>
       <p className="mt-2 text-slate-500">Renseigne ton profil pour recevoir des contenus adaptés à ton parcours.</p>
 
@@ -137,15 +137,15 @@ export default function RegisterPage() {
           {!universityLevels.length && <p className="mt-1 text-xs text-amber-700">Aucun niveau n'est associé à cette filière. Le Super Administrateur doit configurer les niveaux de cette filière.</p>}
         </div>}
 
-        {status && <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800 sm:col-span-2">
+        {status && <div className="rounded-xl bg-violet-50 p-4 text-sm text-violet-800 sm:col-span-2">
           <strong>Ton profil</strong>
           <p className="mt-1">{status === "ELEVE" ? "Élève : ta classe permettra d'afficher automatiquement les petits tests adaptés." : "Étudiant : ton niveau et ta filière permettront d'afficher les petits tests adaptés."}</p>
         </div>}
 
         {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
-        <button disabled={loading} className="rounded-lg bg-[#193b35] p-3.5 font-bold text-white hover:bg-[#28554b] sm:col-span-2 disabled:opacity-60">{loading ? "Création…" : "Créer mon compte"}</button>
+        <button disabled={loading} className="rounded-lg bg-[#4c1d95] p-3.5 font-bold text-white hover:bg-[#5b21b6] sm:col-span-2 disabled:opacity-60">{loading ? "Création…" : "Créer mon compte"}</button>
       </form>
-      <p className="mt-6 text-sm text-slate-500">Déjà inscrit ? <Link href="/login" className="font-bold text-[#193b35]">Se connecter</Link></p>
+      <p className="mt-6 text-sm text-slate-500">Déjà inscrit ? <Link href="/login" className="font-bold text-[#4c1d95]">Se connecter</Link></p>
     </div>
   </main>;
 }
