@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordInput from "@/components/password-input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function LoginPage() {
       <p className="mt-2 text-slate-500">Connecte-toi pour retrouver tes cours, tes épreuves et ta progression.</p>
       <form onSubmit={submit} className="mt-7 space-y-4">
         <input name="email" type="email" required placeholder="Adresse e-mail" className="w-full rounded-lg border border-slate-200 bg-white p-3.5 text-sm"/>
-        <input name="password" type="password" required placeholder="Mot de passe" className="w-full rounded-xl border p-3"/>
+        <PasswordInput name="password" required autoComplete="current-password" placeholder="Mot de passe" className="rounded-xl border p-3"/>
         <div className="-mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-[#4c1d95] hover:underline">Mot de passe oublié ?</Link></div>
         {success&&<p className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
