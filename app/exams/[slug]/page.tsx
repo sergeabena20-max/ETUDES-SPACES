@@ -25,9 +25,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         academicLevelId: true,
         programId: true,
         subject: { select: { name: true } },
-        academicLevel: { select: { name: true } },
+        academicLevel: { select: { id: true, name: true } },
         school: { select: { name: true } },
-        program: { select: { name: true } },
+        program: { select: { id: true, name: true } },
         solution: { select: { text: true, fileUrl: true } },
       },
     }),
@@ -112,7 +112,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <h2 className="text-xl font-bold">Sujet</h2>
         {exam.fileUrl ? (
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="rounded-xl bg-violet-600 px-5 py-3 font-bold text-white shadow-lg shadow-violet-600/20">Voir le sujet PDF →</a>
+            <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl bg-violet-600 px-5 py-3 font-bold text-white shadow-lg shadow-violet-600/20">Télécharger le sujet PDF →</a>
             <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger le sujet ↓</a>
           </div>
         ) : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
@@ -122,7 +122,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <h2 className="text-xl font-bold">Correction</h2>
         {exam.solution?.text ? <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{exam.solution.text}</div> : null}
         {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
-          <a href={exam.solution.fileUrl} target="_blank" rel="noreferrer" className="rounded-xl border px-5 py-3 font-bold">Voir la correction PDF →</a>
+          <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border px-5 py-3 font-bold">Télécharger la correction PDF →</a>
           <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger la correction ↓</a>
         </div> : null}
         {!exam.solution?.text && !exam.solution?.fileUrl && <p className="mt-3 text-sm text-slate-500">La correction de cette épreuve n'est pas encore disponible.</p>}
