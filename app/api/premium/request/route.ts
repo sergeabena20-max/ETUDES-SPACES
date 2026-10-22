@@ -20,10 +20,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Données invalides." }, { status: 400 });
 
   const settings = await prisma.premiumSettings.findUnique({ where: { id: "main" } });
-  if (!settings?.enabled) return NextResponse.json({ error: "Les paiements Premium sont actuellement désactivés." }, { status: 400 });
+  if (parsed.data.targetType === "PREMIUM_PLAN" && !settings?.enabled) return NextResponse.json({ error: "Les paiements Premium sont actuellement désactivés." }, { status: 400 });
 
-  let requestedAmount = settings.premiumPrice;
-  let durationDays: number | null = settings.durationDays;
+  let requestedAmount = settings?.premiumPrice ?? 0;
+  let durationDays: number | null = settings?.durationDays ?? null;
   let examId: string | null = null;
 
   if (parsed.data.targetType === "EXAM") {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const crossProfile = crossProfilePrice !== null && !examMatchesUserProfile(user, exam);
     if (crossProfile) {
       requestedAmount = crossProfilePrice;
-    } else if (exam.isPremium && exam.premiumPrice !== null) {
+    } else if (exam.isPremium && exam.premiumPrice !== null && settings?.enabled) {
       requestedAmount = exam.premiumPrice;
     } else {
       return NextResponse.json({ error: "Cette épreuve ne nécessite pas de paiement spécifique pour ton profil." }, { status: 400 });
