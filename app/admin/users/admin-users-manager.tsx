@@ -82,24 +82,24 @@ export default function AdminUsersManager({ initialAdmins, roles }: { initialAdm
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Prénom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-400" />
-          <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-400" />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-400" />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={editing ? "Nouveau mot de passe (optionnel)" : "Mot de passe (8 caractères minimum)"} className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-400" />
-          <select value={roleId} onChange={e => setRoleId(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-sky-400">
+          <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Prénom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
+          <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={editing ? "Nouveau mot de passe (optionnel)" : "Mot de passe (8 caractères minimum)"} className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
+          <select value={roleId} onChange={e => setRoleId(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-violet-400">
             <option value="">Aucun rôle</option>
             {roles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
           </select>
           {editing && (
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
-              <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} className="h-4 w-4 accent-sky-600" />
+              <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} className="h-4 w-4 accent-violet-600" />
               <span className="text-sm font-semibold">Compte actif</span>
             </label>
           )}
         </div>
 
         {message && <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{message}</p>}
-        <button onClick={save} disabled={busy || !firstName.trim() || !lastName.trim() || !email.trim() || (!editing && !password)} className="mt-5 rounded-xl bg-sky-600 px-5 py-3 font-bold text-white disabled:opacity-50">
+        <button onClick={save} disabled={busy || !firstName.trim() || !lastName.trim() || !email.trim() || (!editing && !password)} className="mt-5 rounded-xl bg-violet-600 px-5 py-3 font-bold text-white disabled:opacity-50">
           {busy ? "Enregistrement..." : editing ? "Enregistrer les modifications" : "Créer l'administrateur"}
         </button>
       </section>
@@ -118,7 +118,7 @@ export default function AdminUsersManager({ initialAdmins, roles }: { initialAdm
                 <tr key={admin.id} className="hover:bg-slate-50/70">
                   <td className="px-5 py-4"><div className="font-semibold">{admin.firstName} {admin.lastName}</div><div className="text-slate-500">{admin.email}</div></td>
                   <td className="px-5 py-4">{admin.role?.name ?? "Aucun rôle"}</td>
-                  <td className="px-5 py-4"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${admin.isActive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{admin.isActive ? "Actif" : "Désactivé"}</span></td>
+                  <td className="px-5 py-4"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${admin.isActive ? "bg-violet-50 text-violet-700" : "bg-red-50 text-red-700"}`}>{admin.isActive ? "Actif" : "Désactivé"}</span></td>
                   <td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => edit(admin)} className="rounded-lg border px-3 py-2 text-xs font-bold">Modifier</button>{admin.isActive && <button disabled={busy} onClick={() => deactivate(admin)} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-600">Désactiver</button>}</div></td>
                 </tr>
               ))}
