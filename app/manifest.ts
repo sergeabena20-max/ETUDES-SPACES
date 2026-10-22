@@ -15,7 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["education", "books"],
     lang: "fr-CM",
     icons: [
-      { src: "/icons/etudes-space.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }
+      { src: "/icons/etudes-space.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }
     ]
   };
 }
