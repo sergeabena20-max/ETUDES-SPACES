@@ -8,7 +8,7 @@ export async function getCrossProfileExamPrice() {
 }
 
 export function examMatchesUserProfile(
-  user: { studentStatus?: string | null; academicLevelId?: string | null; programId?: string | null },
+  user: { studentStatus?: string | null; academicLevelId?: string | null; programId?: string | null; academicLevel?: { id: string } | null; program?: { id: string } | null },
   exam: { academicLevelId?: string | null; programId?: string | null },
 ) {
   if (user.studentStatus === "ETUDIANT") {
