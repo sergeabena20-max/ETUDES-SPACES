@@ -21,16 +21,16 @@ export default async function CoursesPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#faf8f3]">
+    <main className="min-h-screen bg-[#f8f7ff]">
       <header className="site-header sticky top-0 z-30">
         <div className="container flex h-[72px] items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#193b35] font-black text-white">E</span>
-            <span className="font-extrabold tracking-tight">Etudes <span className="text-[#193b35]">Space</span></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4c1d95] font-black text-white">E</span>
+            <span className="font-extrabold tracking-tight">Etudes <span className="text-[#4c1d95]">Space</span></span>
           </Link>
           <nav className="flex items-center gap-4 text-sm font-semibold text-slate-600 sm:gap-6">
             <Link href="/exams" className="hover:text-orange-700">Épreuves</Link>
-            <Link href="/dashboard" className="rounded-lg bg-[#193b35] px-4 py-2.5 font-bold text-white hover:bg-[#28554b]">Mon espace</Link>
+            <Link href="/dashboard" className="rounded-lg bg-[#4c1d95] px-4 py-2.5 font-bold text-white hover:bg-[#5b21b6]">Mon espace</Link>
           </nav>
         </div>
       </header>
