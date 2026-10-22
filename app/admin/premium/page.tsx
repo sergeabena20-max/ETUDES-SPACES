@@ -52,15 +52,15 @@ export default function PremiumSettingsPage() {
   }
 
   return <main className="relative min-h-screen overflow-hidden">
-    <div className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-sky-300/25 blur-3xl animate-float-slow" />
+    <div className="pointer-events-none absolute -left-20 top-20 h-72 w-72 rounded-full bg-violet-300/25 blur-3xl animate-float-slow" />
     <div className="pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-blue-400/20 blur-3xl animate-float" />
     <section className="container relative z-10 max-w-4xl py-10">
-      <Link href="/admin" className="text-sm font-semibold text-sky-600">← Administration</Link>
+      <Link href="/admin" className="text-sm font-semibold text-violet-600">← Administration</Link>
       <div className="card mt-5 p-7">
-        <p className="text-sm font-bold text-sky-600">SUPER ADMIN · PREMIUM</p>
+        <p className="text-sm font-bold text-violet-600">SUPER ADMIN · PREMIUM</p>
         <h1 className="mt-2 text-4xl font-black">Configuration des paiements</h1>
         <p className="mt-2 text-slate-500">Ici, seul le Super Admin définit les règles commerciales et les coordonnées de paiement.</p>
-        {message && <p className="mt-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</p>}
+        {message && <p className="mt-5 rounded-xl bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-700">{message}</p>}
         {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           <label className="flex items-center gap-3 rounded-xl border p-4 font-semibold"><input type="checkbox" checked={form.enabled} onChange={(e) => field("enabled", e.target.checked)} /> Premium activé</label>
@@ -74,7 +74,7 @@ export default function PremiumSettingsPage() {
           <label className="text-sm font-semibold">WhatsApp / SMS<input value={form.whatsappNumber} onChange={(e) => field("whatsappNumber", e.target.value)} className="mt-1 w-full rounded-xl border p-3" /></label>
           <label className="text-sm font-semibold md:col-span-2">Instructions de paiement<textarea value={form.paymentInstructions} onChange={(e) => field("paymentInstructions", e.target.value)} rows={4} className="mt-1 w-full rounded-xl border p-3" /></label>
         </div>
-        <button onClick={save} disabled={loading} className="mt-6 rounded-xl bg-sky-600 px-6 py-3 font-bold text-white disabled:opacity-50">{loading ? "Enregistrement…" : "Enregistrer la configuration"}</button>
+        <button onClick={save} disabled={loading} className="mt-6 rounded-xl bg-violet-600 px-6 py-3 font-bold text-white disabled:opacity-50">{loading ? "Enregistrement…" : "Enregistrer la configuration"}</button>
       </div>
     </section>
   </main>;
