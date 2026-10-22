@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const crossProfilePrice = await getCrossProfileExamPrice();
     const crossProfile = crossProfilePrice !== null && !examMatchesUserProfile(user, exam);
     if (crossProfile) {
-      requestedAmount = crossProfilePrice;
+      requestedAmount = new (await import("@prisma/client")).Prisma.Decimal(crossProfilePrice);
     } else if (exam.isPremium && exam.premiumPrice !== null && settings?.enabled) {
       requestedAmount = exam.premiumPrice;
     } else {
