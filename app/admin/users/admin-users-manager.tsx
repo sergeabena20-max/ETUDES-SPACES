@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PasswordInput from "@/components/password-input";
 
 type Role = { id: string; name: string };
 type Admin = {
@@ -85,7 +86,7 @@ export default function AdminUsersManager({ initialAdmins, roles }: { initialAdm
           <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Prénom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
           <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Nom" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={editing ? "Nouveau mot de passe (optionnel)" : "Mot de passe (8 caractères minimum)"} className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
+          <PasswordInput value={password} onChange={e => setPassword(e.target.value)} placeholder={editing ? "Nouveau mot de passe (optionnel)" : "Mot de passe (8 caractères minimum)"} className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-400" />
           <select value={roleId} onChange={e => setRoleId(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-violet-400">
             <option value="">Aucun rôle</option>
             {roles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
