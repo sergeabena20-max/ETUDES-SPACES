@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { examMatchesUserProfile, getCrossProfileExamPrice } from "@/lib/cross-profile-exam";
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
   const settings = await prisma.premiumSettings.findUnique({ where: { id: "main" } });
   if (parsed.data.targetType === "PREMIUM_PLAN" && !settings?.enabled) return NextResponse.json({ error: "Les paiements Premium sont actuellement désactivés." }, { status: 400 });
 
-  let requestedAmount = settings?.premiumPrice ?? 0;
+  let requestedAmount: Prisma.Decimal = settings?.premiumPrice ?? new Prisma.Decimal(0);
   let durationDays: number | null = settings?.durationDays ?? null;
   let examId: string | null = null;
 
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     const crossProfilePrice = await getCrossProfileExamPrice();
     const crossProfile = crossProfilePrice !== null && !examMatchesUserProfile(user, exam);
     if (crossProfile) {
-      requestedAmount = new (await import("@prisma/client")).Prisma.Decimal(crossProfilePrice);
+      requestedAmount = new Prisma.Decimal(crossProfilePrice);
     } else if (exam.isPremium && exam.premiumPrice !== null && settings?.enabled) {
       requestedAmount = exam.premiumPrice;
     } else {
