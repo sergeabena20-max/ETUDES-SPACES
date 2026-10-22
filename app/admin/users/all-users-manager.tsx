@@ -108,7 +108,7 @@ export default function AllUsersManager({
   }), [users, query, typeFilter]);
 
   return <div className="space-y-8">
-    {message && <div role="status" className="flex items-start justify-between gap-3 rounded-xl bg-sky-50 p-3 text-sm text-sky-950">
+    {message && <div role="status" className="flex items-start justify-between gap-3 rounded-xl bg-violet-50 p-3 text-sm text-violet-950">
       <span>{message}</span><button onClick={() => setMessage("")} aria-label="Fermer le message">✕</button>
     </div>}
 
@@ -118,7 +118,7 @@ export default function AllUsersManager({
       {requests.map((request) => <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 border-t py-3">
         <div>{request.user.firstName} {request.user.lastName}<p className="text-sm text-slate-500">{request.user.email} · {dateLabel(request.requestedAt)}</p></div>
         <div className="flex gap-2">
-          <button disabled={busyId === request.id} onClick={() => decide(request.id, "APPROVE")} className="rounded bg-emerald-600 px-3 py-2 text-white disabled:opacity-50">Valider</button>
+          <button disabled={busyId === request.id} onClick={() => decide(request.id, "APPROVE")} className="rounded bg-violet-600 px-3 py-2 text-white disabled:opacity-50">Valider</button>
           <button disabled={busyId === request.id} onClick={() => decide(request.id, "REJECT")} className="rounded border px-3 py-2 disabled:opacity-50">Refuser</button>
         </div>
       </div>)}
@@ -157,15 +157,15 @@ export default function AllUsersManager({
               <td className="p-3">{user.school?.name || "Établissement non précisé"}<p className="text-slate-500">{formatAcademicLevelName(user.academicLevel?.name) || "Niveau —"}</p><p className="text-slate-500">{user.program?.name || "Filière / série —"}</p></td>
               <td className="p-3">{subscription ? <><p className="font-semibold">{subscription.plan.name}</p><p className="text-slate-500">{subscription.status}</p><p className="text-xs text-slate-400">Fin : {dateLabel(subscription.endsAt)}</p></> : <span className="text-slate-500">Aucun forfait</span>}</td>
               <td className="p-3">{user._count.payments} paiement(s){payment && <><p className="mt-1 font-semibold">{money(payment.amount, payment.currency)}</p><p className="text-slate-500">{payment.status} · {payment.targetType === "PREMIUM_PLAN" ? "Forfait" : "Épreuve"}</p><p className="text-xs text-slate-400">{dateLabel(payment.createdAt)}</p></>}</td>
-              <td className="p-3"><span className={user.isActive ? "rounded-full bg-emerald-50 px-2 py-1 text-emerald-700" : "rounded-full bg-amber-50 px-2 py-1 text-amber-700"}>{user.isActive ? "Actif" : "Désactivé"}</span><p className="mt-2 font-semibold">{user.type === "SUPER_ADMIN" ? "Super administrateur" : user.type === "ADMIN" ? (user.role?.name || "Administrateur") : "Utilisateur"}</p></td>
+              <td className="p-3"><span className={user.isActive ? "rounded-full bg-violet-50 px-2 py-1 text-violet-700" : "rounded-full bg-amber-50 px-2 py-1 text-amber-700"}>{user.isActive ? "Actif" : "Désactivé"}</span><p className="mt-2 font-semibold">{user.type === "SUPER_ADMIN" ? "Super administrateur" : user.type === "ADMIN" ? (user.role?.name || "Administrateur") : "Utilisateur"}</p></td>
               <td className="p-3">
                 {user.type === "SUPER_ADMIN" ? <span className="text-xs text-slate-500">Compte protégé</span> : <div className="flex min-w-[250px] flex-col gap-2">
                   {user.type === "USER" ? <>
                     <select aria-label={`Rôle à attribuer à ${user.email}`} value={selectedRoles[user.id] || ""} onChange={(event) => setSelectedRoles((current) => ({ ...current, [user.id]: event.target.value }))} className="rounded border p-2">
                       <option value="">Choisir les permissions</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
                     </select>
-                    {selectedRoles[user.id] && <p className="rounded-lg bg-sky-50 p-3 text-xs leading-5 text-sky-900">{roleDescriptions[roles.find((role) => role.id === selectedRoles[user.id])?.name || ""] || "Rôle personnalisé : les permissions exactes sont définies dans la gestion des rôles."}</p>}
-                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN")} className="rounded bg-sky-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
+                    {selectedRoles[user.id] && <p className="rounded-lg bg-violet-50 p-3 text-xs leading-5 text-violet-900">{roleDescriptions[roles.find((role) => role.id === selectedRoles[user.id])?.name || ""] || "Rôle personnalisé : les permissions exactes sont définies dans la gestion des rôles."}</p>}
+                    <button disabled={busyId === user.id} onClick={() => setRole(user.id, "ADMIN")} className="rounded bg-violet-600 px-3 py-2 font-semibold text-white disabled:opacity-50">Nommer administrateur</button>
                   </> : <button disabled={busyId === user.id} onClick={() => setRole(user.id, "USER")} className="rounded border px-3 py-2 disabled:opacity-50">Retirer les droits admin</button>}
                   <button disabled={busyId === user.id} onClick={() => deleteUser(user)} className="rounded border border-red-200 px-3 py-2 text-red-700 disabled:opacity-50">Supprimer le compte</button>
                 </div>}
