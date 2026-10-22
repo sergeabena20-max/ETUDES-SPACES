@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { hasExamAccess } from "@/lib/premium";
 import ExamActions from "./exam-actions";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
+import { examMatchesUserProfile, getCrossProfileExamPrice } from "@/lib/cross-profile-exam";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         year: true,
         fileUrl: true,
         isPremium: true,
+        academicLevelId: true,
+        programId: true,
         subject: { select: { name: true } },
         academicLevel: { select: { name: true } },
         school: { select: { name: true } },
@@ -37,6 +40,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     ? await hasExamAccess(user.id, exam.id)
     : false;
   const canViewPremium = !exam.isPremium || premium || isAdmin;
+  const crossProfilePrice = user && !isAdmin ? await getCrossProfileExamPrice() : null;
+  const requiresCrossProfilePayment = Boolean(user && !isAdmin && crossProfilePrice !== null && !examMatchesUserProfile(user, exam) && !premium);
+  const canViewExamContent = canViewPremium && !requiresCrossProfilePayment;
 
   const [existingFavorite, comments] = canViewPremium
     ? await Promise.all([
@@ -84,7 +90,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <div className="inline-flex rounded-full border border-violet-200 bg-white/75 px-3 py-1 text-sm font-bold text-violet-600 shadow-sm backdrop-blur">{exam.subject?.name || "Matière"} · {exam.year || "Année non précisée"}</div>
         <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{exam.title}</h1>
         <p className="mt-4 text-lg leading-8 text-slate-600">{exam.description || "Ancienne épreuve disponible pour entraînement."}</p>
-        {exam.isPremium && !canViewPremium && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Contenu Premium</p><p className="mt-1 text-sm">Cette épreuve et ses documents sont réservés aux membres Premium.</p><Link href={"/premium?exam=" + exam.id} className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Activer Premium →</Link></div>}
+        {requiresCrossProfilePayment && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Épreuve d’une autre classe ou filière</p><p className="mt-1 text-sm">Pour télécharger cette épreuve, un paiement unique de {Number(crossProfilePrice).toLocaleString("fr-FR")} FCFA est requis. Après validation par l’administration, tu pourras accéder au document.</p><Link href={"/premium?exam=" + exam.id} className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Payer pour accéder à cette épreuve →</Link></div>}{exam.isPremium && !canViewPremium && !requiresCrossProfilePayment && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Contenu Premium</p><p className="mt-1 text-sm">Cette épreuve et ses documents sont réservés aux membres Premium.</p><Link href={"/premium?exam=" + exam.id} className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Activer Premium →</Link></div>}
         <div className="mt-6 flex flex-wrap gap-2 text-sm text-slate-600">
           {exam.academicLevel && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{formatAcademicLevelName(exam.academicLevel.name)}</span>}
           {exam.program && <span className="rounded-full bg-white/80 px-3 py-1 shadow-sm ring-1 ring-slate-200">{exam.program.name}</span>}
@@ -92,7 +98,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         </div>
       </div>
 
-      {canViewPremium && <div className="mt-8 animate-slide-up stagger-2">
+      {canViewExamContent && <div className="mt-8 animate-slide-up stagger-2">
         <ExamActions
           examId={exam.id}
           initialFavorite={Boolean(existingFavorite)}
@@ -102,7 +108,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         />
       </div>}
 
-      {canViewPremium && <div className="card mt-8 animate-slide-up stagger-3 p-6">
+      {canViewExamContent && <div className="card mt-8 animate-slide-up stagger-3 p-6">
         <h2 className="text-xl font-bold">Sujet</h2>
         {exam.fileUrl ? (
           <div className="mt-4 flex flex-wrap gap-3">
@@ -112,7 +118,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         ) : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
       </div>}
 
-      {canViewPremium && <div className="card mt-5 animate-slide-up stagger-4 p-6">
+      {canViewExamContent && <div className="card mt-5 animate-slide-up stagger-4 p-6">
         <h2 className="text-xl font-bold">Correction</h2>
         {exam.solution?.text ? <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{exam.solution.text}</div> : null}
         {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
