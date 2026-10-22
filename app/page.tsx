@@ -10,7 +10,7 @@ export default function Home() {
   return <main className="min-h-screen overflow-hidden bg-[#f8f7ff] text-[#202c38]">
     <header className="sticky top-0 z-40 border-b border-[#e8e1f5] bg-[#f8f7ff]/95 backdrop-blur">
       <nav className="container flex h-[74px] items-center justify-between gap-4">
-        <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Etudes Space, accueil"><span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#4c1d95] text-xl font-black text-white">E</span><span className="text-lg font-extrabold tracking-tight">Etudes <span className="text-[#8b5cf6]">Space</span></span></Link>
+        <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="Etudes Space, accueil"><span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[13px] bg-[#4c1d95]"><img src="/icons/etudes-space.svg" alt="" className="h-full w-full object-cover" /></span><span className="text-lg font-extrabold tracking-tight">Etudes <span className="text-[#8b5cf6]">Space</span></span></Link>
         <div className="hidden items-center gap-8 text-sm font-semibold text-[#746d88] md:flex"><Link href="/courses" className="hover:text-[#8b5cf6]">Cours</Link><Link href="/exams" className="hover:text-[#8b5cf6]">Épreuves</Link><Link href="/quizzes" className="hover:text-[#8b5cf6]">Entraînement</Link></div>
         <div className="flex items-center gap-2"><Link href="/login" className="rounded-lg px-3 py-2.5 text-sm font-bold text-[#39265f] hover:bg-[#f0eaff] sm:px-4">Connexion</Link><Link href="/register" className="rounded-lg bg-[#8b5cf6] px-3 py-2.5 text-sm font-bold text-white hover:bg-[#6d28d9] sm:px-5">Créer un compte</Link></div>
       </nav>
