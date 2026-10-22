@@ -237,9 +237,9 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
 
   return <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6">
     <div className="mx-auto max-w-6xl">
-      <Link href="/admin/exams" className="text-sm font-semibold text-sky-700">← Retour à la gestion des épreuves</Link>
+      <Link href="/admin/exams" className="text-sm font-semibold text-violet-700">← Retour à la gestion des épreuves</Link>
       <header className="mt-5">
-        <p className="text-sm font-bold text-sky-600">Etudes Space · Administration</p>
+        <p className="text-sm font-bold text-violet-600">Etudes Space · Administration</p>
         <h1 className="mt-1 text-3xl font-black text-slate-900 sm:text-4xl">Bibliothèque des épreuves à classer</h1>
         <p className="mt-3 max-w-3xl text-slate-600">Dépose tes PDF en une seule fois, même si tu ne connais pas encore leur rubrique. Ils restent en attente ici jusqu’à ce que tu les classes dans la bonne classe, filière et matière.</p>
       </header>
@@ -249,17 +249,17 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
         <p className="mt-1 text-sm text-slate-500">Jusqu’à 20 PDF par envoi · 50 Mo maximum par fichier · les fichiers ne sont pas publiés à cette étape.</p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input type="file" accept="application/pdf,.pdf" multiple onChange={(event) => setFiles(Array.from(event.target.files || []))} className="block min-w-0 flex-1 rounded-xl border bg-slate-50 p-3 text-sm" />
-          <button onClick={upload} disabled={busy || !files.length} className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Ajouter " + files.length + " fichier(s)"}</button>
+          <button onClick={upload} disabled={busy || !files.length} className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Ajouter " + files.length + " fichier(s)"}</button>
         </div>
         {files.length > 0 && <div className="mt-3 max-h-28 overflow-auto rounded-xl bg-slate-50 p-3 text-xs text-slate-600">{files.map((file, index) => <p key={file.name + index}>{file.name} · {(file.size / 1024 / 1024).toFixed(1)} Mo</p>)}</div>}
       </section>
 
-      <section className="mt-5 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-6">
+      <section className="mt-5 rounded-2xl border border-violet-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-lg font-bold">2. Importer plusieurs corrigés PDF</h2>
         <p className="mt-1 text-sm text-slate-500">Sélectionne jusqu'à 20 corrigés, puis associe chacun au sujet correspondant dans la liste des fichiers en attente. Importe les corrigés pendant que les sujets correspondants sont encore dans cette bibliothèque, avant de les classer.</p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input type="file" accept="application/pdf,.pdf" multiple onChange={(event) => { setSolutionFiles(Array.from(event.target.files || [])); setSolutionExamIds({}); }} className="block min-w-0 flex-1 rounded-xl border bg-slate-50 p-3 text-sm" />
-          <button type="button" onClick={uploadSolutions} disabled={busy || !solutionFiles.length} className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Importer " + solutionFiles.length + " corrigé(s)"}</button>
+          <button type="button" onClick={uploadSolutions} disabled={busy || !solutionFiles.length} className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Traitement…" : "Importer " + solutionFiles.length + " corrigé(s)"}</button>
         </div>
         {solutionFiles.length > 0 && <div className="mt-4 space-y-3">{solutionFiles.map((file, index) => <div key={file.name + index} className="grid gap-2 rounded-xl border p-3 sm:grid-cols-2 sm:items-center">
           <p className="break-words text-sm font-medium text-slate-800">{file.name} <span className="text-xs text-slate-500">({(file.size / 1024 / 1024).toFixed(1)} Mo)</span></p>
@@ -273,7 +273,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
       <section className="mt-5 rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div><h2 className="text-lg font-bold">3. Classer les fichiers</h2><p className="mt-1 text-sm text-slate-500">Sélectionne un seul fichier pour le classer individuellement, ou plusieurs pour appliquer les mêmes informations à tout le lot.</p></div>
-          <span className="rounded-full bg-sky-50 px-3 py-1.5 text-sm font-bold text-sky-800">{exams.length} en attente</span>
+          <span className="rounded-full bg-violet-50 px-3 py-1.5 text-sm font-bold text-violet-800">{exams.length} en attente</span>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -291,11 +291,11 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un fichier…" className="w-full rounded-xl border px-4 py-3 text-sm sm:max-w-sm" />
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setSelected(visibleExams.length && visibleExams.every((exam) => selected.includes(exam.id)) ? selected.filter((id) => !visibleExams.some((exam) => exam.id === id)) : Array.from(new Set([...selected, ...visibleExams.map((exam) => exam.id)])))} className="rounded-xl border px-4 py-2.5 text-sm font-semibold">Sélectionner la liste</button>
-            <button onClick={classify} disabled={busy || !selected.length} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50">{busy ? "Enregistrement…" : "Classer la sélection (" + selected.length + ")"}</button>
+            <button onClick={classify} disabled={busy || !selected.length} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50">{busy ? "Enregistrement…" : "Classer la sélection (" + selected.length + ")"}</button>
           </div>
         </div>
 
-        {message && <p role="status" className="mt-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-800">{message}</p>}
+        {message && <p role="status" className="mt-4 rounded-xl bg-violet-50 p-3 text-sm text-violet-800">{message}</p>}
 
         <div className="mt-4 overflow-hidden rounded-xl border">
           {visibleExams.length ? visibleExams.map((exam) => <div key={exam.id} className="flex items-start gap-3 border-b p-4 last:border-b-0 hover:bg-slate-50">
@@ -304,7 +304,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
               <p className="break-words font-semibold text-slate-900">{exam.title}</p>
               <p className="mt-1 text-xs text-slate-500">Ajouté le {new Date(exam.createdAt).toLocaleDateString("fr-FR")}</p>
             </div>
-            {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50">Voir le sujet ↗</a>}
+            {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-50">Voir le sujet ↗</a>}
           </div>) : <p className="px-4 py-12 text-center text-sm text-slate-500">{search ? "Aucun fichier ne correspond à cette recherche." : "La bibliothèque est vide. Ajoute des PDF ci-dessus pour commencer."}</p>}
         </div>
         <p className="mt-3 text-xs text-slate-500">Les épreuves publiées quittent automatiquement cette bibliothèque et rejoignent leur rubrique dans le catalogue.</p>
