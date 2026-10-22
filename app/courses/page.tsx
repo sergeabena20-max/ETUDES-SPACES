@@ -1,12 +1,29 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const revalidate = 60;
 
-export default async function CoursesPage() {
+type Props = { searchParams: Promise<{ browse?: string; level?: string; program?: string; universityLevel?: string }> };
+
+export default async function CoursesPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const user = await getCurrentUser();
+  const browseAll = params.browse === "1";
+  if (user && !browseAll && !params.level && !params.program && !params.universityLevel) {
+    if (user.studentStatus === "ETUDIANT" && user.program?.id && user.academicLevel?.id) {
+      redirect(`/courses?program=${user.program.id}&universityLevel=${user.academicLevel.id}`);
+    }
+    if (user.studentStatus === "ELEVE" && user.academicLevel?.id) {
+      redirect(`/courses?level=${user.academicLevel.id}`);
+    }
+  }
+  const selectedLevelId = params.level || params.universityLevel;
+  const selectedProgramId = params.program;
   const courses = await prisma.course.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: "PUBLISHED", ...(!browseAll && selectedLevelId ? { academicLevelId: selectedLevelId } : {}), ...(!browseAll && selectedProgramId ? { programId: selectedProgramId } : {}) },
     select: {
       id: true,
       title: true,
@@ -15,6 +32,7 @@ export default async function CoursesPage() {
       isPremium: true,
       subject: { select: { name: true } },
       academicLevel: { select: { name: true } },
+      program: { select: { name: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 24,
@@ -42,14 +60,16 @@ export default async function CoursesPage() {
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">Retrouve les notions essentielles, classées par matière et niveau, pour réviser avec méthode.</p>
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <span className="rounded-lg bg-orange-50 px-3 py-2 font-semibold text-orange-800">Cours publiés</span>
-            <Link href="/exams" className="rounded-lg border border-slate-200 px-3 py-2 font-semibold text-slate-600 hover:border-orange-300 hover:text-orange-700">Consulter les épreuves →</Link>
+            <Link href="/exams" className="rounded-lg border border-slate-200 px-3 py-2 font-semibold text-slate-600 hover:border-violet-300 hover:text-violet-700">Consulter les épreuves →</Link>
+            {user && !browseAll && (selectedLevelId || selectedProgramId) && <Link href="/courses?browse=1" className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 font-semibold text-violet-700 hover:bg-violet-100">Autres classes / séries / filières →</Link>}
+            {browseAll && <Link href="/courses" className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 font-semibold text-violet-700">Retour à mes contenus →</Link>}
           </div>
         </div>
       </section>
 
       <section className="container py-8 sm:py-10">
         <div className="mb-5 flex items-center justify-between gap-4">
-          <div><h2 className="text-xl font-bold tracking-tight text-[#202c38]">Catalogue des cours</h2><p className="mt-1 text-sm text-slate-500">{courses.length} ressource{courses.length > 1 ? "s" : ""} affichée{courses.length > 1 ? "s" : ""}</p></div>
+          <div><h2 className="text-xl font-bold tracking-tight text-[#202c38]">{browseAll ? "Catalogue complet des cours" : user && selectedLevelId ? "Les cours pour mon niveau" : user && selectedProgramId ? "Les cours de ma filière" : "Catalogue des cours"}</h2><p className="mt-1 text-sm text-slate-500">{courses.length} ressource{courses.length > 1 ? "s" : ""} affichée{courses.length > 1 ? "s" : ""}</p></div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.length ? courses.map((course) => (
@@ -58,7 +78,7 @@ export default async function CoursesPage() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-sm font-extrabold text-orange-700">CO</span>
                 {course.isPremium && <span className="rounded-md bg-amber-50 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-amber-700">Premium</span>}
               </div>
-              <p className="mt-5 text-xs font-bold uppercase tracking-wide text-orange-700">{course.subject?.name || "Matière"} <span className="px-1 text-slate-300">/</span> {formatAcademicLevelName(course.academicLevel?.name) || "Tous niveaux"}</p>
+              <p className="mt-5 text-xs font-bold uppercase tracking-wide text-orange-700">{course.subject?.name || "Matière"} <span className="px-1 text-slate-300">/</span> {formatAcademicLevelName(course.academicLevel?.name) || "Tous niveaux"}{course.program?.name ? ` · ${course.program.name}` : ""}</p>
               <h3 className="mt-2 text-lg font-bold leading-snug tracking-tight text-[#202c38] group-hover:text-orange-700">{course.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-6 text-slate-500">{course.description || "Ressource pédagogique disponible."}</p>
               <Link href={course.slug ? `/courses/${course.slug}` : "/courses"} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-orange-700">Consulter le cours <span aria-hidden="true">→</span></Link>
