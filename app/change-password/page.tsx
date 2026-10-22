@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import PasswordInput from "@/components/password-input";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
@@ -29,8 +30,8 @@ export default function ChangePasswordPage() {
     <h1 className="mt-7 text-2xl font-black">Choisis un nouveau mot de passe</h1>
     <p className="mt-2 text-sm text-slate-500">L’administration a validé ta demande. Crée un nouveau mot de passe et confirme-le.</p>
     <form onSubmit={submit} className="mt-6 space-y-4">
-      <input name="password" type="password" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Nouveau mot de passe (8 caractères min.)" className="w-full rounded-xl border p-3" />
-      <input name="confirmPassword" type="password" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" className="w-full rounded-xl border p-3" />
+      <PasswordInput name="password" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Nouveau mot de passe (8 caractères min.)" className="rounded-xl border p-3" />
+      <PasswordInput name="confirmPassword" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" className="rounded-xl border p-3" />
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {message && <p role="status" className="rounded-xl bg-violet-50 p-3 text-sm text-violet-800">{message}</p>}
       <button disabled={loading} className="w-full rounded-xl bg-violet-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Modification…" : "Confirmer le nouveau mot de passe"}</button>
