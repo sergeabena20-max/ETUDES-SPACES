@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { getExamAccessMap } from "@/lib/premium";
@@ -6,7 +7,7 @@ import { formatAcademicLevelName } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string; category?: string; subject?: string }> };
+type Props = { searchParams: Promise<{ q?: string; year?: string; level?: string; program?: string; department?: string; universityLevel?: string; category?: string; subject?: string; browse?: string }> };
 
 export default async function ExamsPage({ searchParams }: Props) {
   const params = await searchParams;
@@ -24,6 +25,15 @@ export default async function ExamsPage({ searchParams }: Props) {
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, parentId: true, parent: { select: { id: true, name: true } }, programLevels: { orderBy: { order: "asc" }, select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } } }, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
+  const browseAll = params.browse === "1";
+  if (user && user.type !== "ADMIN" && user.type !== "SUPER_ADMIN" && !browseAll && !levelId && !programId && !departmentId) {
+    if (user.studentStatus === "ETUDIANT" && user.program?.id && user.academicLevel?.id) {
+      redirect(`/exams?program=${user.program.id}&universityLevel=${user.academicLevel.id}`);
+    }
+    if (user.studentStatus === "ELEVE" && user.academicLevel?.id) {
+      redirect(`/exams?level=${user.academicLevel.id}`);
+    }
+  }
   const levels = allLevels.filter((x) => x.kind === "SCOLAIRE");
   const selectedAcademicLevelId = levelId || universityLevelId;
   const selectedLevel = selectedAcademicLevelId ? allLevels.find((x) => x.id === selectedAcademicLevelId) : null;
@@ -119,7 +129,7 @@ export default async function ExamsPage({ searchParams }: Props) {
           </div>
         </section>
       </div> : <div className="mt-8">
-        <Link href="/exams" className="text-sm font-bold text-violet-600">← Toutes les rubriques</Link>
+        <div className="flex flex-wrap items-center gap-4"><Link href="/exams?browse=1" className="text-sm font-bold text-violet-600">← Toutes les classes / séries / filières</Link><span className="text-xs text-slate-400">Tu consultes les contenus correspondant à ton profil.</span></div>
         <div className="card mt-5 p-5"><p className="text-xs font-bold text-violet-600">{selectedLevel ? (isUniversityLevel ? "ÉTUDIANT" : "ÉLÈVE") : selectedDepartment ? "DÉPARTEMENT" : "ÉTUDIANT"}</p><h2 className="mt-1 text-2xl font-black">{isUniversityLevel ? [selectedProgram?.name, selectedLevel?.name].filter(Boolean).join(" · ") : (selectedLevel ? formatAcademicLevelName(selectedLevel.name) : null) || selectedProgram?.name || selectedDepartment?.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedLevel ? (isUniversityLevel ? "Épreuves universitaires de ce niveau et de cette filière." : "Épreuves exclusivement destinées à cette classe/série.") : selectedDepartment ? "Sélectionne une filière de ce département." : "Épreuves de cette filière, avec séparation par niveau."}</p>
           {selectedDepartment && <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{departmentPrograms.map((program) => <Link key={program.id} href={"/exams?program=" + program.id} className="rounded-xl border bg-white p-3 hover:border-violet-300"><div className="text-sm font-black">{program.name}</div><div className="mt-1 text-xs text-slate-500">{program._count.exams} sujet{program._count.exams > 1 ? "s" : ""}</div></Link>)}</div>}
           {selectedProgram && <div className="mb-5 mt-4 flex flex-wrap gap-2">{universityLevels.map((level) => <Link key={level.id} href={"/exams?program=" + selectedProgram.id + "&universityLevel=" + level.id} className={"rounded-xl border px-3 py-2 text-sm font-bold " + (universityLevelId === level.id ? "border-violet-500 bg-violet-50 text-violet-700" : "bg-white text-slate-600")}>{formatAcademicLevelName(level.name)}</Link>)}<Link href={"/exams?program=" + selectedProgram.id} className="rounded-xl border px-3 py-2 text-sm font-bold">Tous les niveaux</Link></div>}
