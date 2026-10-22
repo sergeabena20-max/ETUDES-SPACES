@@ -55,13 +55,13 @@ export default function PwaInstallPrompt({ enabled = false }: { enabled?: boolea
   }
 
   return (
-    <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl border border-sky-200 bg-white/95 p-4 pr-12 shadow-2xl shadow-sky-900/15 backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:right-5">
+    <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-2xl border border-violet-200 bg-white/95 p-4 pr-12 shadow-2xl shadow-violet-900/15 backdrop-blur-xl sm:inset-x-auto sm:bottom-5 sm:right-5">
       <button
         type="button"
         onClick={() => setIsDismissed(true)}
         aria-label="Fermer la notification d’installation"
         title="Fermer"
-        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+        className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full text-xl leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
       >
         <span aria-hidden="true">×</span>
       </button>
@@ -73,12 +73,12 @@ export default function PwaInstallPrompt({ enabled = false }: { enabled?: boolea
           <p className="font-extrabold text-slate-900">Installer Etudes Space</p>
           <p className="text-sm text-slate-600">Retrouve l’application depuis ton écran d’accueil ou ton menu.</p>
         </div>
-        <button onClick={install} className="shrink-0 rounded-xl bg-[#193b35] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#28554b]">
+        <button onClick={install} className="shrink-0 rounded-xl bg-[#4c1d95] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#5b21b6]">
           Installer
         </button>
       </div>
       {isIOS && showIOSHelp && (
-        <p className="mt-3 rounded-xl bg-sky-50 p-3 text-sm leading-6 text-slate-700">
+        <p className="mt-3 rounded-xl bg-violet-50 p-3 text-sm leading-6 text-slate-700">
           Sur iPhone ou iPad : ouvre ce site dans Safari, appuie sur <strong>Partager</strong>, puis sur <strong>Sur l’écran d’accueil</strong> et confirme avec <strong>Ajouter</strong>.
         </p>
       )}
