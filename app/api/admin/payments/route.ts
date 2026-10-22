@@ -64,7 +64,7 @@ export async function PUT(request: Request) {
   }
 
   if (payment.targetType === "EXAM") {
-    if (!payment.examId || !payment.exam || payment.exam.premiumPrice === null) {
+    if (!payment.examId || !payment.exam || payment.amount.lessThanOrEqualTo(0)) {
       return NextResponse.json({ error: "Épreuve Premium introuvable ou tarif non configuré." }, { status: 400 });
     }
 
