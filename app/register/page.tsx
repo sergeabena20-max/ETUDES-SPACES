@@ -5,6 +5,7 @@ import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
+import PasswordInput from "@/components/password-input";
 
 type Program = { id: string; name: string };
 type Level = { id: string; name: string; kind: string | null };
@@ -77,8 +78,8 @@ export default function RegisterPage() {
         <input name="firstName" required placeholder="Prénom" className="rounded-lg border border-slate-200 bg-white p-3.5 text-sm" />
         <input name="lastName" required placeholder="Nom" className="rounded-xl border p-3" />
         <input name="email" type="email" required placeholder="Adresse e-mail" className="rounded-xl border p-3 sm:col-span-2" />
-        <input name="password" type="password" minLength={8} required placeholder="Mot de passe (8 caractères min.)" className="rounded-xl border p-3" />
-        <input name="confirmPassword" type="password" minLength={8} required placeholder="Confirmer le mot de passe" className="rounded-xl border p-3" />
+        <PasswordInput name="password" minLength={8} required autoComplete="new-password" placeholder="Mot de passe (8 caractères min.)" className="rounded-xl border p-3" />
+        <PasswordInput name="confirmPassword" minLength={8} required autoComplete="new-password" placeholder="Confirmer le mot de passe" className="rounded-xl border p-3" />
 
         <div className="sm:col-span-2">
           <label className="mb-2 block text-sm font-bold">Je suis</label>
