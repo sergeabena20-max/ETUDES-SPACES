@@ -32,8 +32,8 @@ export default function ChangePasswordPage() {
       <input name="password" type="password" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Nouveau mot de passe (8 caractères min.)" className="w-full rounded-xl border p-3" />
       <input name="confirmPassword" type="password" minLength={8} maxLength={128} required autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" className="w-full rounded-xl border p-3" />
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-      {message && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{message}</p>}
-      <button disabled={loading} className="w-full rounded-xl bg-sky-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Modification…" : "Confirmer le nouveau mot de passe"}</button>
+      {message && <p role="status" className="rounded-xl bg-violet-50 p-3 text-sm text-violet-800">{message}</p>}
+      <button disabled={loading} className="w-full rounded-xl bg-violet-600 p-3 font-bold text-white disabled:opacity-60">{loading ? "Modification…" : "Confirmer le nouveau mot de passe"}</button>
     </form>
   </section></main>;
 }
