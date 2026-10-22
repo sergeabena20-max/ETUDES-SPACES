@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { hasExamAccess } from "@/lib/premium";
+import { examMatchesUserProfile, getCrossProfileExamPrice } from "@/lib/cross-profile-exam";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,8 @@ export async function GET(
       fileUrl: true,
       solution: { select: { fileUrl: true } },
       isPremium: true,
+      academicLevelId: true,
+      programId: true,
     },
   });
 
@@ -38,10 +41,18 @@ export async function GET(
   }
 
   const user = await getCurrentUser();
-  if (exam.isPremium) {
-    const premium = user ? await hasExamAccess(user.id, exam.id) : false;
-    const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
-    if (!premium && !isAdmin) {
+  const isAdmin = user?.type === "ADMIN" || user?.type === "SUPER_ADMIN";
+  if (!user && (exam.isPremium || (await getCrossProfileExamPrice()) !== null)) {
+    return NextResponse.json({ error: "Connecte-toi pour accéder à cette épreuve." }, { status: 401 });
+  }
+  if (user && !isAdmin) {
+    const premium = exam.isPremium ? await hasExamAccess(user.id, exam.id) : false;
+    const crossProfilePrice = await getCrossProfileExamPrice();
+    const crossProfile = crossProfilePrice !== null && !examMatchesUserProfile(user, exam);
+    if (crossProfile && !premium) {
+      return NextResponse.json({ error: "Cette épreuve concerne un autre profil. Un paiement est nécessaire pour la télécharger.", crossProfile: true, price: crossProfilePrice }, { status: 403 });
+    }
+    if (exam.isPremium && !premium) {
       return NextResponse.json({ error: "Cette épreuve est réservée aux membres Premium." }, { status: 403 });
     }
   }
