@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
+import { examMatchesUserProfile, getCrossProfileExamPrice } from "@/lib/cross-profile-exam";
 
 const schema = z.object({
   targetType: z.enum(["PREMIUM_PLAN", "EXAM"]),
@@ -28,11 +29,19 @@ export async function POST(request: Request) {
   if (parsed.data.targetType === "EXAM") {
     if (!parsed.data.examId) return NextResponse.json({ error: "Épreuve Premium manquante." }, { status: 400 });
     const exam = await prisma.exam.findFirst({
-      where: { id: parsed.data.examId, status: "PUBLISHED", isPremium: true },
-      select: { id: true, premiumPrice: true },
+      where: { id: parsed.data.examId, status: "PUBLISHED" },
+      select: { id: true, isPremium: true, premiumPrice: true, academicLevelId: true, programId: true },
     });
-    if (!exam || exam.premiumPrice === null) return NextResponse.json({ error: "Cette épreuve n'est pas disponible à l'achat." }, { status: 400 });
-    requestedAmount = exam.premiumPrice;
+    if (!exam) return NextResponse.json({ error: "Cette épreuve n'est pas disponible à l'achat." }, { status: 400 });
+    const crossProfilePrice = await getCrossProfileExamPrice();
+    const crossProfile = crossProfilePrice !== null && !examMatchesUserProfile(user, exam);
+    if (crossProfile) {
+      requestedAmount = crossProfilePrice;
+    } else if (exam.isPremium && exam.premiumPrice !== null) {
+      requestedAmount = exam.premiumPrice;
+    } else {
+      return NextResponse.json({ error: "Cette épreuve ne nécessite pas de paiement spécifique pour ton profil." }, { status: 400 });
+    }
     durationDays = null;
     examId = exam.id;
   }
