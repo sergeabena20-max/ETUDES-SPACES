@@ -14,6 +14,20 @@ export default async function AdminSettingsPage() {
   const admin = await requireSuperAdmin();
   if (!admin) redirect("/dashboard");
 
+  await prisma.platformSetting.upsert({
+    where: { key: "CROSS_PROFILE_EXAM_PRICE" },
+    update: {},
+    create: {
+      key: "CROSS_PROFILE_EXAM_PRICE",
+      label: "Prix de téléchargement d’une épreuve hors profil",
+      description: "Tarif global en FCFA appliqué à tout utilisateur qui veut télécharger une épreuve d’une autre classe, série ou filière. Désactive ce réglage pour supprimer cette règle.",
+      category: "PAIEMENTS",
+      type: "NUMBER",
+      value: "500",
+      enabled: false,
+    },
+  });
+
   const [programs, settings, levels] = await Promise.all([
     prisma.program.findMany({
     orderBy: { name: "asc" },
