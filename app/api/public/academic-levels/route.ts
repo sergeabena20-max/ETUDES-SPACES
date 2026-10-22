@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { academicLevelLabelKey, formatAcademicLevelName } from "@/lib/academic-level-label";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const kind = params.get("kind");
@@ -14,6 +16,9 @@ export async function GET(request: Request) {
     orderBy: { name: "asc" },
     select: { id: true, name: true, kind: true },
   });
+
+  // Keep the exact database name as "name" for form submission; use "label"
+  // only for display. The registration API looks up AcademicLevel.name exactly.
   const byLabel = new Map<string, typeof rawLevels[number]>();
   for (const level of rawLevels) {
     const key = academicLevelLabelKey(level.name);
@@ -22,12 +27,15 @@ export async function GET(request: Request) {
     const currentCanonical = current ? current.name === formatAcademicLevelName(current.name) : false;
     if (!current || (candidateCanonical && !currentCanonical)) byLabel.set(key, level);
   }
+
   const classOrder = ["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D"];
-  const levels = Array.from(byLabel.values()).map((level) => ({ ...level, name: formatAcademicLevelName(level.name) }))
+  const levels = Array.from(byLabel.values())
+    .map((level) => ({ ...level, label: formatAcademicLevelName(level.name) }))
     .sort((a, b) => {
-      const ai = classOrder.indexOf(a.name), bi = classOrder.indexOf(b.name);
+      const ai = classOrder.indexOf(a.label), bi = classOrder.indexOf(b.label);
       if (ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
-      return a.name.localeCompare(b.name, "fr");
+      return a.label.localeCompare(b.label, "fr");
     });
+
   return NextResponse.json({ levels });
 }
