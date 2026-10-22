@@ -37,15 +37,15 @@ export default async function AdminExamsPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-50/60">
-      <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
+      <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-violet-300/20 blur-3xl animate-float-slow" />
       <div className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl animate-float" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/admin" className="rounded-xl px-3 py-2 text-sm font-medium text-sky-600 transition hover:bg-white hover:shadow-sm">← Administration</Link>
+        <Link href="/admin" className="rounded-xl px-3 py-2 text-sm font-medium text-violet-600 transition hover:bg-white hover:shadow-sm">← Administration</Link>
         <div className="mb-8 mt-4 animate-slide-up">
-          <p className="text-sm font-bold text-sky-600">Administration</p>
+          <p className="text-sm font-bold text-violet-600">Administration</p>
           <h1 className="mt-1 text-3xl font-bold text-slate-900 sm:text-4xl">Gestion des épreuves</h1>
           <p className="mt-1 text-slate-500">Anciens sujets, épreuves, documents et corrections.</p>
-          <div className="mt-4 flex flex-wrap gap-2"><Link href="/admin/exams/bulk-import" className="inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Importer plusieurs PDF avec les mêmes informations</Link><Link href="/admin/exams/inbox" className="inline-flex rounded-xl border border-sky-200 bg-white px-4 py-2 text-sm font-bold text-sky-700">Bibliothèque à classer</Link></div>
+          <div className="mt-4 flex flex-wrap gap-2"><Link href="/admin/exams/bulk-import" className="inline-flex rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">Importer plusieurs PDF avec les mêmes informations</Link><Link href="/admin/exams/inbox" className="inline-flex rounded-xl border border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700">Bibliothèque à classer</Link></div>
         </div>
         <div className="card animate-slide-up stagger-2 p-4 sm:p-6">
           <ExamsManager initialExams={serializableExams} initialSubjects={subjects} initialLevels={levels} initialSchools={schools} initialPrograms={programs} />
