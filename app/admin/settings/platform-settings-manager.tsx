@@ -11,15 +11,17 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
   const [settings, setSettings] = useState(initialSettings);
   const [editing, setEditing] = useState<Setting | null>(null);
   const [message, setMessage] = useState("");
+  const [messageIsError, setMessageIsError] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const blank: Omit<Setting, "id"> = { key: "", label: "", description: "", category: "GENERAL", type: "STRING", value: "", enabled: true };
-  const [form, setForm] = useState(blank);
+  const [form, setForm] = useState<Setting | Omit<Setting, "id">>(blank);
 
   function startEdit(setting: Setting) {
     setEditing(setting);
-    setForm(setting);
+    setForm({ ...setting });
     setMessage("");
+    setMessageIsError(false);
   }
 
   function reset() {
@@ -28,28 +30,62 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
   }
 
   async function save() {
-    setSaving(true); setMessage("");
+    setSaving(true);
+    setMessage("");
+    setMessageIsError(false);
     try {
       const res = await fetch("/api/admin/platform-settings", {
         method: editing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editing ? { ...form, id: editing.id } : form),
       });
-      const data = await res.json();
-      if (!res.ok) { setMessage(data.error || "Enregistrement impossible."); return; }
-      setSettings((items) => editing ? items.map((item) => item.id === data.setting.id ? data.setting : item) : [...items, data.setting].sort((a,b) => (a.category+a.label).localeCompare(b.category+b.label)));
-      setMessage(editing ? "Réglage modifié." : "Réglage ajouté.");
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setMessage(data?.error || `Échec de l’enregistrement (HTTP ${res.status}). Vérifie que ta session Super Admin est toujours active.`);
+        setMessageIsError(true);
+        return;
+      }
+      if (!data?.setting) {
+        setMessage("Le serveur n’a pas renvoyé le réglage enregistré. Recharge la page et réessaie.");
+        setMessageIsError(true);
+        return;
+      }
+      setSettings((items) => editing
+        ? items.map((item) => item.id === data.setting.id ? data.setting : item)
+        : [...items, data.setting].sort((a, b) => (a.category + a.label).localeCompare(b.category + b.label)));
+      setMessage(editing ? "Réglage modifié avec succès." : "Réglage ajouté avec succès.");
       reset();
-    } finally { setSaving(false); }
+    } catch {
+      setMessage("Impossible de contacter le serveur. Vérifie ta connexion puis réessaie.");
+      setMessageIsError(true);
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function remove(setting: Setting) {
     if (!confirm("Supprimer le réglage « " + setting.label + " » ? Les fonctionnalités qui l'utilisent reviendront à leur valeur par défaut.")) return;
-    const res = await fetch("/api/admin/platform-settings", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: setting.id }) });
-    const data = await res.json();
-    if (!res.ok) { setMessage(data.error || "Suppression impossible."); return; }
-    setSettings((items) => items.filter((item) => item.id !== setting.id));
-    setMessage("Réglage supprimé.");
+    setMessage("");
+    setMessageIsError(false);
+    try {
+      const res = await fetch("/api/admin/platform-settings", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: setting.id }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setMessage(data?.error || `Suppression impossible (HTTP ${res.status}).`);
+        setMessageIsError(true);
+        return;
+      }
+      setSettings((items) => items.filter((item) => item.id !== setting.id));
+      if (editing?.id === setting.id) reset();
+      setMessage("Réglage supprimé.");
+    } catch {
+      setMessage("Impossible de contacter le serveur pour supprimer ce réglage.");
+      setMessageIsError(true);
+    }
   }
 
   const grouped = settings.reduce<Record<string, Setting[]>>((acc, setting) => {
@@ -64,31 +100,44 @@ export default function PlatformSettingsManager({ initialSettings }: { initialSe
       <p className="mt-1 max-w-3xl text-sm text-slate-500">Les réglages métier sont stockés en base. Tu peux les activer, modifier ou supprimer sans toucher au code.</p>
     </div>
 
+    {editing && <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-900">Modification en cours : {editing.label}</div>}
     <div className="mt-6 grid gap-3 rounded-2xl border bg-slate-50 p-4 md:grid-cols-2">
-      <input value={form.key} onChange={(e)=>setForm({...form,key:e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g,"_")})} placeholder="CLÉ_EXEMPLE" className="rounded-xl border bg-white px-3 py-2" disabled={Boolean(editing)} />
-      <input value={form.label} onChange={(e)=>setForm({...form,label:e.target.value})} placeholder="Nom du réglage" className="rounded-xl border bg-white px-3 py-2" />
-      <input value={form.category} onChange={(e)=>setForm({...form,category:e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g,"_")})} placeholder="GENERAL" className="rounded-xl border bg-white px-3 py-2" />
-      <select value={form.type} onChange={(e)=>setForm({...form,type:e.target.value as Setting["type"]})} className="rounded-xl border bg-white px-3 py-2">
-        <option value="STRING">Texte</option><option value="NUMBER">Nombre</option><option value="BOOLEAN">Oui / Non</option>
-      </select>
-      <input value={form.value} onChange={(e)=>setForm({...form,value:e.target.value})} placeholder="Valeur" className="rounded-xl border bg-white px-3 py-2" />
-      <input value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})} placeholder="Description / rôle du réglage" className="rounded-xl border bg-white px-3 py-2" />
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Clé de configuration
+        <input value={form.key} onChange={(e)=>setForm({...form,key:e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g,"_")})} placeholder="CLÉ_EXEMPLE" className="rounded-xl border bg-white px-3 py-2 text-sm" disabled={Boolean(editing)} />
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Nom du réglage
+        <input value={form.label} onChange={(e)=>setForm({...form,label:e.target.value})} placeholder="Nom du réglage" className="rounded-xl border bg-white px-3 py-2 text-sm" />
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Catégorie
+        <input value={form.category} onChange={(e)=>setForm({...form,category:e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g,"_")})} placeholder="GENERAL" className="rounded-xl border bg-white px-3 py-2 text-sm" />
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Type de valeur
+        <select value={form.type} onChange={(e)=>setForm({...form,type:e.target.value as Setting["type"]})} className="rounded-xl border bg-white px-3 py-2 text-sm">
+          <option value="STRING">Texte</option><option value="NUMBER">Nombre</option><option value="BOOLEAN">Oui / Non</option>
+        </select>
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Valeur
+        <input value={form.value} onChange={(e)=>setForm({...form,value:e.target.value})} placeholder="Valeur" className="rounded-xl border bg-white px-3 py-2 text-sm" />
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-slate-600">Description
+        <input value={form.description || ""} onChange={(e)=>setForm({...form,description:e.target.value})} placeholder="Description / rôle du réglage" className="rounded-xl border bg-white px-3 py-2 text-sm" />
+      </label>
       <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.enabled} onChange={(e)=>setForm({...form,enabled:e.target.checked})} /> Réglage actif</label>
-      <div className="flex gap-2">
-        <button onClick={()=>void save()} disabled={saving} className="rounded-xl bg-violet-600 px-4 py-2 font-bold text-white disabled:opacity-50">{saving ? "Enregistrement..." : editing ? "Modifier" : "Ajouter"}</button>
-        {editing && <button onClick={reset} className="rounded-xl border px-4 py-2 font-bold">Annuler</button>}
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={()=>void save()} disabled={saving} className="rounded-xl bg-violet-600 px-4 py-2 font-bold text-white disabled:opacity-50">{saving ? "Enregistrement..." : editing ? "Enregistrer les modifications" : "Ajouter le réglage"}</button>
+        {editing && <button type="button" onClick={reset} disabled={saving} className="rounded-xl border bg-white px-4 py-2 font-bold">Annuler</button>}
       </div>
     </div>
 
-    {message && <p className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold">{message}</p>}
+    {message && <p role="status" className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${messageIsError ? "border border-red-200 bg-red-50 text-red-800" : "border border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{message}</p>}
 
     <div className="mt-6 space-y-6">
       {Object.entries(grouped).map(([category, items]) => <div key={category}>
         <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">{category}</h3>
         <div className="mt-2 space-y-2">
-          {items.map((setting) => <div key={setting.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          {items.map((setting) => <div key={setting.id} className={`flex flex-col gap-3 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between ${editing?.id === setting.id ? "border-violet-400 ring-2 ring-violet-100" : ""}`}>
             <div><div className="flex flex-wrap items-center gap-2"><span className="font-black">{setting.label}</span><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold">{setting.type}</span><span className={setting.enabled ? "rounded-full bg-violet-50 px-2 py-1 text-[10px] font-bold text-violet-700" : "rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700"}>{setting.enabled ? "ACTIF" : "DÉSACTIVÉ"}</span></div><p className="mt-1 text-xs text-slate-500">{setting.description || setting.key} · valeur : <strong>{setting.value}</strong></p></div>
-            <div className="flex gap-2"><button onClick={()=>startEdit(setting)} className="rounded-lg border px-3 py-2 text-sm font-bold">Modifier</button><button onClick={()=>void remove(setting)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-bold text-red-600">Supprimer</button></div>
+            <div className="flex gap-2"><button type="button" onClick={()=>startEdit(setting)} className="rounded-lg border px-3 py-2 text-sm font-bold">{editing?.id === setting.id ? "Modifier à nouveau" : "Modifier"}</button><button type="button" onClick={()=>void remove(setting)} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-bold text-red-600">Supprimer</button></div>
           </div>)}
         </div>
       </div>)}
