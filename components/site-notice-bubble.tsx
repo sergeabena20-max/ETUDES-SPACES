@@ -26,8 +26,8 @@ export default function SiteNoticeBubble({ notice }: { notice: Notice }) {
   const palette = notice.type === "WARNING" || notice.type === "MAINTENANCE"
     ? { border: "border-amber-200", rail: "bg-amber-500", iconBg: "bg-amber-50", icon: "text-amber-700", ring: "ring-amber-200", label: "text-amber-700", dot: "bg-amber-500", hover: "hover:bg-amber-50 hover:text-amber-700" }
     : notice.type === "SUCCESS"
-      ? { border: "border-emerald-200", rail: "bg-emerald-500", iconBg: "bg-emerald-50", icon: "text-emerald-700", ring: "ring-emerald-200", label: "text-emerald-700", dot: "bg-emerald-500", hover: "hover:bg-emerald-50 hover:text-emerald-700" }
-      : { border: "border-[#dce8dc]", rail: "bg-[#3e8062]", iconBg: "bg-[#e9f3ee]", icon: "text-[#2f7658]", ring: "ring-[#dce8dc]", label: "text-[#2f7658]", dot: "bg-[#3e8062]", hover: "hover:bg-[#e9f3ee] hover:text-[#193b35]" };
+      ? { border: "border-violet-200", rail: "bg-violet-500", iconBg: "bg-violet-50", icon: "text-violet-700", ring: "ring-violet-200", label: "text-violet-700", dot: "bg-violet-500", hover: "hover:bg-violet-50 hover:text-violet-700" }
+      : { border: "border-[#dce8dc]", rail: "bg-[#7c3aed]", iconBg: "bg-[#f0eaff]", icon: "text-[#6d28d9]", ring: "ring-[#dce8dc]", label: "text-[#6d28d9]", dot: "bg-[#7c3aed]", hover: "hover:bg-[#f0eaff] hover:text-[#4c1d95]" };
 
   return (
     <aside
