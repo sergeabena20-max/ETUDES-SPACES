@@ -70,18 +70,18 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   }));
 
   return <main className="relative min-h-screen overflow-hidden">
-    <div className="pointer-events-none absolute -left-32 top-20 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl animate-float-slow" />
+    <div className="pointer-events-none absolute -left-32 top-20 h-80 w-80 rounded-full bg-violet-300/20 blur-3xl animate-float-slow" />
     <div className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-blue-500/15 blur-3xl animate-float" />
-    <div className="pointer-events-none absolute right-[12%] top-24 h-3 w-3 rounded-full bg-sky-400 shadow-[0_0_28px_8px_rgba(56,189,248,.3)] animate-orbit" />
+    <div className="pointer-events-none absolute right-[12%] top-24 h-3 w-3 rounded-full bg-violet-400 shadow-[0_0_28px_8px_rgba(56,189,248,.3)] animate-orbit" />
     <header className="relative z-10 border-b border-white/70 bg-white/70 backdrop-blur-xl">
       <div className="container flex items-center justify-between py-4">
-        <Link href="/exams" className="rounded-xl px-3 py-2 text-sm font-semibold text-sky-600 transition hover:bg-white hover:shadow-sm">← Toutes les épreuves</Link>
-        <Link href="/dashboard" className="rounded-xl px-3 py-2 text-sm font-semibold text-sky-600 transition hover:bg-white hover:shadow-sm">Mon espace</Link>
+        <Link href="/exams" className="rounded-xl px-3 py-2 text-sm font-semibold text-violet-600 transition hover:bg-white hover:shadow-sm">← Toutes les épreuves</Link>
+        <Link href="/dashboard" className="rounded-xl px-3 py-2 text-sm font-semibold text-violet-600 transition hover:bg-white hover:shadow-sm">Mon espace</Link>
       </div>
     </header>
     <section className="container relative z-10 max-w-4xl py-10">
       <div className="animate-slide-up">
-        <div className="inline-flex rounded-full border border-sky-200 bg-white/75 px-3 py-1 text-sm font-bold text-sky-600 shadow-sm backdrop-blur">{exam.subject?.name || "Matière"} · {exam.year || "Année non précisée"}</div>
+        <div className="inline-flex rounded-full border border-violet-200 bg-white/75 px-3 py-1 text-sm font-bold text-violet-600 shadow-sm backdrop-blur">{exam.subject?.name || "Matière"} · {exam.year || "Année non précisée"}</div>
         <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{exam.title}</h1>
         <p className="mt-4 text-lg leading-8 text-slate-600">{exam.description || "Ancienne épreuve disponible pour entraînement."}</p>
         {exam.isPremium && !canViewPremium && <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900"><p className="font-black">🔒 Contenu Premium</p><p className="mt-1 text-sm">Cette épreuve et ses documents sont réservés aux membres Premium.</p><Link href={"/premium?exam=" + exam.id} className="mt-4 inline-block rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Activer Premium →</Link></div>}
@@ -106,8 +106,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         <h2 className="text-xl font-bold">Sujet</h2>
         {exam.fileUrl ? (
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="rounded-xl bg-sky-600 px-5 py-3 font-bold text-white shadow-lg shadow-sky-600/20">Voir le sujet PDF →</a>
-            <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger le sujet ↓</a>
+            <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="rounded-xl bg-violet-600 px-5 py-3 font-bold text-white shadow-lg shadow-violet-600/20">Voir le sujet PDF →</a>
+            <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger le sujet ↓</a>
           </div>
         ) : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
       </div>}
@@ -117,7 +117,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         {exam.solution?.text ? <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">{exam.solution.text}</div> : null}
         {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
           <a href={exam.solution.fileUrl} target="_blank" rel="noreferrer" className="rounded-xl border px-5 py-3 font-bold">Voir la correction PDF →</a>
-          <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border border-sky-200 bg-sky-50 px-5 py-3 font-bold text-sky-700">Télécharger la correction ↓</a>
+          <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger la correction ↓</a>
         </div> : null}
         {!exam.solution?.text && !exam.solution?.fileUrl && <p className="mt-3 text-sm text-slate-500">La correction de cette épreuve n'est pas encore disponible.</p>}
       </div>}
