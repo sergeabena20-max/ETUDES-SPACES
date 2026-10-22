@@ -56,11 +56,11 @@ export default function AdminPaymentsPage() {
       <header className="border-b bg-white/80 backdrop-blur">
         <div className="container flex items-center justify-between py-4">
           <Link href="/admin" className="font-black">← Administration</Link>
-          <Link href="/dashboard" className="text-sm font-semibold text-sky-600">Mon espace</Link>
+          <Link href="/dashboard" className="text-sm font-semibold text-violet-600">Mon espace</Link>
         </div>
       </header>
       <section className="container py-10">
-        <p className="text-sm font-semibold text-sky-600">💳 Premium</p>
+        <p className="text-sm font-semibold text-violet-600">💳 Premium</p>
         <h1 className="mt-2 text-4xl font-black">Paiements à vérifier</h1>
         <p className="mt-2 text-slate-500">Valide uniquement les transactions réellement vérifiées.</p>
         {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -76,9 +76,9 @@ export default function AdminPaymentsPage() {
                   <p className="mt-1 text-xs text-slate-400">{new Date(p.createdAt).toLocaleString("fr-FR")}</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className={"rounded-full px-3 py-1 text-xs font-bold " + (p.status === "approved" ? "bg-emerald-50 text-emerald-700" : p.status === "rejected" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700")}>{p.status}</span>
+                  <span className={"rounded-full px-3 py-1 text-xs font-bold " + (p.status === "approved" ? "bg-violet-50 text-violet-700" : p.status === "rejected" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700")}>{p.status}</span>
                   {p.status === "pending" && <>
-                    <button disabled={loadingId === p.id} onClick={() => act(p.id, "approve")} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Activer</button>
+                    <button disabled={loadingId === p.id} onClick={() => act(p.id, "approve")} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Activer</button>
                     <button disabled={loadingId === p.id} onClick={() => act(p.id, "reject")} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700 disabled:opacity-50">Refuser</button>
                   </>}
                 </div>
