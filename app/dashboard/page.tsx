@@ -114,18 +114,18 @@ export default async function Dashboard() {
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
-    <main className="min-h-screen bg-[#faf8f3] pb-10">
+    <main className="min-h-screen bg-[#f8f7ff] pb-10">
       <header className="site-header sticky top-0 z-30">
         <div className="container flex items-center justify-between py-4">
           <div className="flex min-w-0 items-center gap-5">
             <Link href="/" className="shrink-0 font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
             <nav aria-label="Navigation principale" className="hidden items-center gap-3 text-sm font-bold text-slate-600 lg:flex">
-              <Link href="/courses" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Cours</Link>
-              <Link href="/exams" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Épreuves</Link>
-              <Link href="/quizzes" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Entraînement</Link>
-              <Link href="/favorites" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Favoris</Link>
-              <Link href="/profile" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#b65a3c]">Profil</Link>
-              {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="rounded-lg bg-[#193b35] px-3 py-2 text-white hover:bg-[#28554b]">Administration</Link>}
+              <Link href="/courses" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#7c3aed]">Cours</Link>
+              <Link href="/exams" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#7c3aed]">Épreuves</Link>
+              <Link href="/quizzes" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#7c3aed]">Entraînement</Link>
+              <Link href="/favorites" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#7c3aed]">Favoris</Link>
+              <Link href="/profile" className="rounded-lg px-2 py-2 hover:bg-white hover:text-[#7c3aed]">Profil</Link>
+              {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="rounded-lg bg-[#4c1d95] px-3 py-2 text-white hover:bg-[#5b21b6]">Administration</Link>}
             </nav>
           </div>
           <form action="/api/auth/logout" method="post">
@@ -135,16 +135,16 @@ export default async function Dashboard() {
           </form>
         </div>
         <nav aria-label="Navigation mobile" className="container flex gap-2 overflow-x-auto pb-3 text-xs font-bold text-slate-600 lg:hidden">
-          <Link href="/courses" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Cours</Link>
-          <Link href="/exams" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Épreuves</Link>
-          <Link href="/quizzes" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Entraînement</Link>
-          <Link href="/favorites" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Favoris</Link>
-          <Link href="/profile" className="shrink-0 rounded-full border border-[#e9e5dc] bg-white px-3 py-2">Profil</Link>
-          {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="shrink-0 rounded-full bg-[#193b35] px-3 py-2 text-white">Administration</Link>}
+          <Link href="/courses" className="shrink-0 rounded-full border border-[#e8e1f5] bg-white px-3 py-2">Cours</Link>
+          <Link href="/exams" className="shrink-0 rounded-full border border-[#e8e1f5] bg-white px-3 py-2">Épreuves</Link>
+          <Link href="/quizzes" className="shrink-0 rounded-full border border-[#e8e1f5] bg-white px-3 py-2">Entraînement</Link>
+          <Link href="/favorites" className="shrink-0 rounded-full border border-[#e8e1f5] bg-white px-3 py-2">Favoris</Link>
+          <Link href="/profile" className="shrink-0 rounded-full border border-[#e8e1f5] bg-white px-3 py-2">Profil</Link>
+          {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <Link href="/admin" className="shrink-0 rounded-full bg-[#4c1d95] px-3 py-2 text-white">Administration</Link>}
         </nav>
       </header>
 
-      {pendingAdminIssues > 0 && (user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <section className="container pt-6"><Link href="/admin/issues" className="flex items-center justify-between gap-4 rounded-2xl border border-[#e9c6a7] bg-[#fff0e7] p-4 text-[#8d462b] transition hover:bg-[#ffe8da] sm:p-5"><span><span className="block font-extrabold">{pendingAdminIssues} signalement(s) à traiter</span><span className="mt-1 block text-sm">Des utilisateurs ont signalé un problème sur la plateforme.</span></span><span className="shrink-0 rounded-lg bg-white px-3 py-2 text-sm font-bold">Consulter →</span></Link></section>}
+      {pendingAdminIssues > 0 && (user.type === "ADMIN" || user.type === "SUPER_ADMIN") && <section className="container pt-6"><Link href="/admin/issues" className="flex items-center justify-between gap-4 rounded-2xl border border-[#c4b5fd] bg-[#f3e8ff] p-4 text-[#8d462b] transition hover:bg-[#ffe8da] sm:p-5"><span><span className="block font-extrabold">{pendingAdminIssues} signalement(s) à traiter</span><span className="mt-1 block text-sm">Des utilisateurs ont signalé un problème sur la plateforme.</span></span><span className="shrink-0 rounded-lg bg-white px-3 py-2 text-sm font-bold">Consulter →</span></Link></section>}
 
       <section className="container relative z-10 py-7 sm:py-10">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
@@ -156,8 +156,8 @@ export default async function Dashboard() {
             Prêt à progresser aujourd’hui ? Retrouve tes cours, entraîne-toi et suis tes résultats au même endroit.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/exams" className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">Explorer les épreuves <span aria-hidden="true">→</span></Link>
-            <Link href="/courses" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700">Découvrir les cours</Link>
+            <Link href="/exams" className="inline-flex items-center gap-2 rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-800">Explorer les épreuves <span aria-hidden="true">→</span></Link>
+            <Link href="/courses" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-violet-300 hover:text-violet-700">Découvrir les cours</Link>
           </div>
         </div>
 
@@ -165,25 +165,25 @@ export default async function Dashboard() {
           <section className="mt-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-emerald-600">Sélection personnalisée</p>
+                <p className="text-sm font-semibold text-violet-600">Sélection personnalisée</p>
                 <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">Pour ta classe ou ta filière</h2>
                 <p className="mt-1 text-sm text-slate-500">Des contenus publiés correspondant à ton profil académique.</p>
               </div>
-              <Link href="/exams" className="text-sm font-bold text-emerald-600">Toute la bibliothèque →</Link>
+              <Link href="/exams" className="text-sm font-bold text-violet-600">Toute la bibliothèque →</Link>
             </div>
             {recommendedExams.length > 0 && (
               <div className="mt-5">
-                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-emerald-600">Tout voir</Link></div>
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📝 Épreuves récentes</h3><Link href="/exams" className="text-sm font-bold text-violet-600">Tout voir</Link></div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {recommendedExams.map((exam) => (
                     <Link key={exam.id} href={`/exams/${exam.slug}`} className="card group p-5 transition hover:-translate-y-0.5">
-                      <p className="text-xs font-bold text-emerald-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
+                      <p className="text-xs font-bold text-violet-600">{exam.subject?.name ?? "Matière"}{exam.year ? ` · ${exam.year}` : ""}</p>
                       <h4 className="mt-2 font-bold">{exam.title}</h4>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         {exam.category && <span className="rounded-full bg-slate-100 px-2 py-1">{exam.category.replaceAll("_", " ")}</span>}
                         {exam.isPremium && <span className="rounded-full bg-amber-50 px-2 py-1 font-bold text-amber-700">Premium</span>}
                       </div>
-                      <p className="mt-3 text-sm font-bold text-emerald-600">Consulter →</p>
+                      <p className="mt-3 text-sm font-bold text-violet-600">Consulter →</p>
                     </Link>
                   ))}
                 </div>
@@ -191,14 +191,14 @@ export default async function Dashboard() {
             )}
             {recommendedCourses.length > 0 && (
               <div className="mt-6">
-                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📚 Cours à découvrir</h3><Link href="/courses" className="text-sm font-bold text-emerald-600">Tous les cours</Link></div>
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="font-black">📚 Cours à découvrir</h3><Link href="/courses" className="text-sm font-bold text-violet-600">Tous les cours</Link></div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {recommendedCourses.map((course) => (
                     <Link key={course.id} href={`/courses/${course.slug}`} className="card p-4 transition hover:-translate-y-0.5">
-                      <p className="text-xs font-bold text-emerald-600">{course.subject?.name ?? "Matière"}</p>
+                      <p className="text-xs font-bold text-violet-600">{course.subject?.name ?? "Matière"}</p>
                       <h4 className="mt-2 font-bold">{course.title}</h4>
                       {course.isPremium && <span className="mt-3 inline-block rounded-full bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">Premium</span>}
-                      <p className="mt-3 text-sm font-bold text-emerald-600">Découvrir →</p>
+                      <p className="mt-3 text-sm font-bold text-violet-600">Découvrir →</p>
                     </Link>
                   ))}
                 </div>
@@ -211,7 +211,7 @@ export default async function Dashboard() {
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-sm font-semibold text-emerald-600">Pour toi</p>
+                <p className="text-sm font-semibold text-violet-600">Pour toi</p>
                 <h2 className="mt-1 text-2xl font-black">
                   Petits tests adaptés à ton profil
                 </h2>
@@ -224,7 +224,7 @@ export default async function Dashboard() {
 
               <Link
                 href="/quizzes"
-                className="text-sm font-bold text-emerald-600"
+                className="text-sm font-bold text-violet-600"
               >
                 Voir tous →
               </Link>
@@ -243,7 +243,7 @@ export default async function Dashboard() {
                     {q._count.questions} questions ·{" "}
                     {q.subject?.name ?? "Matière"}
                   </p>
-                  <span className="mt-4 inline-block text-sm font-bold text-emerald-600">
+                  <span className="mt-4 inline-block text-sm font-bold text-violet-600">
                     Commencer →
                   </span>
                 </Link>
@@ -256,7 +256,7 @@ export default async function Dashboard() {
           <section className="mt-10">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-sm font-semibold text-emerald-600">Ma progression</p>
+                <p className="text-sm font-semibold text-violet-600">Ma progression</p>
                 <h2 className="mt-1 text-2xl font-black">Mes récompenses</h2>
               </div>
               <span className="text-sm font-bold text-slate-500">{gamificationProfile.points} points</span>
@@ -266,7 +266,7 @@ export default async function Dashboard() {
                 <div><p className="text-sm text-slate-500">Niveau actuel</p><p className="mt-1 text-xl font-black">{gamificationLevel?.current.icon} {gamificationLevel?.current.name}</p><p className="mt-1 text-xs text-slate-500">{gamificationLevel?.current.description}</p></div>
                 <div className="text-right"><p className="text-sm font-bold">{gamificationProfile.points} points</p>{gamificationLevel?.next && <p className="mt-1 text-xs text-slate-500">{gamificationLevel.pointsToNext} points avant {gamificationLevel.next.name}</p>}</div>
               </div>
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${gamificationLevel?.progress ?? 0}%` }} /></div>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${gamificationLevel?.progress ?? 0}%` }} /></div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <div className="card p-5"><p className="text-sm text-slate-500">Points</p><p className="mt-2 text-3xl font-black">{gamificationProfile.points}</p></div>
@@ -290,10 +290,10 @@ export default async function Dashboard() {
         <section className="mt-10">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-sm font-semibold text-emerald-600">Ma progression</p>
+              <p className="text-sm font-semibold text-violet-600">Ma progression</p>
               <h2 className="mt-1 text-2xl font-black">Mes statistiques</h2>
             </div>
-            <Link href="/quizzes/history" className="text-sm font-bold text-emerald-600">
+            <Link href="/quizzes/history" className="text-sm font-bold text-violet-600">
               Voir mon historique →
             </Link>
           </div>
@@ -312,7 +312,7 @@ export default async function Dashboard() {
               const percentage = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
               return <Link key={attempt.id} href={"/quizzes/" + attempt.quiz.slug} className="card flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5">
                 <div><p className="font-bold">{attempt.quiz.title}</p><p className="mt-1 text-xs text-slate-500">{new Date(attempt.completedAt).toLocaleDateString("fr-FR")} · {attempt.durationSec ? Math.floor(attempt.durationSec / 60) + " min " + (attempt.durationSec % 60) + " s" : "durée inconnue"}</p></div>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">{percentage}%</span>
+                <span className="rounded-full bg-violet-50 px-3 py-1 text-sm font-black text-violet-700">{percentage}%</span>
               </Link>;
             })}
           </div>
@@ -350,7 +350,7 @@ export default async function Dashboard() {
           </Link>
 
           {(user.type === "ADMIN" || user.type === "SUPER_ADMIN") && (
-            <Link href="/admin" className="card border-emerald-200 bg-emerald-50 p-6 transition hover:-translate-y-1">
+            <Link href="/admin" className="card border-violet-200 bg-violet-50 p-6 transition hover:-translate-y-1">
               <span className="text-3xl">⚙️</span>
               <h2 className="mt-4 font-bold">Administration</h2>
               <p className="mt-1 text-sm text-slate-500">Gérer la plateforme.</p>
