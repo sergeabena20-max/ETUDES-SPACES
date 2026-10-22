@@ -19,11 +19,11 @@ export default async function Favorites() {
     <header className="border-b bg-white">
       <div className="container flex items-center justify-between py-4">
         <Link href="/dashboard" className="font-black">Etudes <span className="gradient-text">Space</span> 🇨🇲</Link>
-        <Link href="/dashboard" className="text-sm text-sky-600">Mon espace</Link>
+        <Link href="/dashboard" className="text-sm text-violet-600">Mon espace</Link>
       </div>
     </header>
     <section className="container py-10">
-      <p className="text-sm font-semibold text-sky-600">❤️ Mon espace</p>
+      <p className="text-sm font-semibold text-violet-600">❤️ Mon espace</p>
       <h1 className="mt-2 text-4xl font-black">Mes favoris</h1>
       <p className="mt-2 text-slate-500">Retrouve rapidement les épreuves et contenus que tu veux garder sous la main.</p>
 
@@ -33,12 +33,12 @@ export default async function Favorites() {
           const isExam = Boolean(f.exam);
           if (!item) return null;
           return <article key={f.id} className="card p-5">
-            <div className="text-xs font-bold uppercase text-sky-600">{isExam ? "📝 Épreuve" : "📚 Cours"}</div>
+            <div className="text-xs font-bold uppercase text-violet-600">{isExam ? "📝 Épreuve" : "📚 Cours"}</div>
             <h2 className="mt-2 text-lg font-bold">{item.title}</h2>
             <div className="mt-4">
               <Link
                 href={isExam ? "/exams/" + item.slug : "/courses"}
-                className="inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white"
+                className="inline-flex rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white"
               >
                 Ouvrir →
               </Link>
@@ -47,7 +47,7 @@ export default async function Favorites() {
         }) : <div className="card p-7 md:col-span-2">
           <p className="font-bold">Aucun favori pour le moment.</p>
           <p className="mt-2 text-sm text-slate-500">Ajoute tes épreuves importantes depuis leur page.</p>
-          <Link href="/exams" className="mt-4 inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Voir les épreuves</Link>
+          <Link href="/exams" className="mt-4 inline-flex rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">Voir les épreuves</Link>
         </div>}
       </div>
     </section>
