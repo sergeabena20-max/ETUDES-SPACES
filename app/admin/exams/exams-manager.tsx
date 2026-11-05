@@ -19,12 +19,12 @@ type Exam = {
 type Form = {
   id?: string; targetType: "ELEVE" | "ETUDIANT"; title: string; slug: string; description: string; year: string; category: string;
   fileUrl: string; status: Exam["status"]; isPremium: boolean; premiumPrice: string; subjectId: string; academicLevelId: string;
-  schoolId: string; programId: string; solutionText: string; solutionFileUrl: string;
+  schoolId: string; programId: string; academicLevelIds: string[]; solutionText: string; solutionFileUrl: string;
 };
 
 const empty: Form = {
   targetType: "ELEVE", title: "", slug: "", description: "", year: "", category: "", fileUrl: "",
-  status: "DRAFT", isPremium: false, premiumPrice: "", subjectId: "", academicLevelId: "", schoolId: "", programId: "",
+  status: "DRAFT", isPremium: false, premiumPrice: "", subjectId: "", academicLevelId: "", schoolId: "", programId: "", academicLevelIds: [],
   solutionText: "", solutionFileUrl: "",
 };
 
@@ -33,7 +33,7 @@ function toForm(e: Exam): Form {
     id: e.id, targetType: e.programId ? "ETUDIANT" : "ELEVE", title: e.title, slug: e.slug, description: e.description ?? "", year: e.year?.toString() ?? "",
     category: e.category ?? "", fileUrl: e.fileUrl ?? "", status: e.status, isPremium: e.isPremium, premiumPrice: e.premiumPrice?.toString() ?? "",
     subjectId: e.subjectId ?? "", academicLevelId: e.academicLevelId ?? "", schoolId: e.schoolId ?? "",
-    programId: e.programId ?? "", solutionText: e.solution?.text ?? "", solutionFileUrl: e.solution?.fileUrl ?? "",
+    programId: e.programId ?? "", academicLevelIds: e.academicLevelId ? [e.academicLevelId] : [], solutionText: e.solution?.text ?? "", solutionFileUrl: e.solution?.fileUrl ?? "",
   };
 }
 
@@ -131,7 +131,8 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
       category: form.category || null,
       fileUrl: form.fileUrl || null,
       subjectId: form.subjectId || null,
-      academicLevelId: form.academicLevelId || null,
+      academicLevelId: form.academicLevelId || form.academicLevelIds[0] || null,
+      academicLevelIds: form.targetType === "ELEVE" ? form.academicLevelIds : [],
       schoolId: form.schoolId || null,
       programId: form.targetType === "ETUDIANT" ? (form.programId || null) : null,
       solutionText: form.solutionText || null,
@@ -156,9 +157,11 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   }
 
   function field<K extends keyof Form>(key: K, value: Form[K]) { setForm((f) => ({ ...f, [key]: value })); }
-  const selectedLevel = levels.find((level) => level.id === form.academicLevelId);
+  const selectedLevels = levels.filter((level) => form.academicLevelIds.includes(level.id));
+  const selectedLevel = selectedLevels[0] || levels.find((level) => level.id === form.academicLevelId);
   const visibleSubjects = useMemo(() => form.targetType === "ETUDIANT" ? subjects : selectedLevel ? subjects.filter((subject) => getSchoolSubjectNames(selectedLevel.name).includes(subject.name)) : [], [form.targetType, selectedLevel, subjects]);
-  const selectedConfig = examConfigs.find((config) => config.academicLevelId === form.academicLevelId);
+  const selectedConfigs = selectedLevels.map((level) => examConfigs.find((config) => config.academicLevelId === level.id)).filter(Boolean) as ExamConfig[];
+  const selectedConfig = selectedConfigs[0] || examConfigs.find((config) => config.academicLevelId === form.academicLevelId);
   const isLevelTwo = /\bniv(?:eau)?\s*2\b/i.test(selectedLevel?.name || "");
   const availableCategories = !selectedLevel ? [] : form.targetType === "ETUDIANT"
     ? [
@@ -177,8 +180,8 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         { value: "SEQUENCE_4", label: "Épreuve séquentielle — Séquence 4" },
         { value: "SEQUENCE_5", label: "Épreuve séquentielle — Séquence 5" },
         { value: "SEQUENCE_6", label: "Épreuve séquentielle — Séquence 6" },
-        ...(selectedConfig?.isExamClass && selectedConfig?.pastExamsEnabled ? [{ value: "ANCIEN_SUJET", label: "Anciens sujets d’examen" }] : []),
-        ...(selectedConfig?.isExamClass && selectedConfig?.mockExamsEnabled ? [{ value: "EXAMEN_BLANC", label: "Examens blancs" }] : []),
+        ...(selectedConfigs.length && selectedConfigs.every((config) => config.isExamClass && config.pastExamsEnabled) ? [{ value: "ANCIEN_SUJET", label: "Anciens sujets d’examen" }] : []),
+        ...(selectedConfigs.length && selectedConfigs.every((config) => config.isExamClass && config.mockExamsEnabled) ? [{ value: "EXAMEN_BLANC", label: "Examens blancs" }] : []),
         ...(form.category === "Ancien sujet" ? [{ value: "Ancien sujet", label: "Ancien sujet (ancienne catégorie)" }] : []),
         ...(form.category === "AUTRE" ? [{ value: "AUTRE", label: "Autre" }] : []),
       ];
@@ -203,9 +206,9 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
         <label className="text-sm font-medium">Slug<input value={form.slug} onChange={(e) => field("slug", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /><button type="button" onClick={() => field("slug", slugify(form.title))} className="mt-1 text-xs font-semibold text-violet-600">Générer depuis le titre</button></label>
         <label className="text-sm font-medium">Année<input type="number" value={form.year} onChange={(e) => field("year", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" placeholder="2025" /></label>
         <label className="text-sm font-medium">Rubrique<select value={form.category} onChange={(e) => field("category", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Sélectionner une rubrique</option>{availableCategories.map((category) => <option key={category.value} value={category.value}>{category.label}</option>)}{form.category && !availableCategories.some((category) => category.value === form.category) && <option value={form.category}>{form.category}</option>}</select><span className="mt-1 block text-xs text-slate-500">{!form.academicLevelId ? "Sélectionne d’abord le niveau pour afficher les rubriques activées." : availableCategories.length ? "Rubriques activées pour ce niveau dans les paramètres." : "Aucune rubrique activée pour ce niveau. Vérifie les paramètres du catalogue."}</span></label>
-        <label className="text-sm font-medium">Public concerné<select value={form.targetType} onChange={(e) => { const target = e.target.value as Form["targetType"]; field("targetType", target); if (target === "ELEVE") field("programId", ""); else field("academicLevelId", ""); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="ELEVE">Élève — classe / série</option><option value="ETUDIANT">Étudiant — filière</option></select></label>
-        <label className="text-sm font-medium">Matière<select value={form.subjectId} onChange={(e) => field("subjectId", e.target.value)} disabled={form.targetType === "ELEVE" && !form.academicLevelId} className="mt-1 w-full rounded-xl border px-3 py-2 disabled:bg-slate-100"><option value="">{form.targetType === "ELEVE" && !form.academicLevelId ? "Choisis d’abord une classe / série" : "Non précisée"}</option>{visibleSubjects.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select><span className="mt-1 block text-xs text-slate-500">{form.targetType === "ELEVE" && selectedLevel ? visibleSubjects.length + " matières proposées pour " + formatAcademicLevelName(selectedLevel.name) : form.targetType === "ELEVE" ? "La liste dépend de la classe ou de la série choisie." : "Matières universitaires disponibles."}</span></label>
-        <label className="text-sm font-medium">{form.targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire"}<select value={form.academicLevelId} onChange={(e) => { const id = e.target.value; field("academicLevelId", id); field("subjectId", ""); const config = examConfigs.find((item) => item.academicLevelId === id); const level = levels.find((item) => item.id === id); const levelTwo = /\bniv(?:eau)?\s*2\b/i.test(level?.name || ""); const category = form.targetType === "ETUDIANT" ? (config?.exercisesEnabled !== false ? "EXERCICE" : config?.continuousAssessmentEnabled ? "CONTROLE_CONTINU" : config?.normalSessionEnabled ? "SESSION_NORMALE" : levelTwo && config?.btsDutExamEnabled ? "SIMULATION_BTS_DUT" : "") : (config?.exercisesEnabled !== false ? "EXERCICE" : config?.isExamClass && config?.pastExamsEnabled ? "ANCIEN_SUJET" : config?.isExamClass && config?.mockExamsEnabled ? "EXAMEN_BLANC" : ""); field("category", category); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Sélectionner un niveau</option>{(form.targetType === "ELEVE" ? schoolLevels : universityLevels).map(o=><option key={o.id} value={o.id}>{formatAcademicLevelName(o.name)}</option>)}</select></label>
+        <label className="text-sm font-medium">Public concerné<select value={form.targetType} onChange={(e) => { const target = e.target.value as Form["targetType"]; field("targetType", target); if (target === "ELEVE") { field("programId", ""); field("academicLevelIds", []); } else { field("academicLevelId", ""); field("academicLevelIds", []); } }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="ELEVE">Élève — classe / série</option><option value="ETUDIANT">Étudiant — filière</option></select></label>
+        <label className="text-sm font-medium">Matière<select value={form.subjectId} onChange={(e) => field("subjectId", e.target.value)} disabled={form.targetType === "ELEVE" && !form.academicLevelIds.length} className="mt-1 w-full rounded-xl border px-3 py-2 disabled:bg-slate-100"><option value="">{form.targetType === "ELEVE" && !form.academicLevelIds.length ? "Choisis d’abord une classe / série" : "Non précisée"}</option>{visibleSubjects.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select><span className="mt-1 block text-xs text-slate-500">{form.targetType === "ELEVE" && selectedLevels.length ? "Matières proposées pour les classes sélectionnées (choisis une matière commune)." : form.targetType === "ELEVE" ? "La liste dépend des classes ou séries choisies." : "Matières universitaires disponibles."}</span></label>
+        {form.targetType === "ELEVE" ? <div className="text-sm font-medium md:col-span-2"><div className="mb-2 flex items-center justify-between"><span>Classes / séries concernées</span><span className="text-xs font-normal text-slate-500">{form.academicLevelIds.length} sélectionnée(s)</span></div><div className="max-h-56 overflow-y-auto rounded-xl border p-3"><div className="grid gap-2 sm:grid-cols-2">{schoolLevels.map((level) => <label key={level.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-violet-50"><input type="checkbox" checked={form.academicLevelIds.includes(level.id)} onChange={(e) => { const ids = e.target.checked ? [...form.academicLevelIds, level.id] : form.academicLevelIds.filter((id) => id !== level.id); field("academicLevelIds", ids); field("academicLevelId", ids[0] || ""); field("subjectId", ""); }} className="h-4 w-4 accent-violet-600"/><span>{formatAcademicLevelName(level.name)}</span></label>)}</div></div><p className="mt-1 text-xs text-slate-500">Coche toutes les classes qui peuvent utiliser exactement cette même épreuve. Elle sera publiée une seule fois dans chaque classe sélectionnée.</p></div> : <label className="text-sm font-medium">Niveau universitaire<select value={form.academicLevelId} onChange={(e) => { field("academicLevelId", e.target.value); field("subjectId", ""); }} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Sélectionner un niveau</option>{universityLevels.map(o=><option key={o.id} value={o.id}>{formatAcademicLevelName(o.name)}</option>)}</select></label>}
         <label className="text-sm font-medium">Établissement<select value={form.schoolId} onChange={(e) => field("schoolId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisé</option>{schools.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <label className={"text-sm font-medium " + (form.targetType === "ETUDIANT" ? "" : "opacity-60")}>Filière<select value={form.programId} disabled={form.targetType !== "ETUDIANT"} onChange={(e) => field("programId", e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2"><option value="">Non précisée</option>{programs.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
         <div className="text-sm font-medium md:col-span-2"><span>Épreuve (PDF)</span><div className="mt-1 rounded-xl border border-dashed p-4"><input type="file" accept="application/pdf,.pdf" onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadPdf(file, "exam"); }} /><p className="mt-2 text-xs text-slate-500">Choisis directement le PDF depuis ton ordinateur. Maximum 50 MB.</p>{uploading === "exam" && <p className="mt-2 text-xs font-semibold text-violet-600">Upload en cours...</p>}{form.fileUrl && <a href={form.fileUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-violet-600">Voir le PDF actuellement associé →</a>}</div></div>
