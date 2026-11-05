@@ -145,7 +145,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
     });
     const data = await res.json();
     if (!res.ok) { setMessage(data.error || "Une erreur est survenue."); return; }
-    setMessage("Épreuve enregistrée."); await refresh(); setOpen(false);
+    setMessage("Épreuve enregistrée dans " + (data.count || 1) + " classe(s)."); await refresh(); setOpen(false);
   }
 
   async function remove(id: string) {
