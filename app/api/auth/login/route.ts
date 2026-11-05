@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     void prisma.analyticsEvent.create({ data: { type: "USER_LOGIN", userId: user.id } }).catch((error) => {
       console.error("login_analytics_error", error instanceof Error ? error.message : "unknown");
     });
-    return NextResponse.json({ ok: true, mustChangePassword: user.mustChangePassword });
+    return NextResponse.json({ ok: true, mustChangePassword: user.mustChangePassword, userType: user.type });
   } catch (error) {
     console.error("login_error", error instanceof Error ? error.message : "unknown");
     return NextResponse.json({ error: "Une erreur est survenue. Réessaie." }, { status: 500 });
