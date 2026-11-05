@@ -8,6 +8,16 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const kind = params.get("kind");
   const programId = params.get("programId");
+
+  // Garantit que Tle TI apparaît à l'inscription même si le seed initial
+  // n'a pas encore été exécuté sur la base de production.
+  if (kind === "SCOLAIRE") {
+    await prisma.academicLevel.upsert({
+      where: { name: "Tle TI" },
+      update: { kind: "SCOLAIRE" },
+      create: { name: "Tle TI", kind: "SCOLAIRE" },
+    });
+  }
   const rawLevels = await prisma.academicLevel.findMany({
     where: {
       ...(kind === "SCOLAIRE" || kind === "UNIVERSITAIRE" ? { kind } : {}),
