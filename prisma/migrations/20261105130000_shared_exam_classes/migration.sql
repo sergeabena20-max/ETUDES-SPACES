@@ -55,10 +55,19 @@ WITH ranked AS (
   FROM "Exam"
   WHERE "fileUrl" IS NOT NULL AND "category" <> 'A_CLASSER'
 ),
-dupes AS (SELECT "id", canonical_id FROM ranked WHERE rn > 1)
-UPDATE "ExamSolution" s SET "examId" = d.canonical_id
-FROM dupes d WHERE s."examId" = d."id"
-AND NOT EXISTS (SELECT 1 FROM "ExamSolution" x WHERE x."examId" = d.canonical_id);
+dupes AS (SELECT "id", canonical_id FROM ranked WHERE rn > 1),
+solution_candidates AS (
+  SELECT DISTINCT ON (d.canonical_id) s."id", d.canonical_id
+  FROM dupes d
+  JOIN "ExamSolution" s ON s."examId" = d."id"
+  ORDER BY d.canonical_id, s."createdAt" ASC, s."id" ASC
+)
+UPDATE "ExamSolution" s SET "examId" = candidate.canonical_id
+FROM solution_candidates candidate
+WHERE s."id" = candidate."id"
+AND NOT EXISTS (
+  SELECT 1 FROM "ExamSolution" existing WHERE existing."examId" = candidate.canonical_id
+);
 
 -- Favorites, analytics and comments are moved; purchases/payments are intentionally
 -- not auto-merged because they are financial records and need manual review.
