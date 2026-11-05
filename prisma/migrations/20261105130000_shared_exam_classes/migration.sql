@@ -78,9 +78,16 @@ WITH ranked AS (
   WHERE "fileUrl" IS NOT NULL AND "category" <> 'A_CLASSER'
 ),
 dupes AS (SELECT "id", canonical_id FROM ranked WHERE rn > 1)
-UPDATE "Favorite" f SET "examId" = d.canonical_id
-FROM dupes d WHERE f."examId" = d."id"
-AND NOT EXISTS (SELECT 1 FROM "Favorite" x WHERE x."userId" = f."userId" AND x."examId" = d.canonical_id AND x."courseId" IS NULL);
+INSERT INTO "Favorite" ("id", "userId", "examId", "createdAt")
+SELECT gen_random_uuid()::text, f."userId", d.canonical_id, MIN(f."createdAt")
+FROM dupes d
+JOIN "Favorite" f ON f."examId" = d."id" AND f."courseId" IS NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM "Favorite" existing
+  WHERE existing."userId" = f."userId" AND existing."examId" = d.canonical_id AND existing."courseId" IS NULL
+)
+GROUP BY f."userId", d.canonical_id
+ON CONFLICT DO NOTHING;
 
 WITH ranked AS (
   SELECT "id",
