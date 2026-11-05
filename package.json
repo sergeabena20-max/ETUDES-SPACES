@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
