@@ -81,10 +81,10 @@ export default async function ExamsPage({ searchParams }: Props) {
       ...(programId ? { programId } : {}),
       AND: [
         ...(levelId ? [{ OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] }] : []),
-      ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
-      ...(year && Number.isInteger(year) ? { year } : {}),
-      ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}),
-      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? { category: activeCategory } : {}),
+      ...(universityLevelId ? [{ academicLevelId: universityLevelId }] : []),
+      ...(year && Number.isInteger(year) ? [{ year }] : []),
+      ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? [{ subjectId }] : []),
+      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? [{ category: activeCategory }] : []),
       ...(q ? [{ OR: [
         { title: { contains: q, mode: "insensitive" } },
         { category: { contains: q, mode: "insensitive" } },
