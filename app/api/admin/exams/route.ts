@@ -49,6 +49,7 @@ export async function GET() {
       include: {
         subject: { select: { name: true } },
         academicLevel: { select: { name: true } },
+        academicLevels: { select: { academicLevel: { select: { id: true, name: true } } } },
         school: { select: { name: true } },
         program: { select: { name: true } },
         solution: { select: { text: true, fileUrl: true } },
@@ -146,85 +147,65 @@ async function save(req: Request, editing: boolean) {
 
   try {
     const existingExam = editing
-      ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, academicLevelId: true } })
+      ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, academicLevelId: true, academicLevels: { select: { academicLevelId: true } } } })
       : null;
     if (editing && !existingExam) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 404 });
 
-    // En modification, on conserve la classe d'origine et on ajoute les autres classes cochées.
-    const targetLevels = editing
-      ? [
-          ...selectedLevels.filter((level) => level.id === existingExam!.academicLevelId),
-          ...selectedLevels.filter((level) => level.id !== existingExam!.academicLevelId),
-        ]
-      : selectedLevels;
-    const createdExams: { id: string }[] = [];
+    const examData = {
+      title: data.title,
+      slug: data.slug,
+      description: data.description || null,
+      year: data.year ?? null,
+      category: data.category || null,
+      fileUrl: data.fileUrl || null,
+      status: data.status,
+      isPremium: data.isPremium,
+      premiumPrice: data.isPremium ? (data.premiumPrice ?? null) : null,
+      subjectId: data.subjectId || null,
+      academicLevelId: data.targetType === "ETUDIANT" ? data.academicLevelId! : selectedLevelIds[0],
+      schoolId: data.schoolId || null,
+      programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
+    };
     const hasSolution = Boolean(data.solutionText || data.solutionFileUrl);
+    const saved = await prisma.$transaction(async (tx) => {
+      const exam = editing
+        ? await tx.exam.update({ where: { id: data.id! }, data: examData, select: { id: true } })
+        : await tx.exam.create({ data: examData, select: { id: true } });
 
-    for (let index = 0; index < targetLevels.length; index++) {
-      const level = targetLevels[index];
-      const isOriginal = editing && level.id === existingExam!.academicLevelId;
-      const slug = isOriginal ? data.slug : (data.slug.slice(0, 195) + "-" + level.id.slice(0, 8));
-      const examData = {
-        title: data.title,
-        slug,
-        description: data.description || null,
-        year: data.year ?? null,
-        category: data.category || null,
-        fileUrl: data.fileUrl || null,
-        status: data.status,
-        isPremium: data.isPremium,
-        premiumPrice: data.isPremium ? (data.premiumPrice ?? null) : null,
-        subjectId: data.subjectId || null,
-        academicLevelId: level.id,
-        schoolId: data.schoolId || null,
-        programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
-      };
-
-      // Évite de créer une deuxième copie si cette même épreuve existe déjà dans la classe.
-      const matchingExam = !isOriginal && editing
-        ? await prisma.exam.findFirst({
-            where: {
-              title: data.title,
-              category: data.category || null,
-              year: data.year ?? null,
-              subjectId: data.subjectId || null,
-              academicLevelId: level.id,
-              fileUrl: data.fileUrl || null,
-            },
-            select: { id: true },
-          })
-        : null;
-
-      const exam = isOriginal
-        ? await prisma.exam.update({ where: { id: data.id! }, data: examData, select: { id: true } })
-        : matchingExam
-          ? await prisma.exam.update({ where: { id: matchingExam.id }, data: examData, select: { id: true } })
-          : await prisma.exam.create({ data: examData, select: { id: true } });
-      createdExams.push(exam);
+      if (data.targetType === "ELEVE") {
+        await tx.examAcademicLevel.deleteMany({ where: { examId: exam.id } });
+        await tx.examAcademicLevel.createMany({
+          data: selectedLevelIds.map((academicLevelId) => ({ examId: exam.id, academicLevelId })),
+          skipDuplicates: true,
+        });
+      } else {
+        // University exams keep their existing single-level model and have no school-class links.
+        await tx.examAcademicLevel.deleteMany({ where: { examId: exam.id } });
+      }
 
       if (hasSolution) {
-        await prisma.examSolution.upsert({
+        await tx.examSolution.upsert({
           where: { examId: exam.id },
           create: { examId: exam.id, text: data.solutionText || null, fileUrl: data.solutionFileUrl || null },
           update: { text: data.solutionText || null, fileUrl: data.solutionFileUrl || null },
         });
       } else if (editing) {
-        await prisma.examSolution.deleteMany({ where: { examId: exam.id } });
+        await tx.examSolution.deleteMany({ where: { examId: exam.id } });
       }
-    }
-    const exam = createdExams[0];
+      return exam;
+    });
 
     await prisma.auditLog.create({
       data: {
         actorId: admin.id,
         action: editing ? "EXAM_UPDATED" : "EXAM_CREATED",
         entity: "EXAM",
-        entityId: exam.id,
-        metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelId: data.academicLevelId ?? null, academicLevelIds: selectedLevelIds, programId: data.programId ?? null },
+        entityId: saved.id,
+        metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelIds: selectedLevelIds, programId: data.programId ?? null },
       },
     });
 
-    return NextResponse.json({ ok: true, id: exam.id, count: createdExams.length, ids: createdExams.map((item) => item.id) });
+    return NextResponse.json({ ok: true, id: saved.id, count: data.targetType === "ELEVE" ? selectedLevelIds.length : 1, ids: [saved.id] });
   } catch (error) {
     const code = error && typeof error === "object" && "code" in error ? error.code : "";
     if (code === "P2002") return NextResponse.json({ error: "Ce slug existe déjà." }, { status: 409 });
