@@ -9,7 +9,7 @@ export const revalidate = 0;
 
 export default async function AdminUsersPage() {
   const admin = await requireSuperAdmin();
-  if (!admin) redirect("/dashboard");
+  if (!admin) redirect("/login?reason=admin-session-required");
 
   const [dbUsers, roles, requests, usersCount, adminsCount] = await Promise.all([
     prisma.user.findMany({
