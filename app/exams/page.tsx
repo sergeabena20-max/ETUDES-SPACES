@@ -22,7 +22,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selected = levelId || programId || departmentId;
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } }, examLinks: { where: { exam: { status: "PUBLISHED" } } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, parentId: true, parent: { select: { id: true, name: true } }, programLevels: { orderBy: { order: "asc" }, select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } } }, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
   const browseAll = params.browse === "1";
@@ -43,7 +43,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
   const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
   const subjects = (levelId || programId) ? await prisma.subject.findMany({
-    where: { exams: { some: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}) } } },
+    where: { exams: { some: { status: "PUBLISHED", ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}), ...(programId ? { programId } : {}) } } },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   }) : [];
@@ -95,7 +95,7 @@ export default async function ExamsPage({ searchParams }: Props) {
     take: 60,
     }),
     prisma.exam.findMany({
-    where: { status: "PUBLISHED", ...(levelId ? { academicLevelId: levelId } : {}), ...(programId ? { programId } : {}), ...(universityLevelId ? { academicLevelId: universityLevelId } : {}), ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}), year: { not: null } },
+    where: { status: "PUBLISHED", ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}), ...(programId ? { programId } : {}), ...(universityLevelId ? { academicLevelId: universityLevelId } : {}), ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}), year: { not: null } },
       select: { year: true }, distinct: ["year"], orderBy: { year: "desc" }, take: 30,
     }),
   ]) : [[], []];
@@ -115,7 +115,7 @@ export default async function ExamsPage({ searchParams }: Props) {
       {!selected ? <div className="mt-10 space-y-10">
         <section>
           <div className="mb-4"><span className="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-700">👨🏾‍🎓 Élèves</span><h2 className="mt-3 text-2xl font-black">Une rubrique par niveau / série</h2><p className="mt-1 text-sm text-slate-500">6e, 5e, 4e, 3e, 2nde A/C/D, 1ère A/C/D, Tle A/C/D… chacun possède son espace.</p></div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{levels.map((level) => <Link key={level.id} href={"/exams?level=" + level.id} className="card group p-4"><div className="flex items-center justify-between"><span className="text-xl">📚</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">{level._count.exams} sujet{level._count.exams > 1 ? "s" : ""}</span></div><h3 className="mt-3 text-base font-black group-hover:text-violet-600">{formatAcademicLevelName(level.name)}</h3><p className="mt-1 text-sm text-slate-500">Accéder à {formatAcademicLevelName(level.name)} →</p></Link>)}</div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{levels.map((level) => <Link key={level.id} href={"/exams?level=" + level.id} className="card group p-4"><div className="flex items-center justify-between"><span className="text-xl">📚</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">{level._count.exams + level._count.examLinks} sujet{level._count.exams + level._count.examLinks > 1 ? "s" : ""}</span></div><h3 className="mt-3 text-base font-black group-hover:text-violet-600">{formatAcademicLevelName(level.name)}</h3><p className="mt-1 text-sm text-slate-500">Accéder à {formatAcademicLevelName(level.name)} →</p></Link>)}</div>
         </section>
         <section>
           <div className="mb-4"><span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">🎓 Étudiants</span><h2 className="mt-2 text-xl font-black">Départements universitaires</h2><p className="mt-1 text-sm text-slate-500">Choisis d'abord un département, puis sa filière et son niveau.</p></div>
