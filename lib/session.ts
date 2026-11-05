@@ -13,7 +13,16 @@ function hashToken(token: string) {
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + DAYS * 86400000);
-  await prisma.session.create({ data: { userId, tokenHash: hashToken(token), expiresAt } });
+  await prisma.$transaction(async (tx) => {
+    // Expired sessions do not block a fresh login.
+    await tx.session.deleteMany({
+      where: { userId, expiresAt: { lte: new Date() } },
+    });
+    // The unique Session.userId index rejects any second active login.
+    await tx.session.create({
+      data: { userId, tokenHash: hashToken(token), expiresAt },
+    });
+  }, { isolationLevel: "Serializable" });
 
   const store = await cookies();
   store.set(COOKIE, token, {
