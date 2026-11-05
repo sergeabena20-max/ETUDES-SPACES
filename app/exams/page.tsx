@@ -78,7 +78,7 @@ export default async function ExamsPage({ searchParams }: Props) {
     prisma.exam.findMany({
     where: {
       status: "PUBLISHED",
-      ...(levelId ? { academicLevelId: levelId } : {}),
+      ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}),
       ...(programId ? { programId } : {}),
       ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
