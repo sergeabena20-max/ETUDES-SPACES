@@ -56,7 +56,7 @@ export default async function Dashboard() {
   const [recommendedExams, recommendedCourses] = learnerContentFilter
     ? await Promise.all([
         prisma.exam.findMany({
-          where: examContentFilter,
+          where: examContentFilter ?? undefined,
           select: { id: true, title: true, slug: true, year: true, category: true, isPremium: true, subject: { select: { name: true } } },
           orderBy: [{ year: "desc" }, { createdAt: "desc" }],
           take: 4,
