@@ -163,14 +163,14 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const availableCategories = !selectedLevel ? [] : form.targetType === "ETUDIANT"
     ? [
         ...(selectedConfig?.exercisesEnabled !== false ? [{ value: "EXERCICE", label: "Exercices" }] : []),
-        { value: "TD", label: "Travaux dirigés (TD)" },
-        { value: "TP", label: "Travaux pratiques (TP)" },
         ...(selectedConfig?.continuousAssessmentEnabled !== false ? [{ value: "CONTROLE_CONTINU", label: "Contrôle continu (CC)" }] : []),
         ...(selectedConfig?.normalSessionEnabled !== false ? [{ value: "SESSION_NORMALE", label: "Session normale" }] : []),
         ...(isLevelTwo && selectedConfig?.btsDutExamEnabled ? [{ value: "SIMULATION_BTS_DUT", label: "Simulation d’examen BTS / DUT" }] : []),
       ]
     : [
         ...(selectedConfig?.exercisesEnabled !== false ? [{ value: "EXERCICE", label: "Exercices" }] : []),
+        { value: "TD", label: "Travaux dirigés (TD)" },
+        { value: "TP", label: "Travaux pratiques (TP)" },
         { value: "SEQUENCE_1", label: "Épreuve séquentielle — Séquence 1" },
         { value: "SEQUENCE_2", label: "Épreuve séquentielle — Séquence 2" },
         { value: "SEQUENCE_3", label: "Épreuve séquentielle — Séquence 3" },
