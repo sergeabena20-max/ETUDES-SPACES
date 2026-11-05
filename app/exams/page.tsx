@@ -22,7 +22,7 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selected = levelId || programId || departmentId;
   const [user, allLevels, programs] = await Promise.all([
     getCurrentUser(),
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } }, examLinks: { where: { exam: { status: "PUBLISHED" } } } } } } }),
+    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { examLinks: { where: { exam: { status: "PUBLISHED" } } } } } } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, parentId: true, parent: { select: { id: true, name: true } }, programLevels: { orderBy: { order: "asc" }, select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } } }, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
   ]);
   const browseAll = params.browse === "1";
