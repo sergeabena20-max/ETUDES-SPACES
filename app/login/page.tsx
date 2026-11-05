@@ -8,9 +8,16 @@ export default function LoginPage() {
   const router = useRouter();
   const [error,setError]=useState("");
   const [success,setSuccess]=useState("");
+  const [adminNotice,setAdminNotice]=useState("");
+  const [adminLoginRequired,setAdminLoginRequired]=useState(false);
   const [loading,setLoading]=useState(false);
   useEffect(() => {
-    if (window.location.search.includes("logged_out=1")) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reason") === "admin-session-required") {
+      setAdminLoginRequired(true);
+      setAdminNotice("La session administrateur n’est plus active dans cet onglet. Connecte-toi à nouveau avec le compte super administrateur pour accéder à cette page.");
+    }
+    if (params.get("logged_out") === "1") {
       setSuccess("Tu as été déconnecté avec succès.");
       window.history.replaceState({}, "", "/login");
     }
@@ -24,7 +31,8 @@ export default function LoginPage() {
       const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
       const j=await r.json();
       if(!r.ok){setError(j.error||"Connexion impossible.");return;}
-      router.push(j.mustChangePassword ? "/change-password" : "/dashboard");
+      const isAdmin = j.userType === "ADMIN" || j.userType === "SUPER_ADMIN";
+      router.push(j.mustChangePassword ? "/change-password" : adminLoginRequired && isAdmin ? "/admin" : "/dashboard");
     } catch {
       setError("Impossible de contacter le serveur. Vérifie ta connexion.");
     } finally {
@@ -42,6 +50,7 @@ export default function LoginPage() {
         <input name="email" type="email" required placeholder="Adresse e-mail" className="w-full rounded-lg border border-slate-200 bg-white p-3.5 text-sm"/>
         <PasswordInput name="password" required autoComplete="current-password" placeholder="Mot de passe" className="rounded-xl border p-3"/>
         <div className="-mt-2 text-right"><Link href="/forgot-password" className="text-sm font-semibold text-[#4c1d95] hover:underline">Mot de passe oublié ?</Link></div>
+        {adminNotice&&<p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm leading-6 text-amber-900">{adminNotice}</p>}
         {success&&<p className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button disabled={loading} className="w-full rounded-lg bg-[#4c1d95] p-3.5 font-bold text-white hover:bg-[#5b21b6] disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
