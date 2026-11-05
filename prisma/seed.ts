@@ -31,6 +31,13 @@ async function main() {
     await prisma.academicLevel.upsert({ where: { name }, update: { kind }, create: { name, kind } });
   }
 
+  const terminaleTi = await prisma.academicLevel.findUniqueOrThrow({ where: { name: "Tle TI" } });
+  await prisma.classExamConfig.upsert({
+    where: { academicLevelId: terminaleTi.id },
+    update: {},
+    create: { academicLevelId: terminaleTi.id, exercisesEnabled: true, isExamClass: true, pastExamsEnabled: true, mockExamsEnabled: true },
+  });
+
   // Matières du sous-système francophone de l'enseignement secondaire général.
   // La liste est volontairement additive : les matières déjà utilisées par les étudiants sont conservées.
   const subjectNames = [
