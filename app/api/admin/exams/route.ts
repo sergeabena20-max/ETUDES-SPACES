@@ -126,7 +126,7 @@ async function save(req: Request, editing: boolean) {
   const category = data.category || "";
   for (const level of selectedLevels) {
     const levelConfig = await prisma.classExamConfig.findUnique({ where: { academicLevelId: level.id } });
-    const isLevelTwo = /^niv(?:eau)?\\s*2$/i.test(level.name);
+    const isLevelTwo = /^niv(?:eau)?\s*2$/i.test(level.name);
     if (data.targetType === "ETUDIANT") {
       const known = ["EXERCICE", "CONTROLE_CONTINU", "SESSION_NORMALE", "SIMULATION_BTS_DUT"];
       if (!known.includes(category)) return NextResponse.json({ error: "Sélectionne une rubrique universitaire valide." }, { status: 400 });
@@ -188,7 +188,7 @@ async function save(req: Request, editing: boolean) {
         action: editing ? "EXAM_UPDATED" : "EXAM_CREATED",
         entity: "EXAM",
         entityId: exam.id,
-        metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelId: data.academicLevelId ?? null, programId: data.programId ?? null },
+        metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelId: data.academicLevelId ?? null, academicLevelIds: selectedLevelIds, programId: data.programId ?? null },
       },
     });
 
