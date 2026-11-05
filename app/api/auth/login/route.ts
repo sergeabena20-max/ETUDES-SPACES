@@ -12,7 +12,20 @@ export async function POST(request: Request) {
     if (!user || !user.isActive || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
       return NextResponse.json({ error: "Adresse e-mail ou mot de passe incorrect." }, { status: 401 });
     }
-    await createSession(user.id);
+    try {
+      await createSession(user.id);
+    } catch (sessionError) {
+      const code = sessionError && typeof sessionError === "object" && "code" in sessionError
+        ? String(sessionError.code)
+        : "";
+      if (code === "P2002" || code === "P2034") {
+        return NextResponse.json({
+          error: "Ce compte est déjà connecté sur un autre appareil ou navigateur. Déconnecte-toi d'abord de cette session avant de te reconnecter ici.",
+          code: "SESSION_ALREADY_ACTIVE",
+        }, { status: 409 });
+      }
+      throw sessionError;
+    }
     void prisma.analyticsEvent.create({ data: { type: "USER_LOGIN", userId: user.id } }).catch((error) => {
       console.error("login_analytics_error", error instanceof Error ? error.message : "unknown");
     });
