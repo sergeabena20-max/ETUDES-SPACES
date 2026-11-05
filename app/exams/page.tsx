@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/lib/session";
 import { getExamAccessMap } from "@/lib/premium";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
@@ -80,16 +81,18 @@ export default async function ExamsPage({ searchParams }: Props) {
       status: "PUBLISHED",
       ...(programId ? { programId } : {}),
       AND: [
-        ...(levelId ? [{ OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] }] : []),
-      ...(universityLevelId ? [{ academicLevelId: universityLevelId }] : []),
-      ...(year && Number.isInteger(year) ? [{ year }] : []),
-      ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? [{ subjectId }] : []),
-      ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? [{ category: activeCategory }] : []),
-      ...(q ? [{ OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { category: { contains: q, mode: "insensitive" } },
-        { subject: { name: { contains: q, mode: "insensitive" } } },
-      ] }] : []),
+        ...(levelId ? [{ OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } satisfies Prisma.ExamWhereInput] : []),
+        ...(universityLevelId ? [{ academicLevelId: universityLevelId } satisfies Prisma.ExamWhereInput] : []),
+        ...(year && Number.isInteger(year) ? [{ year } satisfies Prisma.ExamWhereInput] : []),
+        ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? [{ subjectId } satisfies Prisma.ExamWhereInput] : []),
+        ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? [{ category: activeCategory } satisfies Prisma.ExamWhereInput] : []),
+        ...(q ? [{
+          OR: [
+            { title: { contains: q, mode: "insensitive" } },
+            { category: { contains: q, mode: "insensitive" } },
+            { subject: { name: { contains: q, mode: "insensitive" } } },
+          ],
+        } satisfies Prisma.ExamWhereInput] : []),
       ],
     },
     include: { subject: true, academicLevel: true, program: true, solution: true },
