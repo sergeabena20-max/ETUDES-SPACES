@@ -158,6 +158,7 @@ model AcademicLevel {
   users         User[]
   courses       Course[]
   exams         Exam[]
+  examLinks     ExamAcademicLevel[]
   quizzes       Quiz[]
   programLevels ProgramLevel[]
   examConfig    ClassExamConfig?
@@ -301,6 +302,16 @@ model Exam {
   @@index([status, year])
   @@index([subjectId, academicLevelId])
   @@index([isPremium, premiumPrice])
+}
+
+model ExamAcademicLevel {
+  examId         String
+  academicLevelId String
+  exam           Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  academicLevel  AcademicLevel @relation(fields: [academicLevelId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  @@id([examId, academicLevelId])
+  @@index([academicLevelId])
 }
 
 model ExamSolution {
