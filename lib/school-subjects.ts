@@ -5,7 +5,8 @@ export const schoolSubjectNames = [
   "Sciences de la Vie et de la Terre, Éducation à l’Environnement, Hygiène et Biotechnologie (SVTEEHB)",
   "Philosophie", "Littérature", "Langue vivante II", "Allemand", "Espagnol", "Arabe",
   "Latin", "Grec", "Langue vivante III", "Arts cinématographiques", "Physique", "Chimie",
-  "Biologie", "Sciences de la Vie et de la Terre (SVT)", "Technologie de l’Information (TI)",
+  "Biologie", "Sciences de la Vie et de la Terre (SVT)", "Technologie", "Technologie de l’Information (TI)",
+  "Systèmes d’information", "Algorithmique et programmation", "Maintenance et multimédia", "Informatique pratique",
   "Éducation à la citoyenneté et à la morale", "Bilingue Français-Anglais", "Bilingue English-French",
 ] as const;
 
@@ -20,8 +21,13 @@ export function getSchoolSubjectNames(levelName: string): string[] {
   const series = n.match(/(?:seconde|2nde|premiere|1ere|terminale|tle)\s*([a-z]+)/)?.[1] ?? "";
   if (series === "c") return [...core, "Philosophie", "Littérature", "Physique", "Chimie", "Sciences de la Vie et de la Terre (SVT)", "Technologie de l’Information (TI)"];
   if (series === "d") return [...core, "Philosophie", "Littérature", "Physique", "Chimie", "Biologie", "Sciences de la Vie et de la Terre (SVT)", "Technologie de l’Information (TI)"];
+  if (series === "ti") return [
+    ...core, "Philosophie", "Littérature", "Physique", "Chimie",
+    "Sciences de la Vie et de la Terre, Éducation à l’Environnement, Hygiène et Biotechnologie (SVTEEHB)",
+    "Technologie", "Technologie de l’Information (TI)", "Systèmes d’information",
+    "Algorithmique et programmation", "Maintenance et multimédia", "Informatique pratique",
+  ];
   if (series.startsWith("a")) return [...core, "Philosophie", "Littérature", ...languages, "Éducation à la citoyenneté et à la morale"];
-  if (series === "ti") return [...core, "Philosophie", "Physique", "Chimie", "Technologie de l’Information (TI)"];
   if (series === "bil") return [...core, "Bilingue Français-Anglais", "Bilingue English-French", ...science];
   return [...core, "Philosophie", "Littérature", ...languages, ...science, "Physique", "Chimie", "Biologie", "Sciences de la Vie et de la Terre (SVT)", "Technologie de l’Information (TI)"];
 }
