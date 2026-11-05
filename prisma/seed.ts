@@ -76,6 +76,11 @@ async function main() {
     "Biologie",
     "Sciences de la Vie et de la Terre (SVT)",
     "Technologie de l’Information (TI)",
+    "Technologie",
+    "Systèmes d’information",
+    "Algorithmique et programmation",
+    "Maintenance et multimédia",
+    "Informatique pratique",
     "Éducation à la citoyenneté et à la morale",
 
     // Matières de spécialité selon les séries et options
