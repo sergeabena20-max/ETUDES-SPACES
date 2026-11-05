@@ -34,6 +34,12 @@ export async function GET() {
     ...["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D", "Tle TI"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "SCOLAIRE" }, create: { name, kind: "SCOLAIRE" } })),
     ...["Licence 1", "Licence 2", "Licence 3"].map((name) => prisma.academicLevel.upsert({ where: { name }, update: { kind: "UNIVERSITAIRE" }, create: { name, kind: "UNIVERSITAIRE" } })),
   ]);
+  const terminaleTi = await prisma.academicLevel.findUnique({ where: { name: "Tle TI" }, select: { id: true } });
+  if (terminaleTi) await prisma.classExamConfig.upsert({
+    where: { academicLevelId: terminaleTi.id },
+    update: {},
+    create: { academicLevelId: terminaleTi.id, exercisesEnabled: true, isExamClass: true, pastExamsEnabled: true, mockExamsEnabled: true },
+  });
   const [exams, subjects, levels, schools, programs] = await Promise.all([
     prisma.exam.findMany({
       where: { OR: [{ category: { not: "A_CLASSER" } }, { category: null }] },
