@@ -78,17 +78,19 @@ export default async function ExamsPage({ searchParams }: Props) {
     prisma.exam.findMany({
     where: {
       status: "PUBLISHED",
-      ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}),
       ...(programId ? { programId } : {}),
+      AND: [
+        ...(levelId ? [{ OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] }] : []),
       ...(universityLevelId ? { academicLevelId: universityLevelId } : {}),
       ...(year && Number.isInteger(year) ? { year } : {}),
       ...(subjectId && subjects.some((subject) => subject.id === subjectId) ? { subjectId } : {}),
       ...(selectedLevel && activeCategory && activeCategory !== "ALL" ? { category: activeCategory } : {}),
-      ...(q ? { OR: [
+      ...(q ? [{ OR: [
         { title: { contains: q, mode: "insensitive" } },
         { category: { contains: q, mode: "insensitive" } },
         { subject: { name: { contains: q, mode: "insensitive" } } },
-      ] } : {}),
+      ] }] : []),
+      ],
     },
     include: { subject: true, academicLevel: true, program: true, solution: true },
     orderBy: [{ year: "desc" }, { createdAt: "desc" }],
