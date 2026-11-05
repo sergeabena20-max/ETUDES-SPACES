@@ -15,6 +15,13 @@ const schema = z.object({
 export async function GET() {
   const admin = await requireSuperAdmin();
   if (!admin) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
+  const terminaleTiSubjects = [
+    "Technologie", "Systèmes d’information", "Algorithmique et programmation",
+    "Maintenance et multimédia", "Informatique pratique", "Technologie de l’Information (TI)",
+  ];
+  await Promise.all(terminaleTiSubjects.map((name) =>
+    prisma.subject.upsert({ where: { name }, update: {}, create: { name } })
+  ));
   const [cities, schools, levels, programs, subjects] = await Promise.all([
     prisma.city.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { schools: true } } } }),
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, type: true, cityId: true, city: { select: { name: true } }, _count: { select: { users: true, courses: true, exams: true } } } }),
