@@ -18,6 +18,12 @@ const bodySchema = z.object({ configs: z.array(configSchema).max(300) });
 export async function GET() {
   const admin = await requireSuperAdmin();
   if (!admin) return NextResponse.json({ error: "Accès réservé au Super Administrateur." }, { status: 403 });
+  const terminaleTi = await prisma.academicLevel.findUnique({ where: { name: "Tle TI" }, select: { id: true } });
+  if (terminaleTi) await prisma.classExamConfig.upsert({
+    where: { academicLevelId: terminaleTi.id },
+    update: {},
+    create: { academicLevelId: terminaleTi.id, exercisesEnabled: true, isExamClass: true, pastExamsEnabled: true, mockExamsEnabled: true },
+  });
   const levels = await prisma.academicLevel.findMany({
     where: { kind: { in: ["SCOLAIRE", "UNIVERSITAIRE"] } },
     orderBy: { name: "asc" },
