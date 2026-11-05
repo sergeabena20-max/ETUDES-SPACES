@@ -50,10 +50,13 @@ export default async function Dashboard() {
         ],
       }
     : null;
+  const examContentFilter = user.academicLevel?.id
+    ? { status: "PUBLISHED" as const, OR: [{ academicLevelId: user.academicLevel.id }, { academicLevels: { some: { academicLevelId: user.academicLevel.id } } }] }
+    : learnerContentFilter;
   const [recommendedExams, recommendedCourses] = learnerContentFilter
     ? await Promise.all([
         prisma.exam.findMany({
-          where: learnerContentFilter,
+          where: examContentFilter,
           select: { id: true, title: true, slug: true, year: true, category: true, isPremium: true, subject: { select: { name: true } } },
           orderBy: [{ year: "desc" }, { createdAt: "desc" }],
           take: 4,
