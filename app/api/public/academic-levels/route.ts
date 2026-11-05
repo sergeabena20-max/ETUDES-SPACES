@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     if (!current || (candidateCanonical && !currentCanonical)) byLabel.set(key, level);
   }
 
-  const classOrder = ["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D"];
+  const classOrder = ["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D", "Tle TI"];
   const levels = Array.from(byLabel.values())
     .map((level) => ({ ...level, label: formatAcademicLevelName(level.name) }))
     .sort((a, b) => {
