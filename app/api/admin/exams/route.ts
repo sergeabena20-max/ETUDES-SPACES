@@ -145,11 +145,25 @@ async function save(req: Request, editing: boolean) {
   if (editing && !data.id) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 400 });
 
   try {
-    const targetLevels = editing ? selectedLevels.slice(0, 1) : selectedLevels;
-    const createdExams = [];
+    const existingExam = editing
+      ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, academicLevelId: true } })
+      : null;
+    if (editing && !existingExam) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 404 });
+
+    // En modification, on conserve la classe d'origine et on ajoute les autres classes cochées.
+    const targetLevels = editing
+      ? [
+          ...selectedLevels.filter((level) => level.id === existingExam!.academicLevelId),
+          ...selectedLevels.filter((level) => level.id !== existingExam!.academicLevelId),
+        ]
+      : selectedLevels;
+    const createdExams: { id: string }[] = [];
+    const hasSolution = Boolean(data.solutionText || data.solutionFileUrl);
+
     for (let index = 0; index < targetLevels.length; index++) {
       const level = targetLevels[index];
-      const slug = index === 0 ? data.slug : (data.slug.slice(0, 195) + "-" + level.id.slice(0, 8));
+      const isOriginal = editing && level.id === existingExam!.academicLevelId;
+      const slug = isOriginal ? data.slug : (data.slug.slice(0, 195) + "-" + level.id.slice(0, 8));
       const examData = {
         title: data.title,
         slug,
@@ -165,11 +179,29 @@ async function save(req: Request, editing: boolean) {
         schoolId: data.schoolId || null,
         programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
       };
-      const exam = editing
+
+      // Évite de créer une deuxième copie si cette même épreuve existe déjà dans la classe.
+      const matchingExam = !isOriginal && editing
+        ? await prisma.exam.findFirst({
+            where: {
+              title: data.title,
+              category: data.category || null,
+              year: data.year ?? null,
+              subjectId: data.subjectId || null,
+              academicLevelId: level.id,
+              fileUrl: data.fileUrl || null,
+            },
+            select: { id: true },
+          })
+        : null;
+
+      const exam = isOriginal
         ? await prisma.exam.update({ where: { id: data.id! }, data: examData, select: { id: true } })
-        : await prisma.exam.create({ data: examData, select: { id: true } });
+        : matchingExam
+          ? await prisma.exam.update({ where: { id: matchingExam.id }, data: examData, select: { id: true } })
+          : await prisma.exam.create({ data: examData, select: { id: true } });
       createdExams.push(exam);
-      const hasSolution = Boolean(data.solutionText || data.solutionFileUrl);
+
       if (hasSolution) {
         await prisma.examSolution.upsert({
           where: { examId: exam.id },
