@@ -59,6 +59,8 @@ export default async function ExamsPage({ searchParams }: Props) {
         ].filter((item) => item.enabled)
       : [
           { id: "EXERCICE", label: "Exercices", enabled: classExamConfig?.exercisesEnabled ?? true },
+          { id: "TD", label: "Travaux dirigés (TD)", enabled: true },
+          { id: "TP", label: "Travaux pratiques (TP)", enabled: true },
           { id: "SEQUENCE_1", label: "Séquence 1 · Épreuves séquentielles", enabled: true },
           { id: "SEQUENCE_2", label: "Séquence 2 · Épreuves séquentielles", enabled: true },
           { id: "SEQUENCE_3", label: "Séquence 3 · Épreuves séquentielles", enabled: true },
