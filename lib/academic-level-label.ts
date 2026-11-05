@@ -5,7 +5,7 @@ export function formatAcademicLevelName(name: string | null | undefined): string
   const compact = value.toUpperCase().replace(/[ ._-]+/g, "");
   const aliases: Record<string, string> = {
     PA: "1ère A", PC: "1ère C", PD: "1ère D",
-    TA: "Tle A", TC: "Tle C", TD: "Tle D",
+    TA: "Tle A", TC: "Tle C", TD: "Tle D", TTI: "Tle TI", TERMINALETI: "Tle TI",
     "2NDEA": "2nde A", "2NDEC": "2nde C", "2NDED": "2nde D",
     "1EREA": "1ère A", "1EREC": "1ère C", "1ERED": "1ère D",
     "1ÈREA": "1ère A", "1ÈREC": "1ère C", "1ÈRED": "1ère D",
