@@ -14,9 +14,17 @@ export async function createSession(userId: string) {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + DAYS * 86400000);
   await prisma.$transaction(async (tx) => {
-    // Expired sessions do not block a fresh login.
+    // Expired or inactive sessions do not block a fresh login.
+    const now = new Date();
+    const inactiveBefore = new Date(now.getTime() - 2 * 60 * 1000);
     await tx.session.deleteMany({
-      where: { userId, expiresAt: { lte: new Date() } },
+      where: {
+        userId,
+        OR: [
+          { expiresAt: { lte: now } },
+          { lastSeenAt: { lte: inactiveBefore } },
+        ],
+      },
     });
     // The unique Session.userId index rejects any second active login.
     await tx.session.create({
@@ -46,6 +54,7 @@ export const getCurrentUser = cache(async function getCurrentUser() {
         select: {
         userId: true,
         expiresAt: true,
+        lastSeenAt: true,
         user: {
           select: {
             id: true,
@@ -74,7 +83,8 @@ export const getCurrentUser = cache(async function getCurrentUser() {
 
     if (!session) return null;
 
-    if (session.expiresAt < new Date() || !session.user.isActive) {
+    const inactiveBefore = new Date(Date.now() - 2 * 60 * 1000);
+    if (session.expiresAt < new Date() || session.lastSeenAt <= inactiveBefore || !session.user.isActive) {
       await prisma.session.deleteMany({
         where: { userId: session.userId, tokenHash: hashToken(token) },
       });
@@ -98,4 +108,29 @@ export async function destroySession() {
   }
 
   store.delete(COOKIE);
+}
+
+/** Refreshes an active browser session. Sessions without a heartbeat for 2 minutes expire. */
+export async function refreshSession() {
+  const store = await cookies();
+  const token = store.get(COOKIE)?.value;
+  if (!token) return false;
+
+  const now = new Date();
+  const inactiveBefore = new Date(now.getTime() - 2 * 60 * 1000);
+  const refreshed = await prisma.session.updateMany({
+    where: {
+      tokenHash: hashToken(token),
+      expiresAt: { gt: now },
+      lastSeenAt: { gt: inactiveBefore },
+    },
+    data: { lastSeenAt: now },
+  });
+
+  if (refreshed.count !== 1) {
+    await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } });
+    store.delete(COOKIE);
+    return false;
+  }
+  return true;
 }
