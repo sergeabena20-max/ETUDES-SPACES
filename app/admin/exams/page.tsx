@@ -17,6 +17,7 @@ export default async function AdminExamsPage() {
       include: {
         subject: { select: { name: true } },
         academicLevel: { select: { name: true } },
+        academicLevels: { select: { academicLevel: { select: { id: true, name: true } } } },
         school: { select: { name: true } },
         program: { select: { name: true } },
         solution: { select: { text: true, fileUrl: true } },
