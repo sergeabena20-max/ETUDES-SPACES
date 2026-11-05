@@ -46,6 +46,7 @@ model User {
   school          School?         @relation(fields: [schoolId], references: [id])
   academicLevelId String?
   academicLevel   AcademicLevel?  @relation(fields: [academicLevelId], references: [id])
+  academicLevels  ExamAcademicLevel[]
   programId       String?
   program         Program?        @relation(fields: [programId], references: [id])
   isActive        Boolean         @default(true)
