@@ -23,7 +23,7 @@ async function main() {
     "6e", "5e", "4e", "3e",
     "2nde A", "2nde C", "2nde D",
     "1ère A", "1ère C", "1ère D",
-    "Tle A", "Tle C", "Tle D",
+    "Tle A", "Tle C", "Tle D", "Tle TI",
     "Licence 1", "Licence 2", "Licence 3",
   ];
   for (const name of levelNames) {
