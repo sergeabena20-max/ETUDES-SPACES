@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminRolesPage() {
   const admin = await requireSuperAdmin();
-  if (!admin) redirect("/dashboard");
+  if (!admin) redirect("/login?reason=admin-session-required");
   const [roles, permissions] = await Promise.all([
     prisma.role.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, permissions: { select: { permission: { select: { id: true, key: true, description: true } } } }, _count: { select: { users: true } } } }),
     prisma.permission.findMany({ orderBy: { key: "asc" }, select: { id: true, key: true, description: true } }),
