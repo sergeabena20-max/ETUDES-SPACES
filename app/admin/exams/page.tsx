@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import ExamsManager from "./exams-manager";
+import ExamsManager from "./exams-manager";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +29,7 @@ export default async function AdminExamsPage() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
-  // Prisma Decimal n'est pas un type sérialisable comme prop Client Component.
+  const canonicalLevels = uniqueAcademicLevels(levels);\n\n  // Prisma Decimal n'est pas un type sérialisable comme prop Client Component.
   // On convertit uniquement ce champ monétaire avant de le transmettre à ExamsManager.
   const serializableExams = exams.map((exam) => ({
     ...exam,
@@ -49,7 +49,7 @@ export default async function AdminExamsPage() {
           <div className="mt-4 flex flex-wrap gap-2"><Link href="/admin/exams/bulk-import" className="inline-flex rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">Importer plusieurs PDF avec les mêmes informations</Link><Link href="/admin/exams/inbox" className="inline-flex rounded-xl border border-violet-200 bg-white px-4 py-2 text-sm font-bold text-violet-700">Bibliothèque à classer</Link></div>
         </div>
         <div className="card animate-slide-up stagger-2 p-4 sm:p-6">
-          <ExamsManager initialExams={serializableExams} initialSubjects={subjects} initialLevels={levels} initialSchools={schools} initialPrograms={programs} />
+          <ExamsManager initialExams={serializableExams} initialSubjects={subjects} initialLevels={canonicalLevels} initialSchools={schools} initialPrograms={programs} />
         </div>
       </div>
     </main>
