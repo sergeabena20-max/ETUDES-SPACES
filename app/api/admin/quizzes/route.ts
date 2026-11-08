@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 const questionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -46,7 +47,7 @@ export async function GET() {
     prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
-  return NextResponse.json({ quizzes, subjects, levels, programs });
+  return NextResponse.json({ quizzes, subjects, levels: uniqueAcademicLevels(levels), programs });
 }
 
 export async function POST(req: Request) { return save(req, false); }
