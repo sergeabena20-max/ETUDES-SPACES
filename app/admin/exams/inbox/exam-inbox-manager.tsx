@@ -238,8 +238,8 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   async function classify() {
     setMessage("");
     if (!selected.length) { setMessage("Coche au moins un fichier à classer."); return; }
-    if (targetType === "ELEVE" && !academicLevelIds.lengths.length) { setMessage("Choisis au moins une classe ou série."); return; }
-    if (targetType === "ETUDIANT" && !academicLevelIds.lengths.length) { setMessage("Choisis le niveau universitaire."); return; }
+    if (targetType === "ELEVE" && !academicLevelIds.length) { setMessage("Choisis au moins une classe ou série."); return; }
+    if (targetType === "ETUDIANT" && !academicLevelIds.length) { setMessage("Choisis le niveau universitaire."); return; }
     if (targetType === "ETUDIANT" && !programId) { setMessage("Choisis la filière des étudiants."); return; }
     setBusy(true);
     try {
