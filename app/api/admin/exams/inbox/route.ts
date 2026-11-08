@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
 import { schoolSubjectNames } from "@/lib/school-subjects";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,7 +49,7 @@ export async function GET() {
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ where: { kind: "FILIERE" }, orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
-  return NextResponse.json({ exams, levels, subjects, schools, programs });
+  return NextResponse.json({ exams, levels: uniqueAcademicLevels(levels), subjects, schools, programs });
 }
 
 export async function POST(request: Request) {
