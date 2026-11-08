@@ -200,7 +200,9 @@ export async function PATCH(request: Request) {
 
   const targetType = body.targetType;
   const category = body.category;
-  const academicLevelId = body.academicLevelId;
+  const academicLevelIds: string[] = targetType === "ELEVE"
+    ? Array.from(new Set(Array.isArray(body.academicLevelIds) ? body.academicLevelIds.filter((id: unknown): id is string => typeof id === "string" && id.length > 0) : typeof body.academicLevelId === "string" && body.academicLevelId ? [body.academicLevelId] : []))
+    : typeof body.academicLevelId === "string" && body.academicLevelId ? [body.academicLevelId] : [];
   const programId = typeof body.programId === "string" && body.programId ? body.programId : null;
   const subjectId = typeof body.subjectId === "string" && body.subjectId ? body.subjectId : null;
   const schoolId = typeof body.schoolId === "string" && body.schoolId ? body.schoolId : null;
@@ -212,19 +214,19 @@ export async function PATCH(request: Request) {
   if (typeof category !== "string" || !categoriesForTarget.includes(category)) {
     return NextResponse.json({ error: "Choisis une catégorie valide." }, { status: 400 });
   }
-  if (typeof academicLevelId !== "string" || !academicLevelId) return NextResponse.json({ error: "Choisis une classe ou un niveau." }, { status: 400 });
+  if (!academicLevelIds.length || academicLevelIds.length > 30) return NextResponse.json({ error: "Choisis entre 1 et 30 classes ou un niveau universitaire." }, { status: 400 });
   if (targetType === "ETUDIANT" && !programId) return NextResponse.json({ error: "Choisis la filière des étudiants." }, { status: 400 });
   if (year !== null && (!Number.isInteger(year) || year < 1900 || year > 2100)) return NextResponse.json({ error: "Année invalide." }, { status: 400 });
   if (!["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
 
-  const [level, exams] = await Promise.all([
-    prisma.academicLevel.findUnique({ where: { id: academicLevelId }, select: { id: true, name: true, kind: true } }),
+  const [selectedLevels, exams] = await Promise.all([
+    prisma.academicLevel.findMany({ where: { id: { in: academicLevelIds } }, select: { id: true, name: true, kind: true } }),
     prisma.exam.findMany({ where: { id: { in: body.ids }, category: "A_CLASSER", status: "DRAFT" }, select: { id: true } }),
   ]);
-  if (!level) return NextResponse.json({ error: "Niveau introuvable." }, { status: 400 });
+  if (selectedLevels.length !== academicLevelIds.length) return NextResponse.json({ error: "Une des classes sélectionnées est introuvable." }, { status: 400 });
   if (exams.length !== body.ids.length) return NextResponse.json({ error: "Un ou plusieurs fichiers ne sont plus dans la bibliothèque à classer. Actualise la page." }, { status: 409 });
-  if (targetType === "ELEVE" && level.kind === "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau scolaire pour les élèves." }, { status: 400 });
-  if (targetType === "ETUDIANT" && level.kind !== "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau universitaire pour les étudiants." }, { status: 400 });
+  if (targetType === "ELEVE" && selectedLevels.some((level) => level.kind === "UNIVERSITAIRE")) return NextResponse.json({ error: "Choisis un niveau scolaire pour les élèves." }, { status: 400 });
+  if (targetType === "ETUDIANT" && selectedLevels[0].kind !== "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau universitaire pour les étudiants." }, { status: 400 });
 
   const config = await prisma.classExamConfig.findUnique({ where: { academicLevelId } });
   if (category === "EXERCICE" && config?.exercisesEnabled === false) return NextResponse.json({ error: "Les exercices sont désactivés pour ce niveau." }, { status: 400 });
@@ -239,7 +241,8 @@ export async function PATCH(request: Request) {
       where: { id },
       data: {
         category,
-        academicLevelId,
+        academicLevelId: academicLevelIds[0],
+        ...(targetType === "ELEVE" ? { academicLevels: { create: academicLevelIds.map((academicLevelId) => ({ academicLevelId })) } } : {}),
         subjectId,
         schoolId,
         programId: targetType === "ETUDIANT" ? programId : null,
@@ -248,7 +251,7 @@ export async function PATCH(request: Request) {
       },
     })));
     await prisma.auditLog.create({
-      data: { actorId: admin.id, action: "EXAM_INBOX_CLASSIFIED", entity: "Exam", metadata: { count: body.ids.length, category, academicLevelId, status } },
+      data: { actorId: admin.id, action: "EXAM_INBOX_CLASSIFIED", entity: "Exam", metadata: { count: body.ids.length, category, academicLevelIds, status } },
     });
     return NextResponse.json({ ok: true, count: body.ids.length });
   } catch {
