@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdmin } from "@/lib/authorization";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import { requireSuperAdmin } from "@/lib/authorization";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 const levelSchema = z.object({
   id: z.string().uuid().optional().nullable(),
