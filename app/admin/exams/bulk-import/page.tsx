@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import BulkImportForm from "./bulk-import-form";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import BulkImportForm from "./bulk-import-form";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
