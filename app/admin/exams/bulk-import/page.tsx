@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import BulkImportForm from "./bulk-import-form";
+import BulkImportForm from "./bulk-import-form";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -14,5 +14,5 @@ export default async function BulkImportPage() {
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
-  return <BulkImportForm levels={levels} subjects={subjects} schools={schools} programs={programs} />;
+  return <BulkImportForm levels={uniqueAcademicLevels(levels)} subjects={subjects} schools={schools} programs={programs} />;
 }
