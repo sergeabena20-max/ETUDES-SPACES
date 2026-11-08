@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdmin } from "@/lib/authorization";
+import { requireSuperAdmin } from "@/lib/authorization";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 const levelSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -34,7 +34,7 @@ export async function GET() {
     }),
   ]);
 
-  return NextResponse.json({ levels, programs });
+  return NextResponse.json({ levels: uniqueAcademicLevels(levels), programs });
 }
 
 export async function POST(request: Request) {
