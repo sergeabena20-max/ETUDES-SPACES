@@ -88,7 +88,8 @@ export const getCurrentUser = cache(async function getCurrentUser() {
       await prisma.session.deleteMany({
         where: { userId: session.userId, tokenHash: hashToken(token) },
       });
-      store.delete(COOKIE);
+      // Server Components may read cookies but cannot modify them.
+      // The heartbeat Route Handler clears the browser cookie when it detects an expired session.
       return null;
     }
 
