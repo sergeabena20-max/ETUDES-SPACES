@@ -9,14 +9,11 @@ export async function GET(request: Request) {
   const kind = params.get("kind");
   const programId = params.get("programId");
 
-  // Garantit que Tle TI apparaît à l'inscription même si le seed initial
-  // n'a pas encore été exécuté sur la base de production.
+  // Garantit le catalogue scolaire canonique même si le seed n'a pas été exécuté.
   if (kind === "SCOLAIRE") {
-    await prisma.academicLevel.upsert({
-      where: { name: "Tle TI" },
-      update: { kind: "SCOLAIRE" },
-      create: { name: "Tle TI", kind: "SCOLAIRE" },
-    });
+    await Promise.all(["2nde TI", "1ère TI", "Tle TI"].map((name) => prisma.academicLevel.upsert({
+      where: { name }, update: { kind: "SCOLAIRE" }, create: { name, kind: "SCOLAIRE" },
+    })));
   }
   const rawLevels = await prisma.academicLevel.findMany({
     where: {
@@ -38,7 +35,7 @@ export async function GET(request: Request) {
     if (!current || (candidateCanonical && !currentCanonical)) byLabel.set(key, level);
   }
 
-  const classOrder = ["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "1ère A", "1ère C", "1ère D", "Tle A", "Tle C", "Tle D", "Tle TI"];
+  const classOrder = ["6e", "5e", "4e", "3e", "2nde A", "2nde C", "2nde D", "2nde TI", "1ère A", "1ère C", "1ère D", "1ère TI", "Tle A", "Tle C", "Tle D", "Tle TI"];
   const levels = Array.from(byLabel.values())
     .map((level) => ({ ...level, label: formatAcademicLevelName(level.name) }))
     .sort((a, b) => {
