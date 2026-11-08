@@ -5,6 +5,7 @@ import { getSiteNotice, shouldShowNotice } from "@/lib/site-notice";
 import SiteNoticeBubble from "@/components/site-notice-bubble";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import SessionHeartbeat from "@/components/session-heartbeat";
+import LogoutReminder from "@/components/logout-reminder";
 import ReportProblem from "@/components/report-problem";
 import { prisma } from "@/lib/prisma";
 
@@ -36,7 +37,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="fr">
       <body>
         {showNotice && notice && <SiteNoticeBubble notice={{ type: notice.type, title: notice.title, message: notice.message }} />}
-        {user && <SessionHeartbeat />}
+        {user && <>
+          <LogoutReminder />
+          <SessionHeartbeat />
+        </>}
         {children}
         <ReportProblem />
         <PwaInstallPrompt enabled={installSetting?.enabled !== false && installSetting?.value === "true"} />
