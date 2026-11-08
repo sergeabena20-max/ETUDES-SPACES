@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [adminNotice,setAdminNotice]=useState("");
   const [adminLoginRequired,setAdminLoginRequired]=useState(false);
   const [loading,setLoading]=useState(false);
+  const [sessionConflict,setSessionConflict]=useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("reason") === "admin-session-required") {
@@ -23,15 +24,16 @@ export default function LoginPage() {
       window.history.replaceState({}, "", "/login");
     }
   }, []);
-  async function submit(e:FormEvent<HTMLFormElement>) {
+  async function submit(e:FormEvent<HTMLFormElement>, takeOverSession = false) {
     e.preventDefault();
     setError("");
+    setSessionConflict(false);
     setLoading(true);
     try {
       const data=Object.fromEntries(new FormData(e.currentTarget));
-      const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+      const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data, ...(takeOverSession ? {takeOverSession:true} : {})})});
       const j=await r.json();
-      if(!r.ok){setError(j.error||"Connexion impossible.");return;}
+      if(!r.ok){setError(j.error||"Connexion impossible.");if(j.code==="SESSION_ALREADY_ACTIVE")setSessionConflict(true);return;}
       const isAdmin = j.userType === "ADMIN" || j.userType === "SUPER_ADMIN";
       router.push(j.mustChangePassword ? "/change-password" : adminLoginRequired && isAdmin ? "/admin" : "/dashboard");
     } catch {
@@ -55,6 +57,7 @@ export default function LoginPage() {
         {adminNotice&&<p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm leading-6 text-amber-900">{adminNotice}</p>}
         {success&&<p className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {sessionConflict&&<div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3"><p className="text-sm leading-5 text-amber-900">Une ancienne session bloque cette connexion. Si tu veux utiliser ce compte sur cet appareil, tu peux fermer l’autre session et continuer ici.</p><button type="button" disabled={loading} onClick={(e)=>{const form=e.currentTarget.form;if(form)void submit({preventDefault:()=>{},currentTarget:form} as FormEvent<HTMLFormElement>,true);}} className="w-full rounded-lg bg-amber-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60">{loading?"Reconnexion…":"Déconnecter l’autre session et continuer"}</button></div>}
         <button disabled={loading} className="w-full rounded-lg bg-[#4c1d95] p-3.5 font-bold text-white hover:bg-[#5b21b6] disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
       </form>
       <p className="mt-6 text-sm text-slate-500">Pas encore de compte ? <Link href="/register" className="font-bold text-[#4c1d95]">Créer un compte</Link></p>
