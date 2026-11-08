@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import QuizzesManager from "./quizzes-manager";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import QuizzesManager from "./quizzes-manager";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
