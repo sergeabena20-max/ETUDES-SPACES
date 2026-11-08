@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import ExamInboxManager from "./exam-inbox-manager";
+import ExamInboxManager from "./exam-inbox-manager";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,6 @@ export default async function ExamInboxPage() {
     prisma.school.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.program.findMany({ where: { kind: "FILIERE" }, orderBy: { name: "asc" }, select: { id: true, name: true, kind: true } }),
   ]);
-  const serializableExams = initialExams.map((exam) => ({ ...exam, createdAt: exam.createdAt.toISOString() }));
-  return <ExamInboxManager initialExams={serializableExams} levels={levels} subjects={subjects} schools={schools} programs={programs} />;
+  const canonicalLevels = uniqueAcademicLevels(levels);\n  const serializableExams = initialExams.map((exam) => ({ ...exam, createdAt: exam.createdAt.toISOString() }));
+  return <ExamInboxManager initialExams={serializableExams} levels={canonicalLevels} subjects={subjects} schools={schools} programs={programs} />;
 }
