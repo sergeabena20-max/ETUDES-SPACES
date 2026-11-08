@@ -228,13 +228,20 @@ export async function PATCH(request: Request) {
   if (targetType === "ELEVE" && selectedLevels.some((level) => level.kind === "UNIVERSITAIRE")) return NextResponse.json({ error: "Choisis un niveau scolaire pour les élèves." }, { status: 400 });
   if (targetType === "ETUDIANT" && selectedLevels[0].kind !== "UNIVERSITAIRE") return NextResponse.json({ error: "Choisis un niveau universitaire pour les étudiants." }, { status: 400 });
 
-  const config = await prisma.classExamConfig.findUnique({ where: { academicLevelId } });
-  if (category === "EXERCICE" && config?.exercisesEnabled === false) return NextResponse.json({ error: "Les exercices sont désactivés pour ce niveau." }, { status: 400 });
-  if (category === "CONTROLE_CONTINU" && config?.continuousAssessmentEnabled === false) return NextResponse.json({ error: "Le contrôle continu est désactivé." }, { status: 400 });
-  if (category === "SESSION_NORMALE" && config?.normalSessionEnabled === false) return NextResponse.json({ error: "La session normale est désactivée." }, { status: 400 });
-  if (category === "SIMULATION_BTS_DUT" && (!/^niv(?:eau)?\s*2$/i.test(level.name) || config?.btsDutExamEnabled !== true)) return NextResponse.json({ error: "La simulation BTS/DUT doit être activée pour le Niveau 2." }, { status: 400 });
-  if (category === "ANCIEN_SUJET" && (!config?.isExamClass || config.pastExamsEnabled !== true)) return NextResponse.json({ error: "Les anciens sujets ne sont pas activés pour cette classe." }, { status: 400 });
-  if (category === "EXAMEN_BLANC" && (!config?.isExamClass || config.mockExamsEnabled !== true)) return NextResponse.json({ error: "Les examens blancs ne sont pas activés pour cette classe." }, { status: 400 });
+  const configs = await prisma.classExamConfig.findMany({
+    where: { academicLevelId: { in: academicLevelIds } },
+  });
+  const configByLevel = new Map(configs.map((config) => [config.academicLevelId, config]));
+
+  for (const level of selectedLevels) {
+    const config = configByLevel.get(level.id);
+    if (category === "EXERCICE" && config?.exercisesEnabled === false) return NextResponse.json({ error: `Les exercices sont désactivés pour le niveau ${level.name}.` }, { status: 400 });
+    if (category === "CONTROLE_CONTINU" && config?.continuousAssessmentEnabled === false) return NextResponse.json({ error: `Le contrôle continu est désactivé pour le niveau ${level.name}.` }, { status: 400 });
+    if (category === "SESSION_NORMALE" && config?.normalSessionEnabled === false) return NextResponse.json({ error: `La session normale est désactivée pour le niveau ${level.name}.` }, { status: 400 });
+    if (category === "SIMULATION_BTS_DUT" && (!/^niv(?:eau)?\\s*2$/i.test(level.name) || config?.btsDutExamEnabled !== true)) return NextResponse.json({ error: "La simulation BTS/DUT doit être activée pour le Niveau 2." }, { status: 400 });
+    if (category === "ANCIEN_SUJET" && (!config?.isExamClass || config.pastExamsEnabled !== true)) return NextResponse.json({ error: `Les anciens sujets ne sont pas activés pour ${level.name}.` }, { status: 400 });
+    if (category === "EXAMEN_BLANC" && (!config?.isExamClass || config.mockExamsEnabled !== true)) return NextResponse.json({ error: `Les examens blancs ne sont pas activés pour ${level.name}.` }, { status: 400 });
+  }
 
   try {
     await prisma.$transaction(body.ids.map((id: string) => prisma.exam.update({
