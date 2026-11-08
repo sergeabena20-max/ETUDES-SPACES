@@ -6,12 +6,12 @@ export function formatAcademicLevelName(name: string | null | undefined): string
   const aliases: Record<string, string> = {
     PA: "1ère A", PC: "1ère C", PD: "1ère D",
     TA: "Tle A", TC: "Tle C", TD: "Tle D", TTI: "Tle TI", TERMINALETI: "Tle TI",
-    "2NDEA": "2nde A", "2NDEC": "2nde C", "2NDED": "2nde D",
-    "1EREA": "1ère A", "1EREC": "1ère C", "1ERED": "1ère D",
-    "1ÈREA": "1ère A", "1ÈREC": "1ère C", "1ÈRED": "1ère D",
+    "2NDEA": "2nde A", "2NDEC": "2nde C", "2NDED": "2nde D", "2NDETI": "2nde TI",
+    "1EREA": "1ère A", "1EREC": "1ère C", "1ERED": "1ère D", "1ERETI": "1ère TI",
+    "1ÈREA": "1ère A", "1ÈREC": "1ère C", "1ÈRED": "1ère D", "1ÈRETI": "1ère TI",
     TERMINALEA: "Tle A", TERMINALEC: "Tle C", TERMINALED: "Tle D",
-    SECONDEA: "2nde A", SECONDEC: "2nde C", SECONDED: "2nde D",
-    PREMIEREA: "1ère A", PREMIEREC: "1ère C", PREMIERED: "1ère D",
+    SECONDEA: "2nde A", SECONDEC: "2nde C", SECONDED: "2nde D", SECONDETI: "2nde TI",
+    PREMIEREA: "1ère A", PREMIEREC: "1ère C", PREMIERED: "1ère D", PREMIERETI: "1ère TI",
   };
   if (aliases[compact]) return aliases[compact];
   return value
