@@ -52,7 +52,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   const [solutionFiles, setSolutionFiles] = useState<File[]>([]);
   const [solutionExamIds, setSolutionExamIds] = useState<Record<number, string>>({});
   const [targetType, setTargetType] = useState<Target>("ELEVE");
-  const [academicLevelId, setAcademicLevelId] = useState("");
+  const [academicLevelIds, setAcademicLevelIds] = useState<string[]>([]);
   const [category, setCategory] = useState("EXERCICE");
   const [subjectId, setSubjectId] = useState("");
   const [schoolId, setSchoolId] = useState("");
@@ -66,13 +66,14 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   const visibleLevels = useMemo(() => levels.filter((level) => targetType === "ELEVE"
     ? level.kind !== "UNIVERSITAIRE" && !["Licence 1", "Licence 2", "Licence 3"].includes(level.name)
     : level.kind === "UNIVERSITAIRE" || ["Licence 1", "Licence 2", "Licence 3"].includes(level.name)), [levels, targetType]);
-  const selectedLevel = levels.find((level) => level.id === academicLevelId);
+  const selectedLevels = levels.filter((level) => academicLevelIds.includes(level.id));
+  const selectedLevel = selectedLevels[0];
   const visibleSubjects = useMemo(() => targetType === "ETUDIANT" ? subjects : selectedLevel ? subjects.filter((subject) => getSchoolSubjectNames(selectedLevel.name).includes(subject.name)) : [], [targetType, selectedLevel, subjects]);
   const visibleExams = useMemo(() => exams.filter((exam) => exam.title.toLowerCase().includes(search.toLowerCase())), [exams, search]);
 
   function changeTarget(value: Target) {
     setTargetType(value);
-    setAcademicLevelId("");
+    setAcademicLevelIds([]);
     setProgramId("");
     setCategory("EXERCICE");
   }
@@ -237,7 +238,8 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
   async function classify() {
     setMessage("");
     if (!selected.length) { setMessage("Coche au moins un fichier à classer."); return; }
-    if (!academicLevelId) { setMessage("Choisis la classe ou le niveau universitaire."); return; }
+    if (targetType === "ELEVE" && !academicLevelIds.length) { setMessage("Choisis au moins une classe ou série."); return; }
+    if (targetType === "ETUDIANT" && !academicLevelIds.length) { setMessage("Choisis le niveau universitaire."); return; }
     if (targetType === "ETUDIANT" && !programId) { setMessage("Choisis la filière des étudiants."); return; }
     setBusy(true);
     try {
@@ -245,7 +247,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ids: selected, targetType, academicLevelId, category, subjectId, schoolId, programId,
+          ids: selected, targetType, academicLevelIds, academicLevelId: academicLevelIds[0] || "", category, subjectId, schoolId, programId,
           year: year || null, status,
         }),
       });
@@ -303,7 +305,7 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="text-sm font-semibold">Public<select value={targetType} onChange={(event) => changeTarget(event.target.value as Target)} className="mt-1.5 w-full rounded-xl border p-3"><option value="ELEVE">Élève</option><option value="ETUDIANT">Étudiant</option></select></label>
-          <label className="text-sm font-semibold">{targetType === "ELEVE" ? "Classe / série" : "Niveau universitaire"}<select value={academicLevelId} onChange={(event) => { setAcademicLevelId(event.target.value); setSubjectId(""); }} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{visibleLevels.map((item) => <option key={item.id} value={item.id}>{formatAcademicLevelName(item.name)}</option>)}</select></label>
+          {targetType === "ELEVE" ? <div className="text-sm font-semibold sm:col-span-2"><div className="mb-2 flex items-center justify-between"><span>Classes / séries concernées</span><span className="text-xs font-normal text-slate-500">{academicLevelIds.length} sélectionnée(s)</span></div><div className="max-h-48 overflow-y-auto rounded-xl border p-3"><div className="grid gap-2 sm:grid-cols-2">{visibleLevels.map((item) => <label key={item.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-violet-50"><input type="checkbox" checked={academicLevelIds.includes(item.id)} onChange={(event) => { setAcademicLevelIds((current) => event.target.checked ? [...current, item.id] : current.filter((id) => id !== item.id)); setSubjectId(""); }} className="h-4 w-4 accent-violet-600"/><span>{formatAcademicLevelName(item.name)}</span></label>)}</div></div><p className="mt-1 text-xs font-normal text-slate-500">Coche toutes les classes concernées. L’épreuve et sa correction seront accessibles dans chacune, sans créer de doublon.</p></div> : <label className="text-sm font-semibold">Niveau universitaire<select value={academicLevelIds[0] || ""} onChange={(event) => { setAcademicLevelIds(event.target.value ? [event.target.value] : []); setSubjectId(""); }} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{visibleLevels.map((item) => <option key={item.id} value={item.id}>{formatAcademicLevelName(item.name)}</option>)}</select></label>}
           <label className="text-sm font-semibold">Rubrique<select value={category} onChange={(event) => setCategory(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3">{categories[targetType].map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
           {targetType === "ETUDIANT" && <label className="text-sm font-semibold">Filière<select value={programId} onChange={(event) => setProgramId(event.target.value)} className="mt-1.5 w-full rounded-xl border p-3"><option value="">Sélectionner</option>{programs.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
           <label className="text-sm font-semibold">Matière<select value={subjectId} onChange={(event) => setSubjectId(event.target.value)} disabled={targetType === "ELEVE" && !academicLevelId} className="mt-1.5 w-full rounded-xl border p-3 disabled:bg-slate-100"><option value="">{targetType === "ELEVE" && !academicLevelId ? "Choisis d’abord une classe / série" : "Non précisée"}</option>{visibleSubjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><span className="mt-1 block text-xs font-normal text-slate-500">{targetType === "ELEVE" && selectedLevel ? visibleSubjects.length + " matières pour " + selectedLevel.name : "Choisis la classe pour afficher son programme."}</span></label>
