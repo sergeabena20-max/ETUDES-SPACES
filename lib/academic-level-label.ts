@@ -25,3 +25,16 @@ export function academicLevelLabelKey(name: string | null | undefined): string {
 export function toStoredAcademicLevelName(name: string): string {
   return name.replace(/^2nde(?=\s|$)/i, "Seconde").replace(/^1ère(?=\s|$)/i, "Première").replace(/^Tle(?=\s|$)/i, "Terminale");
 }
+
+/** Retire les variantes historiques qui affichent la même classe dans les listes. */
+export function uniqueAcademicLevels<T extends { id: string; name: string }>(levels: T[]): T[] {
+  const unique = new Map<string, T>();
+  for (const level of levels) {
+    const key = academicLevelLabelKey(level.name);
+    const current = unique.get(key);
+    const isCanonical = level.name.trim() === formatAcademicLevelName(level.name);
+    const currentIsCanonical = current ? current.name.trim() === formatAcademicLevelName(current.name) : false;
+    if (!current || (isCanonical && !currentIsCanonical)) unique.set(key, level);
+  }
+  return Array.from(unique.values());
+}
