@@ -35,7 +35,8 @@ export default async function ExamsPage({ searchParams }: Props) {
       redirect(`/exams?level=${user.academicLevel.id}`);
     }
   }
-  const canonicalLevels = uniqueAcademicLevels(allLevels);\n  const levels = canonicalLevels.filter((x) => x.kind === "SCOLAIRE");
+  const canonicalLevels = uniqueAcademicLevels(allLevels);
+  const levels = canonicalLevels.filter((x) => x.kind === "SCOLAIRE");
   const selectedAcademicLevelId = levelId || universityLevelId;
   const selectedLevel = selectedAcademicLevelId ? canonicalLevels.find((x) => x.id === selectedAcademicLevelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
