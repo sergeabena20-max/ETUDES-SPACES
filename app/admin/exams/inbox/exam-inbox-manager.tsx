@@ -211,6 +211,29 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
     }
   }
 
+  async function deleteSelected(ids: string[]) {
+    if (!ids.length) { setMessage("Sélectionne au moins une épreuve à supprimer."); return; }
+    const label = ids.length === 1 ? "cette épreuve" : "ces " + ids.length + " épreuves";
+    if (!window.confirm("Supprimer définitivement " + label + " de la bibliothèque ? Les PDF associés seront également supprimés. Cette action est irréversible.")) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/exams/inbox", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.error || "Suppression impossible.");
+      setMessage(data.count + " épreuve(s) supprimée(s) définitivement de la bibliothèque.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Erreur réseau pendant la suppression.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function classify() {
     setMessage("");
     if (!selected.length) { setMessage("Coche au moins un fichier à classer."); return; }
@@ -292,8 +315,9 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un fichier…" className="w-full rounded-xl border px-4 py-3 text-sm sm:max-w-sm" />
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => setSelected(visibleExams.length && visibleExams.every((exam) => selected.includes(exam.id)) ? selected.filter((id) => !visibleExams.some((exam) => exam.id === id)) : Array.from(new Set([...selected, ...visibleExams.map((exam) => exam.id)])))} className="rounded-xl border px-4 py-2.5 text-sm font-semibold">Sélectionner la liste</button>
+            <button onClick={() => setSelected(visibleExams.length && visibleExams.every((exam) => selected.includes(exam.id)) ? selected.filter((id) => !visibleExams.some((exam) => exam.id === id)) : Array.from(new Set([...selected, ...visibleExams.map((exam) => exam.id)])))} className="rounded-xl border px-4 py-2.5 text-sm font-semibold" disabled={busy}>Sélectionner la liste</button>
             <button onClick={classify} disabled={busy || !selected.length} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50">{busy ? "Enregistrement…" : "Classer la sélection (" + selected.length + ")"}</button>
+            <button onClick={() => deleteSelected(selected)} disabled={busy || !selected.length} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700 disabled:opacity-50">Supprimer la sélection ({selected.length})</button>
           </div>
         </div>
 
@@ -306,7 +330,10 @@ export default function ExamInboxManager({ levels, subjects, schools, programs, 
               <p className="break-words font-semibold text-slate-900">{exam.title}</p>
               <p className="mt-1 text-xs text-slate-500">Ajouté le {new Date(exam.createdAt).toLocaleDateString("fr-FR")}</p>
             </div>
-            {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="shrink-0 rounded-lg border px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-50">Voir le sujet ↗</a>}
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {exam.fileUrl && <a href={exam.fileUrl} target="_blank" rel="noreferrer" className="rounded-lg border px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-50">Voir le sujet ↗</a>}
+              <button type="button" onClick={() => deleteSelected([exam.id])} disabled={busy} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">Supprimer</button>
+            </div>
           </div>) : <p className="px-4 py-12 text-center text-sm text-slate-500">{search ? "Aucun fichier ne correspond à cette recherche." : "La bibliothèque est vide. Ajoute des PDF ci-dessus pour commencer."}</p>}
         </div>
         <p className="mt-3 text-xs text-slate-500">Les épreuves publiées quittent automatiquement cette bibliothèque et rejoignent leur rubrique dans le catalogue.</p>
