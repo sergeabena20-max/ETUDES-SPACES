@@ -75,7 +75,8 @@ export async function GET() {
     },
   });
   const configByLevel = new Map(configs.map((config) => [config.academicLevelId, config]));
-  const canonicalLevels = uniqueAcademicLevels(levels);\n  const examConfigs = canonicalLevels.map((level) => {
+  const canonicalLevels = uniqueAcademicLevels(levels);
+  const examConfigs = canonicalLevels.map((level) => {
     const config = configByLevel.get(level.id);
     return {
       academicLevelId: level.id,
