@@ -75,7 +75,7 @@ export async function GET() {
     },
   });
   const configByLevel = new Map(configs.map((config) => [config.academicLevelId, config]));
-  const examConfigs = levels.map((level) => {
+  const canonicalLevels = uniqueAcademicLevels(levels);\n  const examConfigs = canonicalLevels.map((level) => {
     const config = configByLevel.get(level.id);
     return {
       academicLevelId: level.id,
@@ -90,7 +90,7 @@ export async function GET() {
       btsDutExamEnabled: config?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name)),
     };
   });
-  return NextResponse.json({ exams, subjects, levels: uniqueAcademicLevels(levels), schools, programs, examConfigs: uniqueAcademicLevels(examConfigs) });
+  return NextResponse.json({ exams, subjects, levels: uniqueAcademicLevels(levels), schools, programs, examConfigs });
 }
 
 export async function POST(req: Request) {
