@@ -1,18 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Etudes Space">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Etudes Spaces">
   <defs>
-    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8b5cf6"/>
-      <stop offset="1" stop-color="#4c1d95"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7028df"/>
+      <stop offset="1" stop-color="#321078"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#e8e3ff"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#violet)"/>
-  <circle cx="402" cy="105" r="94" fill="#fff" opacity=".07"/>
-  <circle cx="90" cy="428" r="120" fill="#2e1065" opacity=".14"/>
-  <g fill="#fff">
-    <rect x="118" y="108" width="78" height="296" rx="24"/>
-    <rect x="118" y="108" width="276" height="78" rx="24"/>
-    <rect x="118" y="217" width="220" height="78" rx="24"/>
-    <rect x="118" y="326" width="276" height="78" rx="24"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M0 390C105 330 172 350 265 402S430 463 512 405V512H0Z" fill="#21075e" opacity=".22"/>
+  <g fill="url(#mark)">
+    <path d="M121 105 243 55 355 81 238 133Z"/>
+    <path d="M147 112v62c0 18-9 29-15 35h31c-7-8-16-18-16-35v-62Z"/>
+    <path d="M178 126c51-31 111-35 169-16l-4 31c-57-16-109-11-165 18Z"/>
+    <path d="M178 204c42-28 86-40 145-34h55l-37 47h-38c-42-2-74 8-103 25l-19 80h159l-35 45H122Z"/>
   </g>
-  <path d="M362 217h-24v78h24c22 0 40-18 40-39s-18-39-40-39Z" fill="#ddd6fe"/>
+  <path d="M92 306c39-48 96-75 160-81-70 25-119 66-147 119 111-12 215-52 300-114-16-17-34-28-56-35 44 6 77 23 95 51-93 85-220 139-363 148-19 1-31-20 11-88Z" fill="#fff"/>
+  <text x="256" y="414" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" text-anchor="middle" letter-spacing="-2">Etudes</text>
+  <text x="256" y="458" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="500" text-anchor="middle" letter-spacing="8">SPACES</text>
 </svg>
