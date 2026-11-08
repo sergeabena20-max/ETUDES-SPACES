@@ -83,8 +83,9 @@ export const getCurrentUser = cache(async function getCurrentUser() {
 
     if (!session) return null;
 
-    const inactiveBefore = new Date(Date.now() - 2 * 60 * 1000);
-    if (session.expiresAt < new Date() || session.lastSeenAt <= inactiveBefore || !session.user.isActive) {
+    // A page refresh or a temporarily suspended tab must not invalidate
+    // the browser's own session. The heartbeat will reactivate its timestamp.
+    if (session.expiresAt < new Date() || !session.user.isActive) {
       await prisma.session.deleteMany({
         where: { userId: session.userId, tokenHash: hashToken(token) },
       });
@@ -118,12 +119,12 @@ export async function refreshSession() {
   if (!token) return false;
 
   const now = new Date();
-  const inactiveBefore = new Date(now.getTime() - 2 * 60 * 1000);
+  // If this same browser returns after a refresh, sleep, or brief network loss,
+  // its valid cookie can resume the session instead of being locked out.
   const refreshed = await prisma.session.updateMany({
     where: {
       tokenHash: hashToken(token),
       expiresAt: { gt: now },
-      lastSeenAt: { gt: inactiveBefore },
     },
     data: { lastSeenAt: now },
   });
