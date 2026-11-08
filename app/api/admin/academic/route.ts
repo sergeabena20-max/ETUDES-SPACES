@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdmin } from "@/lib/authorization";
+import { requireSuperAdmin } from "@/lib/authorization";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 const schema = z.object({
   entity: z.enum(["city","school","level","program","subject"]),
@@ -29,7 +29,7 @@ export async function GET() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { users: true, courses: true, exams: true } } } }),
     prisma.subject.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, _count: { select: { courses: true, exams: true } } } }),
   ]);
-  return NextResponse.json({ cities, schools, levels, programs, subjects });
+  return NextResponse.json({ cities, schools, levels: uniqueAcademicLevels(levels), programs, subjects });
 }
 
 export async function POST(req: Request) { return save(req, false); }
