@@ -30,7 +30,9 @@ export default async function AdminExamsPage() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
-  const canonicalLevels = uniqueAcademicLevels(levels);\n\n  // Prisma Decimal n'est pas un type sérialisable comme prop Client Component.
+  const canonicalLevels = uniqueAcademicLevels(levels);
+
+  // Prisma Decimal n'est pas un type sérialisable comme prop Client Component.
   // On convertit uniquement ce champ monétaire avant de le transmettre à ExamsManager.
   const serializableExams = exams.map((exam) => ({
     ...exam,
