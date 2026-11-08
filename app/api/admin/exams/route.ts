@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
 import { schoolSubjectNames } from "@/lib/school-subjects";
+import { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 const schema = z.object({
   id: z.string().uuid().optional(),
@@ -89,7 +90,7 @@ export async function GET() {
       btsDutExamEnabled: config?.btsDutExamEnabled ?? (level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name)),
     };
   });
-  return NextResponse.json({ exams, subjects, levels, schools, programs, examConfigs });
+  return NextResponse.json({ exams, subjects, levels: uniqueAcademicLevels(levels), schools, programs, examConfigs: uniqueAcademicLevels(examConfigs) });
 }
 
 export async function POST(req: Request) {
