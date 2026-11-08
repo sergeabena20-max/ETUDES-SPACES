@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdmin } from "@/lib/authorization";
+import { requireSuperAdmin } from "@/lib/authorization";\nimport { academicLevelLabelKey } from "@/lib/academic-level-label";
 
 const configSchema = z.object({
   academicLevelId: z.string().uuid(),
@@ -32,7 +32,7 @@ export async function GET() {
       examConfig: { select: { exercisesEnabled: true, pastExamsEnabled: true, mockExamsEnabled: true, isExamClass: true, continuousAssessmentEnabled: true, normalSessionEnabled: true, btsDutExamEnabled: true } },
     },
   });
-  return NextResponse.json({ levels: levels.map((level) => ({
+  const seen = new Set<string>();\n  const uniqueLevels = levels.filter((level) => { const key = academicLevelLabelKey(level.name); if (seen.has(key)) return false; seen.add(key); return true; });\n  return NextResponse.json({ levels: uniqueLevels.map((level) => ({
     id: level.id, name: level.name, kind: level.kind,
     exercisesEnabled: level.examConfig?.exercisesEnabled ?? true,
     pastExamsEnabled: level.examConfig?.pastExamsEnabled ?? false,
