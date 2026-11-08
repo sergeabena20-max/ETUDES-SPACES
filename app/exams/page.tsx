@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/lib/session";
 import { getExamAccessMap } from "@/lib/premium";
-import { formatAcademicLevelName } from "@/lib/academic-level-label";
+import { formatAcademicLevelName, uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +35,9 @@ export default async function ExamsPage({ searchParams }: Props) {
       redirect(`/exams?level=${user.academicLevel.id}`);
     }
   }
-  const levels = allLevels.filter((x) => x.kind === "SCOLAIRE");
+  const canonicalLevels = uniqueAcademicLevels(allLevels);\n  const levels = canonicalLevels.filter((x) => x.kind === "SCOLAIRE");
   const selectedAcademicLevelId = levelId || universityLevelId;
-  const selectedLevel = selectedAcademicLevelId ? allLevels.find((x) => x.id === selectedAcademicLevelId) : null;
+  const selectedLevel = selectedAcademicLevelId ? canonicalLevels.find((x) => x.id === selectedAcademicLevelId) : null;
   const selectedProgram = programId ? programs.find((x) => x.id === programId) : null;
   const selectedDepartment = departmentId ? programs.find((x) => x.id === departmentId && x.kind === "DEPARTEMENT") : null;
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
