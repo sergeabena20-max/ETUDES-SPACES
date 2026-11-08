@@ -55,11 +55,18 @@ export async function PUT(request: Request) {
 
   try {
     await prisma.$transaction(async (tx) => {
+      const levelIds = parsed.data.configs.map((config) => config.academicLevelId);
+      const levels = await tx.academicLevel.findMany({
+        where: { id: { in: levelIds } },
+        select: { id: true, name: true, kind: true },
+      });
+      const levelsById = new Map(levels.map((level) => [level.id, level]));
+
       for (const config of parsed.data.configs) {
-        const isExamClass = config.isExamClass;
-        const level = await tx.academicLevel.findUnique({ where: { id: config.academicLevelId }, select: { name: true, kind: true } });
+        const level = levelsById.get(config.academicLevelId);
         if (!level) throw new Error("Niveau scolaire ou universitaire introuvable.");
-        const btsDutAllowed = level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\s*2$/i.test(level.name);
+        const isExamClass = config.isExamClass;
+        const btsDutAllowed = level.kind === "UNIVERSITAIRE" && /^niv(?:eau)?\\s*2$/i.test(level.name);
         await tx.classExamConfig.upsert({
           where: { academicLevelId: config.academicLevelId },
           create: {
@@ -91,7 +98,7 @@ export async function PUT(request: Request) {
           metadata: { count: parsed.data.configs.length },
         },
       });
-    });
+    }, { maxWait: 10000, timeout: 30000 });
     return NextResponse.json({ ok: true, count: parsed.data.configs.length });
   } catch (error) {
     console.error("class_exam_config_update_error", error instanceof Error ? error.message : "unknown");
