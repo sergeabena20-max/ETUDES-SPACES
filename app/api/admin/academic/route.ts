@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/authorization";
-import { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import { uniqueAcademicLevels, academicLevelLabelKey, formatAcademicLevelName } from "@/lib/academic-level-label";
 
 const schema = z.object({
   entity: z.enum(["city","school","level","program","subject"]),
@@ -59,7 +59,12 @@ async function save(req: Request, editing: boolean) {
         : await prisma.school.create({ data: { name, type: type || null, cityId: cityId || null }, select: { id: true } });
       entityId = item.id;
     } else if (entity === "level") {
-      const item = editing ? await prisma.academicLevel.update({ where: { id: id! }, data: { name }, select: { id: true } }) : await prisma.academicLevel.create({ data: { name }, select: { id: true } });
+      const canonicalName = formatAcademicLevelName(name);
+      const existingLevels = await prisma.academicLevel.findMany({ where: id ? { NOT: { id } } : {}, select: { id: true, name: true } });
+      if (existingLevels.some((level) => academicLevelLabelKey(level.name) === academicLevelLabelKey(canonicalName))) {
+        return NextResponse.json({ error: "Cette classe ou ce niveau existe déjà sous un autre format." }, { status: 409 });
+      }
+      const item = editing ? await prisma.academicLevel.update({ where: { id: id! }, data: { name: canonicalName }, select: { id: true } }) : await prisma.academicLevel.create({ data: { name: canonicalName, kind: "SCOLAIRE" }, select: { id: true } });
       entityId = item.id;
     } else if (entity === "program") {
       const item = editing ? await prisma.program.update({ where: { id: id! }, data: { name, kind: kind || null }, select: { id: true } }) : await prisma.program.create({ data: { name, kind: kind || null }, select: { id: true } });
