@@ -26,6 +26,8 @@ export default async function AdminQuizzesPage() {
     prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
+  const canonicalLevels = uniqueAcademicLevels(levels);
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-50/60">
       <div className="pointer-events-none absolute -left-32 top-16 h-80 w-80 rounded-full bg-violet-300/20 blur-3xl animate-float-slow" />
