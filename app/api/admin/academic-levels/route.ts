@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/authorization";
-import { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import { uniqueAcademicLevels, academicLevelLabelKey, formatAcademicLevelName } from "@/lib/academic-level-label";
 
 const levelSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -45,9 +45,10 @@ export async function POST(request: Request) {
   const parsed = levelSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Données invalides." }, { status: 400 });
 
-  const { name, kind, programIds } = parsed.data;
-  const duplicate = await prisma.academicLevel.findUnique({ where: { name }, select: { id: true } });
-  if (duplicate) return NextResponse.json({ error: "Ce niveau existe déjà." }, { status: 409 });
+  const { kind, programIds } = parsed.data;
+  const name = kind === "SCOLAIRE" ? formatAcademicLevelName(parsed.data.name) : parsed.data.name;
+  const existingLevels = await prisma.academicLevel.findMany({ where: { kind }, select: { id: true, name: true } });
+  if (existingLevels.some((level) => academicLevelLabelKey(level.name) === academicLevelLabelKey(name))) return NextResponse.json({ error: "Cette classe ou ce niveau existe déjà sous un autre format." }, { status: 409 });
 
   if (kind === "SCOLAIRE" && programIds.length) {
     return NextResponse.json({ error: "Un niveau scolaire ne peut pas être rattaché à une filière." }, { status: 400 });
@@ -74,9 +75,10 @@ export async function PUT(request: Request) {
   const parsed = levelSchema.extend({ id: z.string().uuid() }).safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Données invalides." }, { status: 400 });
 
-  const { id, name, kind, programIds } = parsed.data;
-  const duplicate = await prisma.academicLevel.findFirst({ where: { name, NOT: { id } }, select: { id: true } });
-  if (duplicate) return NextResponse.json({ error: "Ce niveau existe déjà." }, { status: 409 });
+  const { id, kind, programIds } = parsed.data;
+  const name = kind === "SCOLAIRE" ? formatAcademicLevelName(parsed.data.name) : parsed.data.name;
+  const existingLevels = await prisma.academicLevel.findMany({ where: { kind, NOT: { id } }, select: { id: true, name: true } });
+  if (existingLevels.some((level) => academicLevelLabelKey(level.name) === academicLevelLabelKey(name))) return NextResponse.json({ error: "Cette classe ou ce niveau existe déjà sous un autre format." }, { status: 409 });
   if (kind === "SCOLAIRE" && programIds.length) return NextResponse.json({ error: "Un niveau scolaire ne peut pas être rattaché à une filière." }, { status: 400 });
 
   const existing = await prisma.academicLevel.findUnique({ where: { id }, select: { id: true } });
