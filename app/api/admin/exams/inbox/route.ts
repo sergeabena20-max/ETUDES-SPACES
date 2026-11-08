@@ -255,3 +255,86 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Impossible d'enregistrer le classement des fichiers." }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const admin = await requireAdmin("exams.delete");
+  if (!admin) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
+
+  const body = await request.json().catch(() => null);
+  if (!body || !Array.isArray(body.ids) || body.ids.length < 1 || body.ids.length > 1000 ||
+      body.ids.some((id: unknown) => typeof id !== "string" || !id.trim())) {
+    return NextResponse.json({ error: "Sélection de fichiers invalide. Sélectionne entre 1 et 1 000 épreuves." }, { status: 400 });
+  }
+
+  const ids = [...new Set(body.ids as string[])];
+  if (ids.length !== body.ids.length) {
+    return NextResponse.json({ error: "La sélection contient des doublons. Actualise la bibliothèque puis réessaie." }, { status: 400 });
+  }
+
+  const [supabaseUrl, secretKey] = [process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY];
+  if (!supabaseUrl || !secretKey) {
+    return NextResponse.json({ error: "Le stockage Supabase n'est pas configuré. Suppression annulée." }, { status: 500 });
+  }
+
+  const exams = await prisma.exam.findMany({
+    where: { id: { in: ids }, category: "A_CLASSER", status: "DRAFT" },
+    select: { id: true, fileUrl: true, solution: { select: { fileUrl: true } } },
+  });
+  if (exams.length !== ids.length) {
+    return NextResponse.json({ error: "Certaines épreuves ne sont plus dans la bibliothèque à classer. Actualise la page ; aucune suppression n'a été effectuée." }, { status: 409 });
+  }
+
+  const baseUrl = supabaseUrl.replace(/\/$/, "");
+  const storagePaths = exams.flatMap((exam) => [exam.fileUrl, exam.solution?.fileUrl])
+    .filter((url): url is string => typeof url === "string" && url.length > 0)
+    .map((url) => {
+      try {
+        const pathname = new URL(url).pathname;
+        const marker = "/storage/v1/object/public/exam-files/";
+        if (!pathname.includes(marker)) return null;
+        return pathname.slice(pathname.indexOf(marker) + marker.length)
+          .split("/")
+          .map((part) => decodeURIComponent(part))
+          .join("/");
+      } catch {
+        return null;
+      }
+    })
+    .filter((path): path is string => !!path && !path.includes(".."));
+
+  if (storagePaths.length) {
+    const storageResponse = await fetch(baseUrl + "/storage/v1/object/exam-files", {
+      method: "DELETE",
+      headers: {
+        Authorization: "Bearer " + secretKey,
+        apikey: secretKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prefixes: storagePaths }),
+      cache: "no-store",
+    });
+    if (!storageResponse.ok) {
+      const detail = await storageResponse.text().catch(() => "");
+      return NextResponse.json({
+        error: "Supabase n'a pas pu supprimer les PDF associés. Les épreuves ont été conservées dans la bibliothèque. " + detail.slice(0, 180),
+      }, { status: 502 });
+    }
+  }
+
+  try {
+    await prisma.$transaction([
+      prisma.exam.deleteMany({ where: { id: { in: ids }, category: "A_CLASSER", status: "DRAFT" } }),
+      prisma.auditLog.create({
+        data: {
+          actorId: admin.id,
+          action: "EXAM_INBOX_DELETED",
+          entity: "Exam",
+          metadata: { count: ids.length, examIds: ids },
+        },
+      }),
+    ]);
+    return NextResponse.json({ ok: true, count: ids.length });
+  } catch {
+    return NextResponse.json({ error: "Les PDF ont été retirés du stockage, mais la suppression des entrées a échoué. Contacte l'administrateur technique avant de réessayer." }, { status: 500 });
+  }
+}
