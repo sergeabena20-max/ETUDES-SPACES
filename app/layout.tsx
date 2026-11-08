@@ -11,10 +11,10 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Etudes Space 🇨🇲",
+  title: "Etudes Spaces 🇨🇲",
   description: "Apprendre. S'entraîner. Réussir.",
-  applicationName: "Etudes Space",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Etudes Space" },
+  applicationName: "Etudes Spaces",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Etudes Spaces" },
   formatDetection: { telephone: false },
   icons: {
     icon: [
