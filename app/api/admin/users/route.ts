@@ -55,6 +55,31 @@ export async function PATCH(request: Request) {
   const actor = await requireSuperAdmin();
   if (!actor) return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
   const body = await request.json().catch(() => null);
+  if (body?.action === "SET_ACTIVE") {
+    if (typeof body.id !== "string" || typeof body.isActive !== "boolean") {
+      return NextResponse.json({ error: "Compte ou statut invalide." }, { status: 400 });
+    }
+    if (body.id === actor.id) return NextResponse.json({ error: "Tu ne peux pas désactiver ton propre compte super administrateur." }, { status: 400 });
+    const target = await prisma.user.findUnique({
+      where: { id: body.id }, select: { id: true, type: true, email: true, isActive: true },
+    });
+    if (!target || target.type === "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Utilisateur introuvable ou protégé." }, { status: 404 });
+    }
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({ where: { id: target.id }, data: { isActive: body.isActive } });
+      if (!body.isActive) await tx.session.deleteMany({ where: { userId: target.id } });
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: body.isActive ? "USER_ACTIVATED" : "USER_DEACTIVATED",
+          entity: "User", entityId: target.id,
+          metadata: { email: target.email, previousStatus: target.isActive, isActive: body.isActive },
+        },
+      });
+    });
+    return NextResponse.json({ ok: true, isActive: body.isActive });
+  }
   if (typeof body?.id !== "string" || !["USER", "ADMIN"].includes(body.type)) {
     return NextResponse.json({ error: "Utilisateur ou rôle invalide." }, { status: 400 });
   }
