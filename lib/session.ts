@@ -10,22 +10,27 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, takeOver = false) {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + DAYS * 86400000);
   await prisma.$transaction(async (tx) => {
-    // Expired or inactive sessions do not block a fresh login.
+    // A user may explicitly take over their account after re-entering
+    // the correct password. Otherwise only expired/stale sessions are removed.
     const now = new Date();
     const inactiveBefore = new Date(now.getTime() - 2 * 60 * 1000);
-    await tx.session.deleteMany({
-      where: {
-        userId,
-        OR: [
-          { expiresAt: { lte: now } },
-          { lastSeenAt: { lte: inactiveBefore } },
-        ],
-      },
-    });
+    if (takeOver) {
+      await tx.session.deleteMany({ where: { userId } });
+    } else {
+      await tx.session.deleteMany({
+        where: {
+          userId,
+          OR: [
+            { expiresAt: { lte: now } },
+            { lastSeenAt: { lte: inactiveBefore } },
+          ],
+        },
+      });
+    }
     // The unique Session.userId index rejects any second active login.
     await tx.session.create({
       data: { userId, tokenHash: hashToken(token), expiresAt },
