@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/password-input";
+import LogoutReminder from "@/components/logout-reminder";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function LoginPage() {
       <Link href="/" className="mb-7 inline-flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-[#4c1d95]"><img src="/icons/etudes-space.svg" alt="" className="h-full w-full object-cover" /></span><span className="text-lg font-extrabold tracking-tight text-[#202c38]">Etudes <span className="text-[#4c1d95]">Space</span></span></Link>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#202c38]">Bienvenue de nouveau</h1>
       <p className="mt-2 text-slate-500">Connecte-toi pour retrouver tes cours, tes épreuves et ta progression.</p>
+      <div className="mt-4 -mx-3 sm:-mx-4"><LogoutReminder /></div>
       <form onSubmit={submit} className="mt-7 space-y-4">
         <input name="email" type="email" required placeholder="Adresse e-mail" className="w-full rounded-lg border border-slate-200 bg-white p-3.5 text-sm"/>
         <PasswordInput name="password" required autoComplete="current-password" placeholder="Mot de passe" className="rounded-xl border p-3"/>
