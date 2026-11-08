@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
-import QuizzesManager from "./quizzes-manager";
+import QuizzesManager from "./quizzes-manager";\nimport { uniqueAcademicLevels } from "@/lib/academic-level-label";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export default async function AdminQuizzesPage() {
           <p className="mt-1 text-slate-500">Créez des quiz simples par niveau, matière et filière. Vous pourrez en ajouter progressivement.</p>
         </div>
         <div className="card animate-slide-up stagger-2 p-4 sm:p-6">
-          <QuizzesManager initialQuizzes={quizzes} initialSubjects={subjects} initialLevels={levels} initialPrograms={programs} />
+          <QuizzesManager initialQuizzes={quizzes} initialSubjects={subjects} initialLevels={canonicalLevels} initialPrograms={programs} />
         </div>
       </div>
     </main>
