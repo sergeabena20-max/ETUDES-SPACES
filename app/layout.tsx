@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getCurrentUser } from "@/lib/session";
-import { getSiteNotice, shouldShowNotice } from "@/lib/site-notice";
+import { getSiteNotice, getPwaInstallSetting, shouldShowNotice } from "@/lib/site-notice";
 import SiteNoticeBubble from "@/components/site-notice-bubble";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import SessionHeartbeat from "@/components/session-heartbeat";
 import LogoutReminder from "@/components/logout-reminder";
 import ReportProblem from "@/components/report-problem";
-import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +28,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [notice, user, installSetting] = await Promise.all([
     getSiteNotice(),
     getCurrentUser(),
-    prisma.platformSetting.findUnique({ where: { key: "PWA_INSTALL_PROMPT_ENABLED" }, select: { value: true, enabled: true } }).catch(() => null),
+    getPwaInstallSetting(),
   ]);
   const showNotice = Boolean(notice?.enabled && shouldShowNotice(notice.audience, Boolean(user)));
 
