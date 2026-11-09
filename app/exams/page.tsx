@@ -1,10 +1,34 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/lib/session";
 import { getExamAccessMap } from "@/lib/premium";
 import { formatAcademicLevelName, uniqueAcademicLevels } from "@/lib/academic-level-label";
+
+const getExamCatalog = unstable_cache(
+  async () => Promise.all([
+    prisma.academicLevel.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, kind: true, _count: { select: { examLinks: { where: { exam: { status: "PUBLISHED" } } } } } },
+    }),
+    prisma.program.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true, name: true, kind: true, parentId: true,
+        parent: { select: { id: true, name: true } },
+        programLevels: {
+          orderBy: { order: "asc" },
+          select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } },
+        },
+        _count: { select: { exams: { where: { status: "PUBLISHED" } } } },
+      },
+    }),
+  ]),
+  ["exam-catalog-v1"],
+  { revalidate: 60 },
+);
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +45,9 @@ export default async function ExamsPage({ searchParams }: Props) {
   const category = params.category;
   const subjectId = params.subject;
   const selected = levelId || programId || departmentId;
-  const [user, allLevels, programs] = await Promise.all([
-    getCurrentUser(),
-    prisma.academicLevel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, _count: { select: { examLinks: { where: { exam: { status: "PUBLISHED" } } } } } } }),
-    prisma.program.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kind: true, parentId: true, parent: { select: { id: true, name: true } }, programLevels: { orderBy: { order: "asc" }, select: { academicLevelId: true, academicLevel: { select: { id: true, name: true, kind: true, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } } } }, _count: { select: { exams: { where: { status: "PUBLISHED" } } } } } }),
+  const [[user], [allLevels, programs]] = await Promise.all([
+    Promise.all([getCurrentUser()]),
+    getExamCatalog(),
   ]);
   const browseAll = params.browse === "1";
   if (user && user.type !== "ADMIN" && user.type !== "SUPER_ADMIN" && !browseAll && !levelId && !programId && !departmentId) {
@@ -43,12 +66,14 @@ export default async function ExamsPage({ searchParams }: Props) {
   const selectedDepartment = departmentId ? programs.find((x) => x.id === departmentId && x.kind === "DEPARTEMENT") : null;
   const departmentPrograms = selectedDepartment ? programs.filter((x) => x.kind === "FILIERE" && x.parentId === selectedDepartment.id) : [];
   const universityLevels = selectedProgram ? selectedProgram.programLevels.map((item) => item.academicLevel) : [];
-  const classExamConfig = selectedLevel ? await prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : null;
-  const subjects = (levelId || programId) ? await prisma.subject.findMany({
-    where: { exams: { some: { status: "PUBLISHED", ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}), ...(programId ? { programId } : {}) } } },
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  }) : [];
+  const [classExamConfig, subjects] = await Promise.all([
+    selectedLevel ? prisma.classExamConfig.findUnique({ where: { academicLevelId: selectedLevel.id } }) : Promise.resolve(null),
+    (levelId || programId) ? prisma.subject.findMany({
+      where: { exams: { some: { status: "PUBLISHED", ...(levelId ? { OR: [{ academicLevelId: levelId }, { academicLevels: { some: { academicLevelId: levelId } } }] } : {}), ...(programId ? { programId } : {}) } } },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }) : Promise.resolve([]),
+  ]);
   const isUniversityLevel = selectedLevel?.kind === "UNIVERSITAIRE";
   const isLevelTwo = selectedLevel ? /\bniv(?:eau)?\s*2\b/i.test(selectedLevel.name) : false;
   const categoryOptions = selectedLevel ? (
