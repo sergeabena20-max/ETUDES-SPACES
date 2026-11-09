@@ -3,42 +3,46 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
 import { prisma } from "@/lib/prisma";
-import { canAccessQuiz } from "@/lib/quiz-access";
 import { getGamificationLevel } from "@/lib/gamification";
 
 export default async function Dashboard() {
-  const [user, quizzes] = await Promise.all([
-    getCurrentUser(),
-    prisma.quiz.findMany({
-      where: { status: "PUBLISHED" },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        academicLevelId: true,
-        programId: true,
-        subject: { select: { name: true } },
-        academicLevel: { select: { id: true, name: true } },
-        program: { select: { id: true, name: true } },
-        _count: { select: { questions: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    }),
-  ]);
+  // Authenticate first, then ask the database only for quizzes matching
+  // this learner instead of loading unrelated quizzes and filtering in Node.
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
   if (user.mustChangePassword) redirect("/change-password");
 
-  const pendingAdminIssues = user.type === "ADMIN" || user.type === "SUPER_ADMIN"
-    ? (await prisma.auditLog.findMany({
-        where: { action: "USER_ISSUE_REPORTED", entity: "SUPPORT_REPORT" },
-        select: { metadata: true },
-        take: 100,
-      })).filter((row) => ((row.metadata ?? {}) as unknown as { status?: string }).status !== "RESOLVED").length
-    : 0;
+  const isAdmin = user.type === "ADMIN" || user.type === "SUPER_ADMIN";
+  const quizWhere = {
+    status: "PUBLISHED" as const,
+    AND: [
+      ...(user.academicLevel?.id ? [{ OR: [{ academicLevelId: null }, { academicLevelId: user.academicLevel.id }] }] : []),
+      ...(user.program?.id ? [{ OR: [{ programId: null }, { programId: user.program.id }] }] : []),
+    ],
+  };
+  const [quizzes, pendingIssueRows] = await Promise.all([
+    prisma.quiz.findMany({
+      where: quizWhere,
+      select: {
+        id: true, title: true, slug: true,
+        subject: { select: { name: true } },
+        _count: { select: { questions: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+    isAdmin ? prisma.auditLog.findMany({
+      where: { action: "USER_ISSUE_REPORTED", entity: "SUPPORT_REPORT" },
+      select: { metadata: true },
+      take: 100,
+    }) : Promise.resolve([]),
+  ]);
+  const pendingAdminIssues = pendingIssueRows.filter(
+    (row) => ((row.metadata ?? {}) as unknown as { status?: string }).status !== "RESOLVED",
+  ).length;
 
   // Recommend only published content matching the learner's class or university program.
   const learnerContentFilter = user.academicLevel?.id || user.program?.id
@@ -113,7 +117,7 @@ export default async function Dashboard() {
         ) / 10
       : 0;
 
-  const myQuizzes = quizzes.filter((q) => canAccessQuiz(user, q)).slice(0, 3);
+  const myQuizzes = quizzes;
   const gamificationLevel = gamificationProfile ? await getGamificationLevel(gamificationProfile.points) : null;
 
   return (
