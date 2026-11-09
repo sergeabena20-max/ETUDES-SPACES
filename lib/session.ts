@@ -110,11 +110,14 @@ export async function destroySession() {
   const store = await cookies();
   const token = store.get(COOKIE)?.value;
 
-  if (token) {
-    await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } });
+  try {
+    if (token) {
+      await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } });
+    }
+  } finally {
+    // Clear the browser cookie even if the database is temporarily unavailable.
+    store.delete(COOKIE);
   }
-
-  store.delete(COOKIE);
 }
 
 /** Refreshes an active browser session. Sessions without a heartbeat for 2 minutes expire. */
