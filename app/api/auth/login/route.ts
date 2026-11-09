@@ -9,7 +9,16 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "Adresse e-mail ou mot de passe invalide." }, { status: 400 });
-    const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email },
+      select: {
+        id: true,
+        passwordHash: true,
+        isActive: true,
+        mustChangePassword: true,
+        type: true,
+      },
+    });
     if (!user || !user.isActive || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
       return NextResponse.json({ error: "Adresse e-mail ou mot de passe incorrect." }, { status: 401 });
     }
