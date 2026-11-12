@@ -148,6 +148,45 @@ async function save(req: Request, editing: boolean) {
   if (editing && !data.id) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 400 });
 
   try {
+    // Prevent creating a second record for the same exam. Classes are deliberately
+    // excluded from this identity check: add another class by editing the existing exam.
+    const normalizeExamTitle = (value: string) =>
+      value.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("fr").replace(/[^a-z0-9]+/g, " ").trim();
+    const possibleDuplicates = await prisma.exam.findMany({
+      where: {
+        ...(editing ? { id: { not: data.id! } } : {}),
+        year: data.year ?? null,
+        category: data.category || null,
+        subjectId: data.subjectId || null,
+        schoolId: data.schoolId || null,
+        programId: data.targetType === "ETUDIANT" ? (data.programId || null) : null,
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        academicLevels: { select: { academicLevel: { select: { name: true } } } },
+        academicLevel: { select: { name: true } },
+      },
+      take: 100,
+    });
+    const duplicate = possibleDuplicates.find((candidate) =>
+      normalizeExamTitle(candidate.title) === normalizeExamTitle(data.title)
+    );
+    if (duplicate) {
+      const duplicateClasses = duplicate.academicLevels.map((item) => item.academicLevel.name);
+      if (!duplicateClasses.length && duplicate.academicLevel?.name) duplicateClasses.push(duplicate.academicLevel.name);
+      return NextResponse.json({
+        error: "Une épreuve portant le même titre, la même matière, la même rubrique et la même année existe déjà. Modifie la fiche existante pour ajouter ou retirer les classes concernées.",
+        duplicate: {
+          id: duplicate.id,
+          title: duplicate.title,
+          slug: duplicate.slug,
+          classes: duplicateClasses,
+        },
+      }, { status: 409 });
+    }
+
     const existingExam = editing
       ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, academicLevelId: true, academicLevels: { select: { academicLevelId: true } } } })
       : null;
