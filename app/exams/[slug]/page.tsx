@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { hasExamAccess } from "@/lib/premium";
 import ExamActions from "./exam-actions";
+import OfflineDocumentButton from "@/components/offline-document-button";
 import { formatAcademicLevelName } from "@/lib/academic-level-label";
 import { examMatchesUserProfile, getCrossProfileExamPrice } from "@/lib/cross-profile-exam";
 
@@ -114,6 +115,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
           <div className="mt-4 flex flex-wrap gap-3">
             <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl bg-violet-600 px-5 py-3 font-bold text-white shadow-lg shadow-violet-600/20">Télécharger le sujet PDF →</a>
             <a href={"/api/exams/" + exam.id + "/download"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger le sujet ↓</a>
+            <OfflineDocumentButton url={"/api/exams/" + exam.id + "/download"} />
           </div>
         ) : <p className="mt-3 text-sm text-slate-500">Le document du sujet sera ajouté prochainement.</p>}
       </div>}
@@ -124,6 +126,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
         {exam.solution?.fileUrl ? <div className="mt-4 flex flex-wrap gap-3">
           <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border px-5 py-3 font-bold">Télécharger la correction PDF →</a>
           <a href={"/api/exams/" + exam.id + "/download?kind=solution"} className="rounded-xl border border-violet-200 bg-violet-50 px-5 py-3 font-bold text-violet-700">Télécharger la correction ↓</a>
+          <OfflineDocumentButton url={"/api/exams/" + exam.id + "/download?kind=solution"} label="Enregistrer la correction hors connexion" />
         </div> : null}
         {!exam.solution?.text && !exam.solution?.fileUrl && <p className="mt-3 text-sm text-slate-500">La correction de cette épreuve n'est pas encore disponible.</p>}
       </div>}
