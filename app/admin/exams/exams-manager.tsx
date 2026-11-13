@@ -56,16 +56,32 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkPublishing, setBulkPublishing] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [targetFilter, setTargetFilter] = useState("ALL");
+  const [classFilter, setClassFilter] = useState("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [message, setMessage] = useState("");
   const [duplicateExamId, setDuplicateExamId] = useState<string | null>(null);
   const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);
   const schoolLevels = useMemo(() => levels.filter((o) => o.kind !== "UNIVERSITAIRE" && !["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
   const universityLevels = useMemo(() => levels.filter((o) => o.kind === "UNIVERSITAIRE" || ["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
 
+  const classOptions = useMemo(() => Array.from(new Set(exams.flatMap((exam) => {
+    const names = (exam.academicLevels || []).map((item) => item.academicLevel.name);
+    if (!names.length && exam.academicLevel?.name && !exam.programId) names.push(exam.academicLevel.name);
+    return names;
+  }))).sort((a, b) => a.localeCompare(b, "fr")), [exams]);
+  const categoryOptions = useMemo(() => Array.from(new Set(exams.map((exam) => exam.category).filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b, "fr")), [exams]);
+
   const filtered = useMemo(() => exams.filter((e) => {
-    const haystack = [e.title, e.slug, e.category, e.subject?.name, e.academicLevel?.name, ...(e.academicLevels || []).map((item) => item.academicLevel.name), e.school?.name, e.program?.name].filter(Boolean).join(" ").toLowerCase();
-    return (!filter || haystack.includes(filter.toLowerCase())) && (statusFilter === "ALL" || e.status === statusFilter);
-  }), [exams, filter, statusFilter]);
+    const examClasses = (e.academicLevels || []).map((item) => item.academicLevel.name);
+    if (!examClasses.length && e.academicLevel?.name && !e.programId) examClasses.push(e.academicLevel.name);
+    const haystack = [e.title, e.slug, e.category, e.subject?.name, e.academicLevel?.name, ...examClasses, e.school?.name, e.program?.name].filter(Boolean).join(" ").toLowerCase();
+    return (!filter || haystack.includes(filter.toLowerCase()))
+      && (statusFilter === "ALL" || e.status === statusFilter)
+      && (targetFilter === "ALL" || (targetFilter === "ETUDIANT" ? Boolean(e.programId) : !e.programId))
+      && (classFilter === "ALL" || examClasses.includes(classFilter))
+      && (categoryFilter === "ALL" || e.category === categoryFilter);
+  }), [exams, filter, statusFilter, targetFilter, classFilter, categoryFilter]);
 
   async function refresh() {
     const res = await fetch("/api/admin/exams", { cache: "no-store" });
@@ -210,11 +226,14 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
   return <div>
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 gap-2">
-        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Rechercher une épreuve..." className="w-full rounded-xl border px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-violet-200" />
+      <div className="grid flex-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Rechercher titre, matière, année..." className="min-w-0 rounded-xl border px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-violet-200" />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-xl border px-3 py-2 text-sm">
-          <option value="ALL">Tous</option><option value="DRAFT">Brouillons</option><option value="PUBLISHED">Publiées</option><option value="ARCHIVED">Archivées</option>
+          <option value="ALL">Tous les statuts</option><option value="DRAFT">Brouillons</option><option value="PUBLISHED">Publiées</option><option value="ARCHIVED">Archivées</option>
         </select>
+        <select value={targetFilter} onChange={(e) => setTargetFilter(e.target.value)} className="rounded-xl border px-3 py-2 text-sm"><option value="ALL">Tous les publics</option><option value="ELEVE">Élèves</option><option value="ETUDIANT">Étudiants</option></select>
+        <select value={classFilter} onChange={(e) => setClassFilter(e.target.value)} className="rounded-xl border px-3 py-2 text-sm"><option value="ALL">Toutes les classes</option>{classOptions.map((name) => <option key={name} value={name}>{formatAcademicLevelName(name)}</option>)}</select>
+        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="rounded-xl border px-3 py-2 text-sm sm:col-span-2 xl:col-span-1"><option value="ALL">Toutes les rubriques</option>{categoryOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select>
       </div>
       <div className="flex flex-wrap gap-2"><button onClick={publishSelected} disabled={bulkPublishing || selectedIds.length < 6} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{bulkPublishing ? "Publication…" : `Publier la sélection (${selectedIds.length}) · min. 6`}</button><button onClick={startNew} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">+ Nouvelle épreuve</button></div>
     </div>
