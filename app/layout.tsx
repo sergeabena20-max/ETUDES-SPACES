@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/session";
 import { getSiteNotice, getPwaInstallSetting, shouldShowNotice } from "@/lib/site-notice";
 import SiteNoticeBubble from "@/components/site-notice-bubble";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
+import PwaServiceWorker from "@/components/pwa-service-worker";
 import SessionHeartbeat from "@/components/session-heartbeat";
 import LogoutReminder from "@/components/logout-reminder";
 import ReportProblem from "@/components/report-problem";
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="fr">
       <body>
+        <PwaServiceWorker />
         {showNotice && notice && <SiteNoticeBubble notice={{ type: notice.type, title: notice.title, message: notice.message }} />}
         {user && <>
           <LogoutReminder />
