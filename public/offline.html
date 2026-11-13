@@ -4,12 +4,50 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4b16a8">
-  <title>Hors connexion — Études Space</title>
+  <title>Mes épreuves hors connexion — Études Space</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#f8f7ff;color:#241447;font-family:system-ui,-apple-system,sans-serif}
-    main{max-width:440px;text-align:center;background:#fff;border:1px solid #e9e2f5;border-radius:24px;padding:36px;box-shadow:0 18px 50px #32107812}
-    img{width:76px;height:76px}h1{font-size:25px;margin:20px 0 10px}p{color:#625b70;line-height:1.6}button{margin-top:16px;border:0;border-radius:12px;background:#4b16a8;color:#fff;padding:13px 20px;font-weight:700;cursor:pointer}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px 16px;background:#f8f7ff;color:#241447;font-family:system-ui,-apple-system,sans-serif}
+    main{max-width:760px;margin:0 auto}.head,.doc{background:#fff;border:1px solid #e9e2f5;border-radius:20px;padding:22px;box-shadow:0 12px 36px #3210780c}
+    .brand{display:flex;align-items:center;gap:12px}.brand img{width:42px;height:42px}h1{font-size:26px;margin:18px 0 8px}p{color:#625b70;line-height:1.6}.limit{display:inline-block;margin-top:8px;border-radius:999px;background:#f0eaff;color:#4b16a8;padding:7px 12px;font-size:13px;font-weight:800}
+    #documents{display:grid;gap:12px;margin-top:18px}.doc{display:flex;align-items:center;justify-content:space-between;gap:14px}.doc strong{display:block;overflow-wrap:anywhere}.actions{display:flex;gap:8px;flex-shrink:0}
+    a,button{border:0;border-radius:11px;padding:10px 13px;font-weight:750;text-decoration:none;cursor:pointer;font-size:13px}.open{background:#4b16a8;color:#fff}.delete{background:#f3f0f8;color:#514663}.empty{padding:24px;text-align:center;background:#fff;border:1px dashed #cfc2e5;border-radius:18px;color:#625b70}
+    .foot{margin-top:20px;text-align:center} .foot button{background:#eee8fa;color:#4b16a8}
+    @media(max-width:560px){.doc{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions a,.actions button{flex:1;text-align:center}}
   </style>
 </head>
-<body><main><img src="/icons/etudes-space.svg" alt=""><h1>Tu es hors connexion</h1><p>Vérifie ta connexion Internet. Les documents PDF enregistrés sur cet appareil restent accessibles depuis Études Space.</p><button onclick="location.reload()">Réessayer</button></main></body>
-</html>
+<body><main>
+  <section class="head">
+    <div class="brand"><img src="/icons/etudes-space.svg" alt=""><strong>Études Space</strong></div>
+    <h1>Mes épreuves hors connexion</h1>
+    <p>Tu n'es actuellement pas connecté à Internet. Depuis cette page, tu peux ouvrir uniquement les sujets et corrections que tu as enregistrés auparavant sur cet appareil.</p>
+    <p>Les autres pages d'Études Space nécessitent une connexion Internet. Les documents enregistrés restent sur cet appareil et ne consomment pas ton espace de stockage Supabase.</p>
+    <span class="limit">Limite : 20 fichiers PDF par appareil</span>
+  </section>
+  <section id="documents" aria-live="polite"><div class="empty">Chargement de tes documents…</div></section>
+  <div class="foot"><button onclick="location.reload()">Réessayer la connexion</button><p>Pour libérer de l'espace, supprime les documents que tu n'utilises plus.</p></div>
+</main>
+<script>
+(async function(){
+ const root=document.getElementById("documents");
+ try{
+  if(!("caches" in window)){root.innerHTML='<div class="empty">Le stockage hors connexion n’est pas pris en charge par ce navigateur.</div>';return;}
+  const cache=await caches.open("etudes-space-documents-v1");
+  const keys=await cache.keys();
+  if(!keys.length){root.innerHTML='<div class="empty">Aucun document enregistré pour le moment.<br>Reconnecte-toi, ouvre une épreuve et appuie sur « Enregistrer hors connexion ».</div>';return;}
+  root.innerHTML="";
+  for(const request of keys){
+   const response=await cache.match(request);
+   const disposition=response && response.headers.get("content-disposition") || "";
+   const filename=(disposition.match(/filename\*?=(?:UTF-8''|["']?)([^;"']+)/i)||[])[1];
+   const name=filename?decodeURIComponent(filename.replace(/["']/g,"")):("Document enregistré · "+new URL(request.url).pathname.split("/").filter(Boolean).slice(-2,-1)[0]);
+   const card=document.createElement("article");card.className="doc";
+   const info=document.createElement("div");const title=document.createElement("strong");title.textContent=name;const sub=document.createElement("small");sub.textContent="Disponible sur cet appareil";sub.style.color="#756d82";info.append(title,sub);
+   const actions=document.createElement("div");actions.className="actions";
+   const open=document.createElement("a");open.className="open";open.href=request.url;open.textContent="Ouvrir le PDF";open.target="_blank";open.rel="noopener";
+   const del=document.createElement("button");del.className="delete";del.textContent="Supprimer";del.onclick=async()=>{await cache.delete(request);card.remove();if(!root.children.length)root.innerHTML='<div class="empty">Tous tes documents ont été supprimés.</div>';};
+   actions.append(open,del);card.append(info,actions);root.append(card);
+  }
+ }catch(e){root.innerHTML='<div class="empty">Impossible de lire les documents enregistrés sur cet appareil.</div>';}
+})();
+</script>
+</body></html>
