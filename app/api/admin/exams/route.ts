@@ -151,7 +151,7 @@ async function save(req: Request, editing: boolean) {
     // Prevent creating a second record for the same exam. Classes are deliberately
     // excluded from this identity check: add another class by editing the existing exam.
     const normalizeExamTitle = (value: string) =>
-      value.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("fr").replace(/[^a-z0-9]+/g, " ").trim();
+      value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").replace(/[^a-z0-9]+/g, " ").trim();
     const possibleDuplicates = await prisma.exam.findMany({
       where: {
         ...(editing ? { id: { not: data.id! } } : {}),
