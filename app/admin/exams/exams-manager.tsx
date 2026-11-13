@@ -57,6 +57,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   const [bulkPublishing, setBulkPublishing] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
+  const [duplicateExamId, setDuplicateExamId] = useState<string | null>(null);
   const [uploading, setUploading] = useState<"exam" | "solution" | null>(null);
   const schoolLevels = useMemo(() => levels.filter((o) => o.kind !== "UNIVERSITAIRE" && !["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
   const universityLevels = useMemo(() => levels.filter((o) => o.kind === "UNIVERSITAIRE" || ["Licence 1", "Licence 2", "Licence 3"].includes(o.name)), [levels]);
@@ -97,8 +98,24 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
   }
 
   function edit(e: Exam) {
+    setDuplicateExamId(null);
     setForm(toForm(e)); setMessage(""); setOpen(true);
     void fetch("/api/admin/exams", { cache: "no-store" }).then(async (res) => { const data = await res.json(); if (res.ok) { setExamConfigs(data.examConfigs || []); setSubjects(data.subjects || []); setLevels(data.levels || []); setSchools(data.schools || []); setPrograms((data.programs || []).filter((o: Option) => o.kind === "FILIERE")); } }).catch(() => {});
+  }
+
+  async function editDuplicateExam() {
+    if (!duplicateExamId) return;
+    let duplicate = exams.find((exam) => exam.id === duplicateExamId);
+    if (!duplicate) {
+      const res = await fetch("/api/admin/exams", { cache: "no-store" });
+      const data = await res.json();
+      if (res.ok) {
+        setExams(data.exams || []);
+        duplicate = (data.exams || []).find((exam: Exam) => exam.id === duplicateExamId);
+      }
+    }
+    if (duplicate) edit(duplicate);
+    else setMessage("L’épreuve existe, mais elle n’apparaît pas dans la liste chargée. Actualise la page puis recherche son titre.");
   }
 
   async function uploadPdf(file: File, target: "exam" | "solution") {
@@ -124,6 +141,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
 
   async function save() {
     setMessage("");
+    setDuplicateExamId(null);
     const payload = {
       ...form,
       year: form.year ? Number(form.year) : null,
@@ -144,7 +162,11 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
       body: JSON.stringify(payload),
     });
     const data = await res.json();
-    if (!res.ok) { setMessage(data.error || "Une erreur est survenue."); return; }
+    if (!res.ok) {
+      if (res.status === 409 && data.duplicate?.id) setDuplicateExamId(data.duplicate.id);
+      setMessage(data.error || "Une erreur est survenue.");
+      return;
+    }
     setMessage("Épreuve unique enregistrée et associée à " + (data.count || 1) + " classe(s)."); await refresh(); setOpen(false);
   }
 
@@ -197,7 +219,7 @@ export default function ExamsManager({ initialExams, initialSubjects, initialLev
       <div className="flex flex-wrap gap-2"><button onClick={publishSelected} disabled={bulkPublishing || selectedIds.length < 6} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{bulkPublishing ? "Publication…" : `Publier la sélection (${selectedIds.length}) · min. 6`}</button><button onClick={startNew} className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white">+ Nouvelle épreuve</button></div>
     </div>
 
-    {message && <p className="mb-4 rounded-xl bg-violet-50 px-4 py-3 text-sm text-violet-800">{message}</p>}
+    {message && <div className="mb-4 rounded-xl bg-violet-50 px-4 py-3 text-sm text-violet-800"><p>{message}</p>{duplicateExamId && <button type="button" onClick={() => void editDuplicateExam()} className="mt-2 rounded-lg border border-violet-300 bg-white px-3 py-2 font-semibold text-violet-700 hover:bg-violet-100">Ouvrir l’épreuve existante pour la modifier</button>}</div>}
 
     {open && <section className="mb-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
       <div className="flex items-center justify-between"><h2 className="text-xl font-bold">{form.id ? "Modifier l’épreuve" : "Nouvelle épreuve"}</h2><button onClick={() => setOpen(false)} className="text-sm text-slate-500">Fermer</button></div>
