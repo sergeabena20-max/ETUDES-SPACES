@@ -1,6 +1,7 @@
 const CACHE_VERSION = "etudes-space-v1";
 const APP_CACHE = `${CACHE_VERSION}-app`;
 const PDF_CACHE = `${CACHE_VERSION}-pdf`;
+const DOCUMENT_CACHE = "etudes-space-documents-v1";
 const APP_FILES = ["/offline.html", "/icons/etudes-space.svg"];
 
 self.addEventListener("install", (event) => {
@@ -43,6 +44,14 @@ self.addEventListener("fetch", (event) => {
 
   if (request.destination === "document" && url.origin === self.location.origin) {
     event.respondWith(fetch(request).catch(async () => (await caches.match(request)) || (await caches.match("/offline.html"))));
+    return;
+  }
+
+  if (url.origin === self.location.origin && url.pathname.startsWith("/api/exams/") && url.pathname.endsWith("/download")) {
+    event.respondWith(caches.open(DOCUMENT_CACHE).then(async (cache) => {
+      try { const response = await fetch(request); if (response.ok) await cache.put(request, response.clone()); return response; }
+      catch { const saved = await cache.match(request); return saved || new Response("Document indisponible hors connexion.", { status: 503 }); }
+    }));
     return;
   }
 
