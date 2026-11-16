@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
-import { createSession } from "@/lib/session";
+import { createSession, getBrowserSessionUserId } from "@/lib/session";
 import { loginSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -22,6 +22,16 @@ export async function POST(request: Request) {
     if (!user || !user.isActive || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
       return NextResponse.json({ error: "Adresse e-mail ou mot de passe incorrect." }, { status: 401 });
     }
+    // The session cookie is shared by every tab on this domain. Never let
+    // a login in another tab replace the identity used by an already-open tab.
+    const browserSessionUserId = await getBrowserSessionUserId();
+    if (browserSessionUserId && browserSessionUserId !== user.id) {
+      return NextResponse.json({
+        error: "Un autre compte est déjà connecté dans ce navigateur. Pour garder les deux comptes ouverts sans mélanger les espaces, utilise un autre profil Chrome ou une fenêtre privée.",
+        code: "BROWSER_SESSION_CONFLICT",
+      }, { status: 409 });
+    }
+
     try {
       await createSession(user.id, body?.takeOverSession === true);
     } catch (sessionError) {
