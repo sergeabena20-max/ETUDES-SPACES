@@ -10,6 +10,32 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+
+/**
+ * Returns the account already bound to this browser's shared cookie.
+ * Cookies are shared by every tab on the same origin, so a second account
+ * must never silently replace the first tab's identity.
+ */
+export async function getBrowserSessionUserId() {
+  const store = await cookies();
+  const token = store.get(COOKIE)?.value;
+  if (!token) return null;
+
+  const session = await prisma.session.findUnique({
+    where: { tokenHash: hashToken(token) },
+    select: {
+      userId: true,
+      expiresAt: true,
+      user: { select: { isActive: true } },
+    },
+  });
+
+  if (!session || session.expiresAt <= new Date() || !session.user.isActive) {
+    return null;
+  }
+  return session.userId;
+}
+
 export async function createSession(userId: string, takeOver = false) {
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + DAYS * 86400000);
