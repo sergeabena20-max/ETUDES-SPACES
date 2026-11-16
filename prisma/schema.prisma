@@ -50,6 +50,7 @@ model User {
   program         Program?        @relation(fields: [programId], references: [id])
   isActive        Boolean         @default(true)
   mustChangePassword Boolean      @default(false)
+  pushSubscriptions PushSubscription[]
   sessions        Session[]
   passwordResetTokens PasswordResetToken[]
   passwordResetRequests PasswordResetRequest[]
@@ -617,4 +618,17 @@ enum SiteNoticeAudience {
   BEFORE_LOGIN
   AFTER_LOGIN
   BOTH
+}
+
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId])
 }
