@@ -38,6 +38,14 @@ export default function PushNotificationSettings() {
     setState("busy");
     setMessage("");
     try {
+      if (Notification.permission === "denied") {
+        throw new Error("Les notifications sont bloquées dans les paramètres du navigateur. Autorise-les puis réessaie.");
+      }
+      const permission = Notification.permission === "granted"
+        ? "granted"
+        : await Notification.requestPermission();
+      if (permission !== "granted") throw new Error("Tu n'as pas autorisé les notifications.");
+
       const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
       let subscription = await registration.pushManager.getSubscription();
 
@@ -53,12 +61,6 @@ export default function PushNotificationSettings() {
         setMessage("Les notifications sont désactivées sur cet appareil.");
         return;
       }
-
-      if (Notification.permission === "denied") {
-        throw new Error("Les notifications sont bloquées dans les paramètres du navigateur. Autorise-les puis réessaie.");
-      }
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") throw new Error("Tu n'as pas autorisé les notifications.");
 
       const keyResponse = await fetch("/api/push/subscribe");
       const keyData = await keyResponse.json();
