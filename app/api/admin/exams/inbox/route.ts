@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
 import { schoolSubjectNames } from "@/lib/school-subjects";
 import { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import { notifyStudentsOfPublishedExam } from "@/lib/web-push";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -222,7 +223,7 @@ export async function PATCH(request: Request) {
 
   const [selectedLevels, exams] = await Promise.all([
     prisma.academicLevel.findMany({ where: { id: { in: academicLevelIds } }, select: { id: true, name: true, kind: true } }),
-    prisma.exam.findMany({ where: { id: { in: body.ids }, category: "A_CLASSER", status: "DRAFT" }, select: { id: true } }),
+    prisma.exam.findMany({ where: { id: { in: body.ids }, category: "A_CLASSER", status: "DRAFT" }, select: { id: true, title: true, slug: true } }),
   ]);
   if (selectedLevels.length !== academicLevelIds.length) return NextResponse.json({ error: "Une des classes sélectionnées est introuvable." }, { status: 400 });
   if (exams.length !== body.ids.length) return NextResponse.json({ error: "Un ou plusieurs fichiers ne sont plus dans la bibliothèque à classer. Actualise la page." }, { status: 409 });
@@ -261,6 +262,17 @@ export async function PATCH(request: Request) {
     await prisma.auditLog.create({
       data: { actorId: admin.id, action: "EXAM_INBOX_CLASSIFIED", entity: "Exam", metadata: { count: body.ids.length, category, academicLevelIds, status } },
     });
+
+    // Notify eligible students when imported library files are published directly.
+    if (targetType === "ELEVE" && status === "PUBLISHED") {
+      await Promise.all(exams.map((exam) => notifyStudentsOfPublishedExam({
+        examId: exam.id,
+        title: exam.title,
+        slug: exam.slug,
+        academicLevelIds,
+      })));
+    }
+
     return NextResponse.json({ ok: true, count: body.ids.length });
   } catch {
     return NextResponse.json({ error: "Impossible d'enregistrer le classement des fichiers." }, { status: 500 });
