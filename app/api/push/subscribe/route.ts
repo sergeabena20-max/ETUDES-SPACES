@@ -6,7 +6,22 @@ import { getCurrentUser } from "@/lib/session";
 export const runtime = "nodejs";
 
 const subscriptionSchema = z.object({
-  endpoint: z.string().url().max(2048),
+  endpoint: z.string().url().max(2048).refine((value) => {
+    try {
+      const url = new URL(value);
+      const host = url.hostname.toLowerCase();
+      return url.protocol === "https:" && (
+        host === "fcm.googleapis.com" ||
+        host === "updates.push.services.mozilla.com" ||
+        host.endsWith(".push.services.mozilla.com") ||
+        host === "web.push.apple.com" ||
+        host === "wns.windows.com" ||
+        host.endsWith(".notify.windows.com")
+      );
+    } catch {
+      return false;
+    }
+  }, "Le fournisseur de notifications n'est pas reconnu."),
   keys: z.object({
     p256dh: z.string().min(20).max(200),
     auth: z.string().min(10).max(100),
