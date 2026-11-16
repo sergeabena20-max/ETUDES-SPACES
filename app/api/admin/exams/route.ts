@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/authorization";
 import { schoolSubjectNames } from "@/lib/school-subjects";
 import { uniqueAcademicLevels } from "@/lib/academic-level-label";
+import { notifyStudentsOfPublishedExam } from "@/lib/web-push";
 
 const schema = z.object({
   id: z.string().uuid().optional(),
@@ -188,7 +189,7 @@ async function save(req: Request, editing: boolean) {
     }
 
     const existingExam = editing
-      ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, academicLevelId: true, academicLevels: { select: { academicLevelId: true } } } })
+      ? await prisma.exam.findUnique({ where: { id: data.id! }, select: { id: true, status: true, academicLevelId: true, academicLevels: { select: { academicLevelId: true } } } })
       : null;
     if (editing && !existingExam) return NextResponse.json({ error: "Épreuve introuvable." }, { status: 404 });
 
@@ -245,6 +246,17 @@ async function save(req: Request, editing: boolean) {
         metadata: { title: data.title, status: data.status, year: data.year ?? null, targetType: data.targetType, academicLevelIds: selectedLevelIds, programId: data.programId ?? null },
       },
     });
+
+    const newlyPublished = data.targetType === "ELEVE" && data.status === "PUBLISHED" &&
+      (!editing || existingExam?.status !== "PUBLISHED");
+    if (newlyPublished) {
+      await notifyStudentsOfPublishedExam({
+        examId: saved.id,
+        title: data.title,
+        slug: data.slug,
+        academicLevelIds: selectedLevelIds,
+      });
+    }
 
     return NextResponse.json({ ok: true, id: saved.id, count: data.targetType === "ELEVE" ? selectedLevelIds.length : 1, ids: [saved.id] });
   } catch (error) {
