@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [adminLoginRequired,setAdminLoginRequired]=useState(false);
   const [loading,setLoading]=useState(false);
   const [sessionConflict,setSessionConflict]=useState(false);
+  const [browserConflict,setBrowserConflict]=useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("reason") === "admin-session-required") {
@@ -27,12 +28,13 @@ export default function LoginPage() {
   async function login(form: HTMLFormElement, takeOverSession = false) {
     setError("");
     setSessionConflict(false);
+    setBrowserConflict(false);
     setLoading(true);
     try {
       const data=Object.fromEntries(new FormData(form));
       const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data, ...(takeOverSession ? {takeOverSession:true} : {})})});
       const j=await r.json();
-      if(!r.ok){setError(j.error||"Connexion impossible.");if(j.code==="SESSION_ALREADY_ACTIVE")setSessionConflict(true);return;}
+      if(!r.ok){setError(j.error||"Connexion impossible.");if(j.code==="SESSION_ALREADY_ACTIVE")setSessionConflict(true);if(j.code==="BROWSER_SESSION_CONFLICT")setBrowserConflict(true);return;}
       const isAdmin = j.userType === "ADMIN" || j.userType === "SUPER_ADMIN";
       router.push(j.mustChangePassword ? "/change-password" : adminLoginRequired && isAdmin ? "/admin" : "/dashboard");
     } catch {
@@ -60,6 +62,7 @@ export default function LoginPage() {
         {adminNotice&&<p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm leading-6 text-amber-900">{adminNotice}</p>}
         {success&&<p className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-700">{success}</p>}
         {error&&<p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {browserConflict&&<div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-950"><strong>Protection des comptes activée.</strong><br/>Les onglets d’un même navigateur partagent la connexion. Pour garder Eva et le super administrateur ouverts en même temps, ouvre le deuxième compte dans un autre profil Chrome (icône de profil en haut à droite) ou dans une fenêtre privée. Ne clique pas sur « Déconnecter l’autre session » pour ce cas : cela concerne uniquement une reconnexion du même compte.</div>}
         {sessionConflict&&<div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3"><p className="text-sm leading-5 text-amber-900">Une ancienne session bloque cette connexion. Si tu veux utiliser ce compte sur cet appareil, tu peux fermer l’autre session et continuer ici.</p><button type="button" disabled={loading} onClick={(e)=>{const form=e.currentTarget.form;if(form)void login(form,true);}} className="w-full rounded-lg bg-amber-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60">{loading?"Reconnexion…":"Déconnecter l’autre session et continuer"}</button></div>}
         <button disabled={loading} className="w-full rounded-lg bg-[#4c1d95] p-3.5 font-bold text-white hover:bg-[#5b21b6] disabled:opacity-60">{loading?"Connexion…":"Se connecter →"}</button>
       </form>
